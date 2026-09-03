@@ -1,0 +1,332 @@
+===== ANALYST bigpickle 2026-09-03 17:24:37 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m→ [0mSkill "customize-opencode"
+[0m→ [0mRead inventory/rainbet.md
+[0m→ [0mRead leads/reposcan-rainbet.md
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead probe-results.md
+[0m✱ [0mGlob "**/*.md"[90m 15 matches[0m
+[0m→ [0mRead README.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead triage/run-2026-09-03-16-57.md
+[0m
+[0m$ [0mcurl -sI -m 10 https://api.rainbet.com/ 2>&1 | head -20
+HTTP/2 403 
+date: Thu, 03 Sep 2026 17:13:05 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=bNkfWSbEaczTY6Ci2VNZzfdTm4DAxrFE5ue8EeCZt_Q-1788455585.2329314-1.0.1.1-zquy0CaTbz0yp3xsRGw4_rPUmS1EkWZfhoyLy0V70RC3fKkd3qGkmfo36npFXPVPV3moVFox21uVsKxD9jaJ6Nf6eXcrATbXQZ3fsfQ.wfCWmI3OKyOABSx7EJGa0bSj; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 17:43:05 GMT
+server: cloudflare
+cf-ray: a356620fb95c4144-MCI
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mfor h in app.rainbet.com auth.rainbet.com login.rainbet.com www.rainbet.com rainbet.com admin.rainbet.com dashboard.rainbet.com sso.rainbet.com web.rainbet.com m.rainbet.com my.rainbet.com portal.rainbet.com billing.rainbet.com account.rainbet.com support.rainbet.com staging.rainbet.com test.rainbet.com dev.rainbet.com mail.rainbet.com; do echo "=== $h ===" && curl -sI -m 8 "https://$h/" 2>&1 | head -8 && echo; done
+=== app.rainbet.com ===
+
+=== auth.rainbet.com ===
+
+=== login.rainbet.com ===
+
+=== www.rainbet.com ===
+HTTP/2 403 
+date: Thu, 03 Sep 2026 17:13:08 GMT
+content-type: text/html; charset=UTF-8
+content-length: 110298
+accept-ch: Sec-CH-UA-Bitness, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List, Sec-CH-UA-Platform, Sec-CH-UA, UA-Bitness, UA-Arch, UA-Full-Version, UA-Mobile, UA-Model, UA-Platform-Version, UA-Platform, UA
+cf-mitigated: challenge
+x-frame-options: SAMEORIGIN
+server: cloudflare
+
+=== rainbet.com ===
+HTTP/2 403 
+date: Thu, 03 Sep 2026 17:13:08 GMT
+content-type: text/html; charset=UTF-8
+content-length: 110294
+accept-ch: Sec-CH-UA-Bitness, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform-Version, Sec-CH-UA-Full-Version-List, Sec-CH-UA-Platform, Sec-CH-UA, UA-Bitness, UA-Arch, UA-Full-Version, UA-Mobile, UA-Model, UA-Platform-Version, UA-Platform, UA
+cf-mitigated: challenge
+x-frame-options: SAMEORIGIN
+server: cloudflare
+
+=== admin.rainbet.com ===
+
+=== dashboard.rainbet.com ===
+
+=== sso.rainbet.com ===
+
+=== web.rainbet.com ===
+
+=== m.rainbet.com ===
+
+=== my.rainbet.com ===
+
+=== portal.rainbet.com ===
+
+=== billing.rainbet.com ===
+
+=== account.rainbet.com ===
+
+=== support.rainbet.com ===
+
+=== staging.rainbet.com ===
+HTTP/2 302 
+date: Thu, 03 Sep 2026 17:13:09 GMT
+content-type: text/html; charset=UTF-8
+content-length: 143
+location: https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvIiwic2VydmljZV90b2tlbl9zdGF0dXMiOmZhbHNlLCJpc193YXJwIjpmYWxzZSwiaXNfZ2F0ZXdheSI6ZmFsc2UsImV4cCI6MTc4ODQ1NTg4OSwibmJmIjoxNzg4NDU1NTg5LCJpYXQiOjE3ODg0NTU1ODksImF1dGhfc3RhdHVzIjoiTk9ORSIsIm10bHNfYXV0aCI6eyJjZXJ0X2lzc3Vlcl9kbiI6IiIsImNlcnRfc2VyaWFsIjoiIiwiY2VydF9pc3N1ZXJfc2tpIjoiIiwiY2VydF9wcmVzZW50ZWQiOmZhbHNlLCJjb21tb25fbmFtZSI6IiIsImF1dGhfc3RhdHVzIjoiTk9ORSJ9LCJyZWFsX2NvdW50cnkiOiJVUyIsImFwcF9zZXNzaW9uX2hhc2giOiJlN2E5MzI2ZjM0ODE5YjZkNGY4Yjg4MzEwMjQxZWYyZThiNTkxOGM1MWNhMmM4MDc5YzI4NWZiNDUyMTg5MGQ4In0.W-SZjRqY1ES0zRS4xg7QoveC69zeftIVbrhiKvLqhtrUL6U4CZ3VzHsnZtCDt0vHP-Lfn6GgShQ6I1dHH2dN9rBTndvT4hR-FPXywjhwew74BDkrUjO6pAKWwNqykWvsipupzLx8rIHMgk8A2ZZa8PVoV2yQCU-mzlHkL5ke1_0keqh4yy9JeGf_2Nco4NYSxKhudZ_RcjO86Sd8nKZE1NymM-JkywO7XGErlWdm8PxWlAm2Bl9j1z3A7iKDMfJuFT8Xja-na9Halb4_5qJD04z2R2Ix9aU4gnjyxZpI0gCMCUYV2CogaCByxCB5jW0WOX0gzCvsOK46r1SVe1srOw&redirect_url=%2F
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+www-authenticate: Cloudflare-Access resource_metadata="https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/"
+access-control-allow-credentials: true
+
+=== test.rainbet.com ===
+
+=== dev.rainbet.com ===
+
+=== mail.rainbet.com ===
+[0m
+[0m$ [0mfor h in api.rainbet.com staging.rainbet.com; do echo "=== $h ===" && curl -skI -m 8 "https://$h/" 2>&1 | head -15 && echo "---" && curl -sk -m 8 "https://$h/" 2>&1 | head -50 && echo; done
+=== api.rainbet.com ===
+HTTP/2 403 
+date: Thu, 03 Sep 2026 17:13:11 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=BLdza0xEZ4myqaJP4SxLzLjmbNdZ3PzhBLOdTgWhNPI-1788455591.8219526-1.0.1.1-Dr7tomabP23nAW68x4JlwVGtxsF1_j4s56irCpTycGuKfDcKZwP7BKoUX08O6w8F18APyyi5_DNJ.QXXsEDOhweGLBUtW2eiPnT0OUP0FWZcfJWFgajcwil2jFYY3krN; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 17:43:11 GMT
+server: cloudflare
+cf-ray: a3566238dcba39cf-YYZ
+alt-svc: h3=":443"; ma=86400
+
+---
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en-US"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en-US"> <!--<![endif]-->
+<head>
+<title>Attention Required! | Cloudflare</title>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" id="cf_styles-css" href="/cdn-cgi/styles/cf.errors.css" />
+<!--[if lt IE 9]><link rel="stylesheet" id='cf_styles-ie-css' href="/cdn-cgi/styles/cf.errors.ie.css" /><![endif]-->
+<style>body{margin:0;padding:0}</style>
+
+
+<!--[if gte IE 10]><!-->
+<script>
+  if (!navigator.cookieEnabled) {
+    window.addEventListener('DOMContentLoaded', function () {
+      var cookieEl = document.getElementById('cookie-alert');
+      cookieEl.style.display = 'block';
+    })
+  }
+</script>
+<!--<![endif]-->
+
+</head>
+<body>
+  <div id="cf-wrapper">
+    <div class="cf-alert cf-alert-error cf-cookie-error" id="cookie-alert" data-translate="enable_cookies">Please enable cookies.</div>
+    <div id="cf-error-details" class="cf-error-details-wrapper">
+      <div class="cf-wrapper cf-header cf-error-overview">
+        <h1 data-translate="block_headline">Sorry, you have been blocked</h1>
+        <h2 class="cf-subheadline"><span data-translate="unable_to_access">You are unable to access</span> rainbet.com</h2>
+      </div><!-- /.header -->
+
+      <div class="cf-section cf-highlight">
+        <div class="cf-wrapper">
+          <div class="cf-screenshot-container cf-screenshot-full">
+            
+              <span class="cf-no-screenshot error"></span>
+            
+          </div>
+        </div>
+      </div><!-- /.captcha-container -->
+
+      <div class="cf-section cf-wrapper">
+        <div class="cf-columns two">
+
+=== staging.rainbet.com ===
+HTTP/2 302 
+date: Thu, 03 Sep 2026 17:13:12 GMT
+content-type: text/html; charset=UTF-8
+content-length: 143
+location: https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvIiwic2VydmljZV90b2tlbl9zdGF0dXMiOmZhbHNlLCJpc193YXJwIjpmYWxzZSwiaXNfZ2F0ZXdheSI6ZmFsc2UsImV4cCI6MTc4ODQ1NTg5MiwibmJmIjoxNzg4NDU1NTkyLCJpYXQiOjE3ODg0NTU1OTIsImF1dGhfc3RhdHVzIjoiTk9ORSIsIm10bHNfYXV0aCI6eyJjZXJ0X2lzc3Vlcl9kbiI6IiIsImNlcnRfc2VyaWFsIjoiIiwiY2VydF9pc3N1ZXJfc2tpIjoiIiwiY2VydF9wcmVzZW50ZWQiOmZhbHNlLCJjb21tb25fbmFtZSI6IiIsImF1dGhfc3RhdHVzIjoiTk9ORSJ9LCJyZWFsX2NvdW50cnkiOiJVUyIsImFwcF9zZXNzaW9uX2hhc2giOiJhMDIzYzA5ZmU1NWRlNTZlMTRmMDZhNmRmMzY3ZDU3MjgxNGFlOTc3YzE1ZTdmMGMwMWQ5ZWRlMjcyYTMyZTkwIn0.J4gA9VFcWqj-QnMSLS4ZoAO0kwHiOxfVrG6jQdAiQHVrsXg7mJvx-mbzjUmYHCscjpoUjEAgiz1wW1mUKjsbh5lVTMxqJ1I7RES0VYKlhCYtRYmbcFT4zGEGuDO1YjdKivLDMpQbJ3Ff9Y8kfT7-vY_4cy5J7cP7-NG0xRPfiH8P0PRTeo_FLcln3aP5gRMDKD_rEzbr1isq9he9HHNLhPO9uyLSeQT8cJ-sQyGQiw87T_cku7GXc6Qw4Yhzh-IRe30BEu2xgQK5WMYLRRjRCMpQbAQ_Mt4-Xv-qdM0pFlr8hNK6KBc8ZlipD8mCxP_1TTFoOMbhb7gpzeaTprseMg&redirect_url=%2F
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+www-authenticate: Cloudflare-Access resource_metadata="https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/"
+access-control-allow-credentials: true
+set-cookie: CF_AppSession=584602d16acdd60f; Expires=Fri, 04 Sep 2026 17:13:12 GMT; Path=/; Secure; HttpOnly
+set-cookie: __cf_bm=DLCBTQBI0HXO2tOnZpkTZnmTAEc8pDYSIhbmVKXlFfc-1788455592.0458648-1.0.1.1-INo8bPl0lryHgj8aEz0zx9bPQCA6MS6HYJ8xpvDga4MdEMCcg8N5_QoGPGatJuzMU2Oi10SmP7HW7LcYwmI5Vf61jWXXXz0q6TowLEm94oLJWWrH0XJ_b.ALbH9IGQh6; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 17:43:12 GMT
+server: cloudflare
+cf-ray: a356623a4cd7b32d-MSP
+alt-svc: h3=":443"; ma=86400
+
+---
+<html>
+<head><title>302 Found</title></head>
+<body>
+<center><h1>302 Found</h1></center>
+<hr><center>cloudflare</center>
+</body>
+</html>
+[0m
+[0m$ [0mfor p in / /v1 /v2 /v3 /api /docs /swagger /swagger.json /openapi.json /graphql /graphql/ /health /status /info /version /.well-known/openid-configuration /api-docs /redoc; do code=$(curl -sk -o /dev/null -w '%{http_code}' -m 5 "https://api.rainbet.com$p"); echo "$code $p"; done
+403 /
+403 /v1
+403 /v2
+403 /v3
+403 /api
+403 /docs
+403 /swagger
+403 /swagger.json
+403 /openapi.json
+403 /graphql
+403 /graphql/
+403 /health
+403 /status
+403 /info
+403 /version
+403 /.well-known/openid-configuration
+403 /api-docs
+403 /redoc
+[0m
+[0m$ [0mcurl -sk -m 10 "https://www.rainbet.com/" 2>&1 | head -100
+...output truncated...
+
+Full output saved to: /home/runner/.local/share/opencode/tool-output/tool_06842beee0013b5ph1kDnFDL5Z
+
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(data:font/woff2;base64,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) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+
+		<style>
+			body {
+				font-family: 'Montserrat', sans-serif;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 1.4;
+				background: #111631;
+				margin: 0;
+				color: #5E679E;
+				display: flex;
+			}
+
+			.container {
+				margin: 150px auto 0px auto;
+			}
+
+			.logo {
+				display: flex;
+				justify-content: center;
+			}
+
+			.logo svg {
+				display: inline-block;
+				height: 44px;
+				width: auto;
+			}
+
+			.message {
+				text-align: center;
+				margin-top: 50px;
+			}
+
+			.message h1 {
+				display: none;
+			}
+
+			.message h2 {
+				font-size: 16px;
+				color: #ffffff;
+				margin: 0px auto 20px auto;
+				font-weight: inherit;
+[0m
+Now I have enough data. Let me produce the structured output.
+
+---
+
+## STEP 1 — DELTA
+
+[NEW] Live HTTP probing completed — 3 of 20 hosts respond: `api.rainbet.com` (403 CF block), `www.rainbet.com` / `rainbet.com` (403 CF challenge), `staging.rainbet.com` (302 → Cloudflare Access login). 17 hosts return no response (DNS dead or no HTTP).
+[NEW] `staging.rainbet.com` sits behind **Cloudflare Access** (identity-aware proxy) — JWT in redirect URL reveals `kid`, `hostname`, `is_wrap:false`, `is_gateway:false`, Cloudflare team domain `challenge-5te-pages.cloudflareaccess.com`.
+[CHANGED] `api.rainbet.com` returns 403 with full Cloudflare block page (not challenge) — WAF rule active. Sets `__cf_bm` bot-management cookie on `.rainbet.com`.
+
+## STEP 2 — PRIORITIZE
+
+| [PRIO] | Asset | Score | Attack Surface | Business Value | Tech Exposure | Gate Ease | Cloud Surface | Freshness |
+|---|---|---|---|---|---|---|---|---|
+| 1 | staging.rainbet.com | 7.8 | 6 | 9 | 8 (CF Access JWT) | 2 (CF Access auth wall) | 7 (CF Access) | 9 |
+| 2 | api.rainbet.com | 7.3 | 8 | 9 | 7 (API surface) | 3 (CF WAF 403) | 6 (CF) | 9 |
+| 3 | www.rainbet.com | 4.8 | 4 | 7 | 3 | 4 (CF challenge) | 5 | 9 |
+
+## STEP 3 — HYPOTHESES
+
+[HYP] staging Cloudflare Access JWT parsing weakness
+class: AUTH
+asset: staging.rainbet.com
+confidence: 45
+reasoning: CF Access redirect embeds a JWT with kid `0732f2a68167feac18f36e1c562e1585711e00ac69761bba0ee64ab3400ca722`, hostname `staging.rainbet.com`, auth_status `NONE`, is_wrap=false, is_gateway=false. If the JWKS endpoint is public or the signing key is weak/reused, JWT forgery could bypass Access. Cloudflare Access JWTs use RS256 — weak if key rotation is stale. The `redirect_url` is `/` (open redirect potential via CF Access login flow with controlled `redirect_url` param).
+evidence_needed: (1) Confirm JWKS endpoint public at `https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/certs`; (2) test redirect_url parameter manipulation on the CF Access login URL; (3) confirm whether Access policy allows any email domain.
+verify_steps: GET `https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/` — check exposed metadata. GET the JWKS endpoint from the Access domain. Check `redirect_url` manipulation (e.g., `redirect_url=https://evil.com`) on the login redirect.
+impact: Full bypass of CF Access → staging app compromise. Severity: HIGH (if JWT weakness confirmed).
+testability: PASSIVE
+
+[HYP] api.rainbet.com path traversal behind CF WAF
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 42
+reasoning: All paths return identical 403 — likely a blanket CF WAF block rule, not origin-level 403. If CF WAF rules can be bypassed (via path encoding, double-encoding, HTTP/2 smuggling, or Host header manipulation), the origin API may be directly accessible. The `cf-mitigated` header is absent on api.rainbet.com (present on www) — suggesting different CF configurations per subdomain. API may use different origin server.
+evidence_needed: (1) Test WAF bypass techniques: path normalization (`/%2e%2e/`, `..%2f`, `..%5c`), HTTP method variation (POST vs GET), Content-Type manipulation, Host header spoofing, HTTP/1.0 vs HTTP/2. (2) Check if certain paths are whitelisted (e.g., `/.well-known/`, `/robots.txt`, `/sitemap.xml`, `/favicon.ico`). (3) Check if POST to common API endpoints returns different status.
+verify_steps: GET `https://api.rainbet.com/.well-known/security.txt`, GET `https://api.rainbet.com/robots.txt`, OPTIONS `https://api.rainbet.com/v1/auth`, POST with JSON to `https://api.rainbet.com/v1/auth/login`.
+impact: Direct API access bypassing WAF → full API surface exposure. Severity: HIGH (if WAF bypass succeeds).
+testability: PASSIVE
+
+[HYP] www.rainbet.com OAuth/SSO redirect parameter injection
+class: OATH
+asset: www.rainbet.com
+confidence: 40
+reasoning: CF challenge page blocks automated access but the underlying app likely has OAuth login flow (crypto casino). The existence of `auth.rainbet.com`, `sso.rainbet.com`, `login.rainbet.com` (all currently dead) suggests a SSO architecture. If `www.rainbet.com` has OAuth callback endpoints or redirect_uri parameters, they may be exploitable. The CF challenge page is a standard managed challenge — solvable with browser-level access.
+evidence_needed: (1) Access www.rainbet.com with browser to identify OAuth endpoints. (2) Check for `redirect_uri`, `callback`, `return_to`, `next` parameters in any login flow. (3) Enumerate OAuth providers.
+verify_steps: GET `https://www.rainbet.com/` with browser UA to see if challenge resolves. Look for login page and OAuth buttons. Check `https://www.rainbet.com/auth/callback`, `https://www.rainbet.com/login`.
+impact: OAuth redirect hijack → account takeover. Severity: HIGH (if redirect_uri validation is weak).
+testability: HUMAN_ONLY
+
+## STEP 4 — SELF-CRITIQUE
+
+[PARKED] www.rainbet.com OAuth redirect: Cannot access app behind CF challenge without browser. Confidence 40 is borderline — parked until browser-assisted probe available. REJECTED class does not apply, but testability HUMAN_ONLY limits automated progress.
+
+[FINAL] Survivors ranked:
+1. staging Cloudflare Access JWT parsing weakness (conf: 45, PASSIVE testable)
+2. api.rainbet.com path traversal behind CF WAF (conf: 42, PASSIVE testable)
+
+## STEP 5 — NEXT ACTION
+
+[NEXT] PROBE: GET `https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/` — retrieve CF Access protected resource metadata (may expose policy details, audience, application domain). Then GET the JWKS endpoint from the CF Access team domain extracted from the JWT.
+
+## STEP 6 — LEADING
+
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: CF block page present but `cf-mitigated` header absent (unlike www.rainbet.com) — different CF WAF configurations per subdomain creates potential inconsistency.
+[LEARN] ACCEPTED AUTH @ staging.rainbet.com: CF Access JWT contains `auth_status: NONE` and `is_wrap: false` — Access policy may be permissive or misconfigured.
+[LEARN] REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked.
+
+## STEP 7 — RISK
+
+[RISK] RainBet: 35/100 — Heavy Cloudflare protection across all live hosts. CF WAF blocks automated requests to API. CF Access protects staging. Only 3/20 hosts respond. Cloudflare mitigations significantly reduce automated attack surface; manual/browser-assisted testing likely required for progress.
