@@ -330,3 +330,694 @@ testability: HUMAN_ONLY
 ## STEP 7 — RISK
 
 [RISK] RainBet: 35/100 — Heavy Cloudflare protection across all live hosts. CF WAF blocks automated requests to API. CF Access protects staging. Only 3/20 hosts respond. Cloudflare mitigations significantly reduce automated attack surface; manual/browser-assisted testing likely required for progress.
+===== ANALYST bigpickle 2026-09-03 20:04:47 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls /home/runner/work/rainbet-hunt/rainbet-hunt/
+README.md
+analyst-out.txt
+analyst-prompt.txt
+ctx.txt
+inventory
+knowledge
+leads
+probe-results.md
+recon-notes
+reports
+reposcan-raw
+scope.yml
+scripts
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_mimo.json
+state_nemotron3.json
+triage
+[0m
+[0m✱ [0mGlob "**/*.md"[90m in . · 21 matches[0m
+[0m✱ [0mGlob "art/*"[90m in . · 0 matches[0m
+Let me check the current workspace state and then execute the pending probes.
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mcurl -sS -D- -o /tmp/staging-health-headers.txt "https://staging.rainbet.com/health" 2>&1 | head -40
+HTTP/2 302 
+date: Thu, 03 Sep 2026 19:58:40 GMT
+content-type: text/html; charset=UTF-8
+content-length: 143
+location: https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvaGVhbHRoIiwic2VydmljZV90b2tlbl9zdGF0dXMiOmZhbHNlLCJpc193YXJwIjpmYWxzZSwiaXNfZ2F0ZXdheSI6ZmFsc2UsImV4cCI6MTc4ODQ2NTgyMCwibmJmIjoxNzg4NDY1NTIwLCJpYXQiOjE3ODg0NjU1MjAsImF1dGhfc3RhdHVzIjoiTk9ORSIsIm10bHNfYXV0aCI6eyJjZXJ0X2lzc3Vlcl9kbiI6IiIsImNlcnRfc2VyaWFsIjoiIiwiY2VydF9pc3N1ZXJfc2tpIjoiIiwiY2VydF9wcmVzZW50ZWQiOmZhbHNlLCJjb21tb25fbmFtZSI6IiIsImF1dGhfc3RhdHVzIjoiTk9ORSJ9LCJyZWFsX2NvdW50cnkiOiJVUyIsImFwcF9zZXNzaW9uX2hhc2giOiJmZTk5N2Y2ZGUyMTkzOGExNjE3NmU1ZmMwNDE4OWZhYzdjZTI3OGNkYWI4NjAxMzkwZjlmYTRlYTBkNzY2YjE0In0.elkwOyqJYbwiOtX6FqK8FQrPuGDM-MqbbusU8hMe_YF_IUKeA8Xxuw_oSD4oe-8e0wvT99KvdXOiS6TYMXwYhwlwPO8DtQs9Sa7VG3dED8kKBmK0vGJOTBZ5kM1sZRwYnkMXe1I-Xobb3dEMp4SYIiSn8eScwhBZY7R_V7mesjwro45f1Zh-fpFqnEmC5wpd6gwH37bhq-yFKJzGsn-TLbHVWJ-IoMOhhALAp3g__R2g5aib24I7EyfurfNx5-g27bazF8SBhBk-Qg0fm64sbJ-ZAkYdHWiQZYlXTBZn_qFf7sP8bL7WlQuzwqwvv_hUeo8bVgOi_SXzUl3rWxuJxA&redirect_url=%2Fhealth
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+www-authenticate: Cloudflare-Access resource_metadata="https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/health"
+access-control-allow-credentials: true
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+set-cookie: CF_AppSession=9ce717e03356ddd3; Expires=Fri, 04 Sep 2026 19:58:40 GMT; Path=/; Secure; HttpOnly
+set-cookie: __cf_bm=buwL5tiFEyaKfe6R14MpTLhsJ3Q4Dub5UTi0.DjsgBc-1788465520.9750364-1.0.1.1-cECfQCEi.Ep3WU4UrNzUszE45qWeW62rjkppOn86jgTAB_CZ_E3Q4Jaa21iF.xsogGADizvd6QtNU.PsiDWG1t0jRehVpojx7B_h0Z.gGJuyAmxZBtDsfKCeOYzT8iTE; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 20:28:40 GMT
+server: cloudflare
+cf-ray: a35754a21eb65730-LAX
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -sS -D- -o /tmp/staging-metrics-headers.txt "https://staging.rainbet.com/metrics" 2>&1 | head -40
+HTTP/2 302 
+date: Thu, 03 Sep 2026 19:58:41 GMT
+content-type: text/html; charset=UTF-8
+content-length: 143
+location: https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvbWV0cmljcyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3ODg0NjU4MjEsIm5iZiI6MTc4ODQ2NTUyMSwiaWF0IjoxNzg4NDY1NTIxLCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiYTY2NzhlNGY0YjZhM2E5OGEyMDgzNzQ3ZGQzYTU5MzM4YmEyNGY0OTk3OTgzN2FkNDBkMDc3MTM2NmY2YmE1MiJ9.GyjYxYODVmZ-7Sc5Yzsw9Kw4ziSsdOZlhmrWm6aFxlJSaytkETnfVukX84VJawSCo9GFlmlFMR2q7W_dVeYyp0An42ik8gLNCdfPCYnvoTxdlE_QsOoQD-Hp8985SNBMyf2w8jX1ytxnHuEdRP0fW0UC-f5qQ5NVECztesEsLMgmPlYNNIo4WH9SG3N2PHLy2sFxj3-26IBoF0DagqthfgV_pC-APRH_zKABeo5e1kArNbdYi2QFmyuEoLJxfQLwdZ3n0IojOLt6ouz7sxctixace8coD4c06QhfXMcK5-6JoW2qhDUpTJ8ypP2_pRBN5_Pr2_PChLKLD01D4TwZvw&redirect_url=%2Fmetrics
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+www-authenticate: Cloudflare-Access resource_metadata="https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/metrics"
+access-control-allow-credentials: true
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+set-cookie: CF_AppSession=0ab17b89e7a1881e; Expires=Fri, 04 Sep 2026 19:58:41 GMT; Path=/; Secure; HttpOnly
+set-cookie: __cf_bm=UHjtzcxJl4H1Kbh6ovWT99CUh6HF8lLAGl2UOzZj1sQ-1788465521.324618-1.0.1.1-vzx72oiuMxHwa6NANgK0gx.c9x4BvDXGjhxt1KFHAD_CBmYg7suaHEjDGBo8IDwWGApUu8XlbXOFmTX2mzBT3oz8YIDxRVjqsiDvQ31rE2ycLVlugPTktwPJd_p1DTka; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 20:28:41 GMT
+server: cloudflare
+cf-ray: a35754a44c16f7e5-LAX
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -sS -D- -o /tmp/staging-api-health-headers.txt "https://staging.rainbet.com/api/health" 2>&1 | head -40
+HTTP/2 302 
+date: Thu, 03 Sep 2026 19:58:41 GMT
+content-type: text/html; charset=UTF-8
+content-length: 143
+location: https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvYXBpL2hlYWx0aCIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3ODg0NjU4MjEsIm5iZiI6MTc4ODQ2NTUyMSwiaWF0IjoxNzg4NDY1NTIxLCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiMTU0ODM2ZjUzMjYyNTc0MDFhOWYyMjc0YzU2NDBiZjkzZjcyMWRiOTNjNjMwNzVlZDUwNjFmZTA4MjQ0ZDI5ZiJ9.aVO-tuKKstQMkifROOSR4sO90HZZG7gr5-7A6X6iqKfPQXwc171dnTW6N0gZeC3oJyE8Dscx4Jgpzv_F4jc_GfkLqC_5KdrJM0e7CHXi7hCxaCOom_EvNlq8hZqxZ4wOJGEcq7XJSg0spfpcIVNZAko-p-FBDr0ISt6N7w8WihyQKbjJMkC9P31buqYRxCAz-Xw9a_1C3ZbuQf_FkozlxHTCPRdtKzrg7DZ6TOMImlDuIK-Tu5yXfusG08ee0-Yxp0yVe6QQcwImYtNL7O6oEN5OfVQ4t89x3Ke0lXh9AWYs01vEgxxYh-IYGUwIB4k8BcNe0yEMfXLhywcD6jHcpA&redirect_url=%2Fapi%2Fhealth
+access-control-allow-credentials: true
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+www-authenticate: Cloudflare-Access resource_metadata="https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/api/health"
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+set-cookie: CF_AppSession=6fd2639851830a60; Expires=Fri, 04 Sep 2026 19:58:41 GMT; Path=/; Secure; HttpOnly
+set-cookie: __cf_bm=42v3GR_d8ib_yB513khe_FKfdT3J3u.d06Ln9tEqjSY-1788465521.942627-1.0.1.1-_ImAs5WGrSr7.G0t.q9c0rPS0kn7tk8De450u60SOmas3ME1MRcs9jj3f4zX4SsNNNzrgx53BKr8.K.Qbv5j8ZZ_RG61Y1v6lr.63ZFKSvbgTplehSfp3rSWROhhoXYh; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 20:28:41 GMT
+server: cloudflare
+cf-ray: a35754a82f4b453c-LAX
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -sS -D- "https://staging.rainbet.com/.well-known/jwks.json" 2>&1 | head -60
+HTTP/2 302 
+date: Thu, 03 Sep 2026 19:58:42 GMT
+content-type: text/html; charset=UTF-8
+content-length: 143
+location: https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvLndlbGwta25vd24vandrcy5qc29uIiwic2VydmljZV90b2tlbl9zdGF0dXMiOmZhbHNlLCJpc193YXJwIjpmYWxzZSwiaXNfZ2F0ZXdheSI6ZmFsc2UsImV4cCI6MTc4ODQ2NTgyMiwibmJmIjoxNzg4NDY1NTIyLCJpYXQiOjE3ODg0NjU1MjIsImF1dGhfc3RhdHVzIjoiTk9ORSIsIm10bHNfYXV0aCI6eyJjZXJ0X2lzc3Vlcl9kbiI6IiIsImNlcnRfc2VyaWFsIjoiIiwiY2VydF9pc3N1ZXJfc2tpIjoiIiwiY2VydF9wcmVzZW50ZWQiOmZhbHNlLCJjb21tb25fbmFtZSI6IiIsImF1dGhfc3RhdHVzIjoiTk9ORSJ9LCJyZWFsX2NvdW50cnkiOiJVUyIsImFwcF9zZXNzaW9uX2hhc2giOiJiNmNiMWFjYzYwZTZiNzUzNjNiNDZkZWEwYjA1ZjVhZmUxYTUxOGJmOWQ1NGE5Mzc5ZTMzZjJmYTk4MzY0YmVlIn0.TKV2mq3VHisZMr2vzKlJ9MG-EP7uYlb_TGutL-yXiFOfOrWxc57eKQYTKyHGZz5hxFzWOPJ26OKRX1UBZgMt1S815Hl14wfeW1v-GnAmk20gdU7TINYS55l7osurmJElOWPBj8RswRTXYqc_5fYfUb9OwTgehLYFrFfMh6c5Aq495jCIgO3CKwV3zWpJuFfNDX8eDd1BKkf3HeRhk7l4QR-4HRaglzPQdrDVcBLb_4_AM9VPWsOaewsGtEUroye99_qjUDoqN885gUgQMRvAA_Ai5wWLsHlb6ugtBVpRhS1-oCJJl-7isridsfy3GpFfZ-_CDScG1R53lfty0fpAvQ&redirect_url=%2F.well-known%2Fjwks.json
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+access-control-allow-credentials: true
+www-authenticate: Cloudflare-Access resource_metadata="https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/.well-known/jwks.json"
+set-cookie: CF_AppSession=ac91ba788bb1e9d5; Expires=Fri, 04 Sep 2026 19:58:42 GMT; Path=/; Secure; HttpOnly
+set-cookie: __cf_bm=G3OcXm0wx6L5_QzoYDf8WeuZr0UZ_2FCjyLy55yoQoE-1788465522.5025506-1.0.1.1-v0vfa.vRbOkUylZqsOFomJyWBWMrQn3BjEgriQN89K.GH4BrpS.E1ck0t9HjsAFd9gdywmCR4TvVFOag49hArucJQrv2oqW_TSWGmjFMIKfj1VwVmfyzXgEaSaL8UQcx; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 20:28:42 GMT
+server: cloudflare
+cf-ray: a35754ababf95bf3-LAX
+alt-svc: h3=":443"; ma=86400
+
+<html>
+<head><title>302 Found</title></head>
+<body>
+<center><h1>302 Found</h1></center>
+<hr><center>cloudflare</center>
+</body>
+</html>
+[0m
+Interesting — probe results show staging endpoints returned 200 (~32KB each) which could be the CF Access login page or actual content. Let me dig deeper into both targets.
+[0m$ [0m# Decode the JWT payload from the CF Access redirect (base64url decode the middle segment)
+echo 'eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvaGVhbHRoIiwic2VydmljZV90b2tlbl9zdGF0dXMiOmZhbHNlLCJpc193YXJwIjpmYWxzZSwiaXNfZ2F0ZXdheSI6ZmFsc2UsImV4cCI6MTc4ODQ2NTgyMCwibmJmIjoxNzg4NDY1NTIwLCJpYXQiOjE3ODg0NjU1MjAsImF1dGhfc3RhdHVzIjoiTk9ORSIsIm10bHNfYXV0aCI6eyJjZXJ0X2lzc3Vlcl9kbiI6IiIsImNlcnRfc2VyaWFsIjoiIiwiY2VydF9pc3N1ZXJfc2tpIjoiIiwiY2VydF9wcmVzZW50ZWQiOmZhbHNlLCJjb21tb25fbmFtZSI6IiIsImF1dGhfc3RhdHVzIjoiTk9ORSJ9LCJyZWFsX2NvdW50cnkiOiJVUyIsImFwcF9zZXNzaW9uX2hhc2giOiJmZTk5N2Y2ZGUyMTkzOGExNjE3NmU1ZmMwNDE4OWZhYzdjZTI3OGNkYWI4NjAxMzkwZjlmYTRlYTBkNzY2YjE0In0' | base64 -d 2>/dev/null | python3 -m json.tool
+{
+    "type": "meta",
+    "aud": "a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94",
+    "hostname": "staging.rainbet.com",
+    "redirect_url": "/health",
+    "service_token_status": false,
+    "is_warp": false,
+    "is_gateway": false,
+    "exp": 1788465820,
+    "nbf": 1788465520,
+    "iat": 1788465520,
+    "auth_status": "NONE",
+    "mtls_auth": {
+        "cert_issuer_dn": "",
+        "cert_serial": "",
+        "cert_issuer_ski": "",
+        "cert_presented": false,
+        "common_name": "",
+        "auth_status": "NONE"
+    },
+    "real_country": "US",
+    "app_session_hash": "fe997f6de21938a16176e5fc04189fac7ce278cdab8601390f9fa4ea0d766b14"
+}
+[0m
+[0m$ [0m# Fetch the CF Access JWKS endpoint
+curl -sS -D- "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/certs" 2>&1 | head -40
+HTTP/2 200 
+date: Thu, 03 Sep 2026 19:59:06 GMT
+content-type: application/json; charset=utf-8
+content-length: 5116
+access-control-allow-origin: *
+cache-control: public, max-age=14400, must-revalidate, no-transform
+expires: Thu, 03 Sep 2026 23:59:06 GMT
+vary: Origin
+referrer-policy: strict-origin-when-cross-origin
+cf-version: 20-ce0df31
+server: cloudflare
+cf-ray: a3575541a807b152-LAX
+
+{
+  "keys": [
+    {
+      "kid": "0732f2a68167feac18f36e11c562e1585711e00ac69761bba0ee64ab3400ca72",
+      "kty": "RSA",
+      "alg": "RS256",
+      "use": "sig",
+      "e": "AQAB",
+      "n": "tEvogi2fMndwJyrk35gdyTJt-tb9X0ejwj-ogdXFvC_4xuoC2mlahHjiRhbGyaQR7HpMj2Ock9qvunuEV2HTMwdlNmBrTjsFILzEFFsffOdoBdEqdj4D9xhVH5qnA7FNDWZV0nHl0_Dz1BXsiMwAg-FakEKX6oJcuFeZLPUnk4OTultsHNbX_GTZ3iZiRnrwBc2OrRSzCNRlybLSNSjxFVMVZuXKBGMKq600MNVSa-NdoPBXjTdWPxAxYo3UQQYzD0zZb49ZhLs7nKDBMusVYlsFLI5g1oGNFjqjbipsjmSPCAn3OP0uxWwVGSrbs3TTuWq29UcjC3dNPUNBz1rFOQ"
+    },
+    {
+      "kid": "8aac9fdb34f4b43c92b6345beafb59796bac7e424a8aead8e01bc86dc2d02f0c",
+      "kty": "RSA",
+      "alg": "RS256",
+      "use": "sig",
+      "e": "AQAB",
+      "n": "uTmfQgc4erwWWMQ-8RxzEdwwK_H9VDOuKSZzSIOsMQqReOF0JXsA7MguitNNqN9uOsUQ7qDOx_h0vdmcjEzTh2pN_5vA0LniDfXDYLQD_IKhwYzgdMq2g4Fvp-K9EmwzTm-n1TJ8wcMyBn88cItOeErM7xGkepcRY-Y_RTp1QWqxbLUxVimdkj3Vw_hPsePNt7eFC35zE3XIMAzESYDIlvS0sA8ixq15quAUYq_rszyD2TPFLJOP-hHAmPxM4TmJKrmyt6gTn7Ry5_wdBFttYi5LZidCZl9H8ZNy3KIrtXRCDQdiUBXnE6Rv8h_3QFzsRO8ZC52fSxtN_Y2nxc577w"
+    }
+  ],
+  "public_cert": {
+    "kid": "0732f2a68167feac18f36e11c562e1585711e00ac69761bba0ee64ab3400ca72",
+    "cert": "-----BEGIN CERTIFICATE-----\nMIIDTDCCAjSgAwIBAgIQM4Ettx1s2f4x3zHDXaBIJTANBgkqhkiG9w0BAQsFADBi\nMQswCQYDVQQGEwJVUzEOMAwGA1UECBMFVGV4YXMxDzANBgNVBAcTBkF1c3RpbjET\nMBEGA1UEChMKQ2xvdWRmbGFyZTEdMBsGA1UEAxMUY2xvdWRmbGFyZWFjY2Vzcy5j\nb20wHhcNMjYwODI4MTAyNDMzWhcNMjcwOTA3MTAyMTUzWjBiMQswCQYDVQQGEwJV\nUzEOMAwGA1UECBMFVGV4YXMxDzANBgNVBAcTBkF1c3RpbjETMBEGA1UEChMKQ2xv\ndWRmbGFyZTEdMBsGA1UEAxMUY2xvdWRmbGFyZWFjY2Vzcy5jb20wggEiMA0GCSqG\nSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC0S+iCLZ8yd3AnKuTfmB3JMm361v1fR6PC\nP6iB1cW8L/jG6gLaaVqEeOJGFsbJpBHsekyPY5yT2q+6e4RXYdMzB2U2YGtOOwUg\nvMQUWx9852gF0Sp2PgP3GFUfmqcDsU0NZlXSceXT8PPUFeyIzACD4VqQQpfqgly4\nV5ks9SeTg5O6W2wc1tf8ZNneJmJGevAFzY6tFLMI1GXJstI1KPEVUxVm5coEYwqr\nrTQw1VJr412g8FeNN1Y/EDFijdRBBjMPTNlvj1mEuzucoMEy6xViWwUsjmDWgY0W\nOqNuKmyOZI8ICfc4/S7FbBUZKtuzdNO5arb1RyMLd009Q0HPWsU5AgMBAAEwDQYJ\nKoZIhvcNAQELBQADggEBAApzWlnAGhABVnm/i/laEMXAKRwSkr6WgfKIUmJ6q+EK\nQlFKQurS3/8S6tinw+XcL5SEY3i5UzPNLx8UIbETiYd9w/snqN0QCHwmFCufKwm1\nO931K32a85alREsdLMPPaEN0vp6GpPIL9OHbNRet/K5MoIrj+idQ9yq9QiRj0Cib\nFbhjRrXqv7GEORK+ub3Z1MOGBeMUWlB2yRM1aUKt07uS+YvfJW/v7Bu+OX8dMR3M\nMdAStPsy/PdmlO+zV3m/UAASRTWj0EWgPmB+ZkTLE2nUKAqICfAGypGM/nGNQ+Jb\nBOtubYAtK+Bz4XiKPt0CChsAtm70s8EJlYqxP9TtrLA=\n-----END CERTIFICATE-----\n"
+  },
+  "public_certs": [
+    {
+      "kid": "0732f2a68167feac18f36e11c562e1585711e00ac69761bba0ee64ab3400ca72",
+      "cert": "-----BEGIN CERTIFICATE-----\nMIIDTDCCAjSgAwIBAgIQM4Ettx1s2f4x3zHDXaBIJTANBgkqhkiG9w0BAQsFADBi\nMQswCQYDVQQGEwJVUzEOMAwGA1UECBMFVGV4YXMxDzANBgNVBAcTBkF1c3RpbjET\nMBEGA1UEChMKQ2xvdWRmbGFyZTEdMBsGA1UEAxMUY2xvdWRmbGFyZWFjY2Vzcy5j\nb20wHhcNMjYwODI4MTAyNDMzWhcNMjcwOTA3MTAyMTUzWjBiMQswCQYDVQQGEwJV\nUzEOMAwGA1UECBMFVGV4YXMxDzANBgNVBAcTBkF1c3RpbjETMBEGA1UEChMKQ2xv\ndWRmbGFyZTEdMBsGA1UEAxMUY2xvdWRmbGFyZWFjY2Vzcy5jb20wggEiMA0GCSqG\nSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC0S+iCLZ8yd3AnKuTfmB3JMm361v1fR6PC\nP6iB1cW8L/jG6gLaaVqEeOJGFsbJpBHsekyPY5yT2q+6e4RXYdMzB2U2YGtOOwUg\nvMQUWx9852gF0Sp2PgP3GFUfmqcDsU0NZlXSceXT8PPUFeyIzACD4VqQQpfqgly4\nV5ks9SeTg5O6W2wc1tf8ZNneJmJGevAFzY6tFLMI1GXJstI1KPEVUxVm5coEYwqr\nrTQw1VJr412g8FeNN1Y/EDFijdRBBjMPTNlvj1mEuzucoMEy6xViWwUsjmDWgY0W\nOqNuKmyOZI8ICfc4/S7FbBUZKtuzdNO5arb1RyMLd009Q0HPWsU5AgMBAAEwDQYJ\nKoZIhvcNAQELBQADggEBAApzWlnAGhABVnm/i/laEMXAKRwSkr6WgfKIUmJ6q+EK\nQlFKQurS3/8S6tinw+XcL5SEY3i5UzPNLx8UIbETiYd9w/snqN0QCHwmFCufKwm1\nO931K32a85alREsdLMPPaEN0vp6GpPIL9OHbNRet/K5MoIrj+idQ9yq9QiRj0Cib\nFbhjRrXqv7GEORK+ub3Z1MOGBeMUWlB2yRM1aUKt07uS+YvfJW/v7Bu+OX8dMR3M\nMdAStPsy/PdmlO+zV3m/UAASRTWj0EWgPmB+ZkTLE2nUKAqICfAGypGM/nGNQ+Jb\nBOtubYAtK+Bz4XiKPt0CChsAtm70s8EJlYqxP9TtrLA=\n-----END CERTIFICATE-----\n"
+[0m
+[0m$ [0m# Probe api.rainbet.com for potential WAF bypass paths
+curl -sS -o /dev/null -w "%{http_code}" "https://api.rainbet.com/robots.txt" 2>&1
+403
+[0m
+All staging endpoints consistently return 302 → CF Access. The probe-results.md "200" was curl auto-following redirects. Let me decode the JWT and check the CF Access JWKS endpoint.
+[0m$ [0mcurl -sS -o /dev/null -w "%{http_code}" "https://api.rainbet.com/.well-known/security.txt" 2>&1
+403
+[0m
+[0m$ [0m# Test redirect_url parameter manipulation on CF Access login URL — check if external redirect is allowed
+# First, get the CF Access login URL with a manipulated redirect_url
+curl -sS -D- -o /tmp/cf-access-login-test.html "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&redirect_url=https://evil.com/callback" 2>&1 | head -30
+HTTP/2 400 
+date: Thu, 03 Sep 2026 19:59:36 GMT
+content-type: text/html
+content-length: 34482
+set-cookie: CF_Session=nhxO5eiNnxZS1bhDd; Path=/; Secure; Expires=Thu, 03 Sep 2026 23:59:36 GMT; HttpOnly; SameSite=none
+referrer-policy: strict-origin-when-cross-origin
+cf-version: 20-ce0df31
+server: cloudflare
+cf-ray: a35755fa5ba669d1-LAX
+[0m
+[0m$ [0m# Fetch the CF Access login page to understand the email domain policy
+curl -sS -D- "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94" 2>&1 | head -80
+HTTP/2 302 
+date: Thu, 03 Sep 2026 19:59:37 GMT
+content-length: 0
+location: https://staging.rainbet.com/
+set-cookie: CF_Session=nFX5OMAtCegf3BqPC; Path=/; Secure; Expires=Thu, 03 Sep 2026 23:59:37 GMT; HttpOnly; SameSite=none
+referrer-policy: strict-origin-when-cross-origin
+cf-version: 20-ce0df31
+server: cloudflare
+cf-ray: a35756018a94b152-LAX
+[0m
+[0m$ [0m# Test more api.rainbet.com paths for WAF bypass
+curl -sS -o /dev/null -w "%{http_code}" "https://api.rainbet.com/swagger.json" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://api.rainbet.com/openapi.json" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://api.rainbet.com/api-docs" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://api.rainbet.com/graphql" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://api.rainbet.com/_internal/health" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://api.rainbet.com/v1/config" 2>&1
+403
+403
+403
+403
+403
+403
+[0m
+[0m$ [0m# Test staging.rainbet.com for any paths that bypass CF Access
+curl -sS -o /dev/null -w "%{http_code}" "https://staging.rainbet.com/robots.txt" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://staging.rainbet.com/.env" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://staging.rainbet.com/api/v1/config" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://staging.rainbet.com/manifest.json" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://staging.rainbet.com/sitemap.xml" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://staging.rainbet.com/_next/data/" 2>&1
+302
+302
+302
+302
+302
+302
+[0m
+Critical findings:
+1. **CF Access JWKS endpoint is PUBLIC** — returns 2 RSA public keys, standard CF Access behavior (not a vuln itself)
+2. **CF Access JWT metadata shows `auth_status: NONE`** — no authentication performed yet
+3. **`redirect_url` is reflected in JWT** — potential open redirect vector
+4. **api.rainbet.com blanket 403** — even `/robots.txt` and `/.well-known/security.txt` blocked
+
+Let me now test the redirect_url manipulation and probe deeper.
+[0m$ [0m# Check the CF Access error page content (400 response)
+curl -sS "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&redirect_url=https://evil.com/callback" 2>&1 | grep -i -E "error|redirect|invalid|policy|domain|email|allowed" | head -20
+<title>Error ・ Cloudflare Access</title>
+    <style>@charset "UTF-8";:root{color-scheme:light;--color-kumo-canvas:oklch(98.75% 0 0);--color-kumo-elevated:oklch(98% 0 0);--color-kumo-recessed:oklch(96% 0 0);--color-kumo-base:#fff;--color-kumo-tint:oklch(97% 0 0);--color-kumo-control:#fff;--color-kumo-line:oklch(14.5% 0 0 / 0.1);--color-kumo-hairline:oklch(93.5% 0 0);--color-kumo-fill:oklch(92.2% 0 0);--color-kumo-brand:oklch(57.72% 0.2324 260);--color-kumo-danger:oklch(63.7% 0.237 25.331);--color-kumo-success:oklch(59.6% 0.145 163.225);--color-kumo-focus:oklch(15% 0 0);--color-interstitial-deny:oklch(62% 0.19 25.331);--color-interstitial-approve:oklch(62.7% 0.19 149.214);--text-color-kumo-default:oklch(21% 0.006 285.885);--text-color-kumo-subtle:oklch(55.6% 0 0);--text-color-kumo-placeholder:oklch(70.8% 0 0);--text-color-kumo-link:oklch(42.4% 0.199 265.638);--text-color-kumo-info:oklch(42.4% 0.199 265.638);--text-color-kumo-warning:oklch(47.6% 0.114 61.907);--text-color-kumo-danger:oklch(50.5% 0.213 27.518);--text-color-kumo-success:oklch(43.2% 0.095 166.913);--radius-sm:4px;--radius-md:6px;--radius-lg:8px;--spacing:4px;--content-width:460px;--content-width-wide:540px;--content-width-xl:680px;--page-bg-override:initial}*,::after,::before{-webkit-box-sizing:border-box;box-sizing:border-box}body,html{margin:0;padding:0;min-height:100vh;min-height:100dvh}html{text-rendering:optimizeLegibility;word-wrap:break-word}.Content,body{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column}body,html{background:var(--page-bg-override, )}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;font-size:14px;line-height:20px;color:;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;padding:calc(var(--spacing)*8) calc(var(--spacing)*2);text-align:center}button{font-family:inherit}.Content{width:100%;max-width:var(--content-width);margin:0 auto;gap:calc(var(--spacing)*5)}.Content-is-wide{max-width:var(--content-width-wide)}.Content-is-xl{max-width:var(--content-width-xl)}.base_AccessLogo{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}.Content::after{content:"";display:block;height:41px;-ms-flex-negative:0;flex-shrink:0}.base_AccessLogo svg{width:280px;max-width:100%;height:auto;display:block}.AuthBox{width:100%;background:var(--color-kumo-base);border:1px solid var(--color-kumo-hairline);border-radius:var(--radius-lg);overflow:hidden;text-align:left}.AuthBox-body{padding:calc(var(--spacing)*8);display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;gap:calc(var(--spacing)*4)}.AuthBox-body-is-centered,.OrgAvatarLink{-webkit-box-align:center;-ms-flex-align:center;align-items:center}.AuthBox-body-is-centered{text-align:center}.OrgAvatarLink{display:-webkit-box;display:-ms-flexbox;display:flex;gap:calc(var(--spacing)*3);text-decoration:none;color:inherit}.OrgAvatarLink-logo{-ms-flex-negative:0;flex-shrink:0;height:36px}.OrgAvatarLink-logo:has(img[src=""]){display:none}.OrgAvatarLink-logo img{display:block;height:36px;width:auto;border-radius:var(--radius-sm)}.OrgAvatarLink-title{font-size:14px;line-height:20px;font-weight:500;color:var(--text-color-kumo-subtle)}.AuthBox-App{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;gap:var(--spacing)}.Card-title{margin:0;font-size:24px;line-height:32px;font-weight:600;color:var(--text-color-kumo-default)}.AuthBox-body p,.Card-subtitle,.Result p{margin:0;font-size:14px;line-height:20px;color:var(--text-color-kumo-default)}.Header-text{background:var(--color-kumo-tint);border:1px solid var(--color-kumo-hairline);border-radius:var(--radius-md);padding:calc(var(--spacing)*3) calc(var(--spacing)*4);font-size:13px;line-height:18px;color:var(--text-color-kumo-default)}.AuthBox-App>.Header-text{margin-top:calc(var(--spacing)*3)}.AuthBox-text,.InfoRow h3{font-size:14px;line-height:20px;font-weight:500;color:var(--text-color-kumo-default);margin:0 0 2px}.Result{gap:var(--spacing)}.Result p{color:var(--text-color-kumo-subtle)}.InfoList,.InfoRow,.Result{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column}.InfoList{gap:calc(var(--spacing)*5)}.InfoRow{gap:var(--spacing)}.InfoRow h3{margin:0;font-size:13px;line-height:18px;font-weight:600}.InfoRow p,.StandardInput{font-size:14px;color:var(--text-color-kumo-default)}.InfoRow p{margin:0;line-height:20px}.StandardInput{-moz-appearance:none;appearance:none;-webkit-appearance:none;display:block;width:100%;height:44px;padding:0 calc(var(--spacing)*3);font:inherit;background:var(--color-kumo-control);border:1px solid var(--color-kumo-line);border-radius:var(--radius-lg);-webkit-transition:background-color 120ms ease;transition:background-color 120ms ease}.StandardInput::-webkit-input-placeholder{color:var(--text-color-kumo-placeholder)}.StandardInput::-moz-placeholder{color:var(--text-color-kumo-placeholder)}.StandardInput:-ms-input-placeholder{color:var(--text-color-kumo-placeholder)}.StandardInput::-ms-input-placeholder{color:var(--text-color-kumo-placeholder)}.StandardInput::placeholder{color:var(--text-color-kumo-placeholder)}.AuthFormLogin,.AuthFormLogin-row{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column}.AuthFormLogin{gap:calc(var(--spacing)*3);margin:0}.AuthFormLogin-row{gap:var(--spacing)}.AuthFormLogin-row label,.Button{font-size:14px;line-height:20px;font-weight:500}.AuthFormLogin-row label{color:var(--text-color-kumo-default);margin-bottom:2px}.AuthFormLogin input[hidden]{display:none}.Button{-moz-appearance:none;appearance:none;-webkit-appearance:none;display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;gap:calc(var(--spacing)*2);height:44px;padding:0 calc(var(--spacing)*4);font-family:inherit;border-radius:var(--radius-lg);border:1px solid transparent;-webkit-box-shadow:0 1px 2px 0 rgba(0,0,0,.05);box-shadow:0 1px 2px 0 rgba(0,0,0,.05);cursor:pointer;text-decoration:none;white-space:nowrap;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-transition:background-color 120ms ease,border-color 120ms ease,color 120ms ease,-webkit-box-shadow 120ms ease,-webkit-transform 60ms ease;transition:background-color 120ms ease,border-color 120ms ease,color 120ms ease,box-shadow 120ms ease,transform 60ms ease;transition:background-color 120ms ease,border-color 120ms ease,color 120ms ease,box-shadow 120ms ease,transform 60ms ease,-webkit-box-shadow 120ms ease,-webkit-transform 60ms ease}.Button:focus-visible{outline-offset:2px}.Button:active{-webkit-transform:translateY(.5px);-ms-transform:translateY(.5px);transform:translateY(.5px)}.Button:disabled{opacity:.5;cursor:not-allowed;-webkit-transform:none;-ms-transform:none;transform:none}.Button-is-block{width:100%}.Button-is-destructive,.Button-is-interstitial-approve,.Button-is-interstitial-deny,.Button-is-primary{background:-webkit-gradient(linear,left top,left bottom,from(color-mix(in oklch,var(--button-emphasis-color),white 15%)),to(var(--button-emphasis-color)));background:linear-gradient(to bottom,color-mix(in oklch,var(--button-emphasis-color),white 15%),var(--button-emphasis-color));color:#fff;border-color:color-mix(in oklch,var(--button-emphasis-color),black 10%)}.Button-is-destructive:hover:not(:disabled),.Button-is-interstitial-approve:hover:not(:disabled),.Button-is-interstitial-deny:hover:not(:disabled),.Button-is-primary:hover:not(:disabled){background:-webkit-gradient(linear,left top,left bottom,from(color-mix(in oklch,var(--button-emphasis-color),white 30%)),to(var(--button-emphasis-color)));background:linear-gradient(to bottom,color-mix(in oklch,var(--button-emphasis-color),white 30%),var(--button-emphasis-color))}.Button-is-primary{--button-emphasis-color:var(--color-kumo-brand)}.Button-is-destructive{--button-emphasis-color:var(--color-kumo-danger)}.Button-is-interstitial-deny{--button-emphasis-color:var(--color-interstitial-deny)}.Button-is-interstitial-approve{--button-emphasis-color:var(--color-interstitial-approve)}.Button-is-secondary{background:var(--color-kumo-base);color:var(--text-color-kumo-default);border-color:var(--color-kumo-hairline)}.Button-is-secondary:hover:not(:disabled){background:var(--color-kumo-tint)}.Button-is-secondary:active:not(:disabled){background:var(--color-kumo-fill)}.Button-is-auth{background:var(--color-kumo-base);color:var(--text-color-kumo-default);border-color:var(--color-kumo-hairline);-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;padding:0 calc(var(--spacing)*4);gap:calc(var(--spacing)*3)}.Button-is-auth:hover:not(:disabled){background:var(--color-kumo-tint)}.Button-is-auth:active:not(:disabled){background:var(--color-kumo-fill)}.Button-is-small{height:26px;padding:0 calc(var(--spacing)*2);gap:calc(var(--spacing)*1);font-size:12px;line-height:16px;border-radius:var(--radius-md)}.Button-auth-service-icon{-ms-flex-negative:0;flex-shrink:0;width:20px;height:20px;display:-webkit-inline-box;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}.Button-auth-service-icon img,.Button-auth-service-icon svg{width:20px;height:20px;display:block}.AuthBoxRow--name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:500}.CardActions{display:-webkit-box;display:-ms-flexbox;display:flex;gap:calc(var(--spacing)*3);margin:0}.CardActions .Button{-webkit-box-flex:1;-ms-flex:1;flex:1}.Footer-text{margin:calc(var(--spacing)*4) calc(var(--spacing)*-8) calc(var(--spacing)*-8);padding:calc(var(--spacing)*4) calc(var(--spacing)*8);background:var(--color-kumo-elevated);border-top:1px solid var(--color-kumo-hairline);font-size:12px;line-height:18px;color:var(--text-color-kumo-subtle);text-align:left}.Footer-text span{white-space:pre-line}.Message,.resend-confirmation{-webkit-box-align:start;-ms-flex-align:start;align-items:flex-start;gap:calc(var(--spacing)*3);padding:calc(var(--spacing)*3) calc(var(--spacing)*4);border:1px solid;border-radius:var(--radius-lg);font-size:14px;line-height:20px;text-align:left}.Message{display:-webkit-box;display:-ms-flexbox;display:flex}.Message svg{-ms-flex-negative:0;flex-shrink:0;width:16px;height:16px;margin-top:2px}.Message svg path{fill:currentColor}.Message-is-info{background:#f4f9ff;border-color:#5b9bd5;color:var(--text-color-kumo-info)}.Message-is-warning{background:#fffef6;border-color:#e6c84a;color:var(--text-color-kumo-warning)}.Message-is-error{background:#fffbfb;border-color:#fd959b;color:var(--text-color-kumo-danger)}.Message-is-success,.resend-confirmation{background:#f8fefb;border-color:#5cb87a;color:var(--text-color-kumo-success)}@media (max-width:480px){body{-webkit-box-pack:start;-ms-flex-pack:start;justify-content:flex-start;padding:calc(var(--spacing)*8) calc(var(--spacing)*4) calc(var(--spacing)*4)}.base_AccessLogo svg{width:220px}.Content::after{display:none}.AuthBox-body{padding:calc(var(--spacing)*5)}.Card-title{font-size:20px}.Footer-text{margin:calc(var(--spacing)*4) calc(var(--spacing)*-5) calc(var(--spacing)*-5);padding:calc(var(--spacing)*3) calc(var(--spacing)*5)}}@media (prefers-reduced-motion:reduce){*,::after,::before{-webkit-transition-duration:.01ms!important;transition-duration:.01ms!important;-webkit-animation-duration:.01ms!important;animation-duration:.01ms!important}}.base_AccessLogo .logo-dark{display:none}@media (prefers-color-scheme:dark){:root{color-scheme:dark;--color-kumo-canvas:oklch(10% 0 0);--color-kumo-elevated:oklch(12% 0 0);--color-kumo-recessed:oklch(15% 0 0);--color-kumo-base:oklch(17% 0 0);--color-kumo-tint:oklch(26.9% 0 0);--color-kumo-control:oklch(21% 0.006 285.885);--color-kumo-line:oklch(32% 0 0);--color-kumo-hairline:oklch(26.9% 0 0);--color-kumo-fill:oklch(26.9% 0 0);--color-kumo-focus:oklch(93.5% 0 0);--color-kumo-danger:oklch(70.4% 0.191 22.216);--color-kumo-success:oklch(76.5% 0.177 163.223);--text-color-kumo-default:oklch(97% 0 0);--text-color-kumo-subtle:oklch(70.8% 0 0);--text-color-kumo-placeholder:oklch(55.6% 0 0);--text-color-kumo-link:oklch(70.7% 0.165 254.624);--text-color-kumo-info:oklch(70.7% 0.165 254.624);--text-color-kumo-warning:oklch(85.2% 0.199 91.936);--text-color-kumo-danger:oklch(70.4% 0.191 22.216);--text-color-kumo-success:oklch(90.5% 0.093 164.15)}.base_AccessLogo .logo-light{display:none}.base_AccessLogo .logo-dark{display:inline}.Message-is-info{background:oklch(70.7%.165 254.624deg/.12);border-color:oklch(70.7%.165 254.624deg/.4)}.Message-is-warning{background:oklch(85.2%.199 91.936deg/.12);border-color:oklch(85.2%.199 91.936deg/.4)}.Message-is-error{background:oklch(70.4%.191 22.216deg/.12);border-color:oklch(70.4%.191 22.216deg/.4)}.Message-is-success,.resend-confirmation{background:oklch(90.5%.093 164.15deg/.12);border-color:oklch(90.5%.093 164.15deg/.4)}}:root{--page-bg-override:var(--color-kumo-canvas)}body{color:var(--text-color-kumo-default)}.svg-wrapper{width:160px}.svg-wrapper img{width:100%;height:auto;display:block}.Result a,.Result a:visited{color:var(--text-color-kumo-link)}.AuthBox-body form,.DebugDetails{width:100%;margin-top:calc(var(--spacing)*2)}.DebugDetails{padding:calc(var(--spacing)*4);background:var(--color-kumo-tint);border:1px solid var(--color-kumo-hairline);border-radius:var(--radius-md);text-align:left;font-size:13px;line-height:18px}.DebugActions,.responsive-info{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}.responsive-info{display:grid;grid-template-columns:-webkit-max-content minmax(0,-webkit-max-content);grid-template-columns:max-content minmax(0,max-content);-webkit-column-gap:calc(var(--spacing)*2);-moz-column-gap:calc(var(--spacing)*2);column-gap:calc(var(--spacing)*2);row-gap:calc(var(--spacing)*2)}.responsive-info .info-group{display:contents}.responsive-info .info-label{text-align:right;font-weight:500;color:var(--text-color-kumo-subtle)}.responsive-info .info-value{text-align:left;color:var(--text-color-kumo-default);line-break:anywhere}.DebugActions{display:-webkit-box;display:-ms-flexbox;display:flex}@media (max-width:480px){.svg-wrapper{width:128px}.responsive-info,.responsive-info .info-group{display:block}.responsive-info .info-group+.info-group{margin-top:calc(var(--spacing)*2)}.responsive-info .info-label,.responsive-info .info-value{text-align:left}}</style>
+            <h1 class="Card-title">Invalid redirect URL</h1>
+[0m
+[0m$ [0m# Test redirect_url with internal path manipulation
+curl -sS -D- -o /dev/null "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&redirect_url=//evil.com" 2>&1 | head -15
+HTTP/2 400 
+date: Thu, 03 Sep 2026 20:00:06 GMT
+content-type: text/html
+content-length: 34482
+set-cookie: CF_Session=ngXJSn21l20GuLxR1; Path=/; Secure; Expires=Fri, 04 Sep 2026 00:00:06 GMT; HttpOnly; SameSite=none
+referrer-policy: strict-origin-when-cross-origin
+cf-version: 20-ce0df31
+server: cloudflare
+cf-ray: a35756b6ccfbb8d4-LAX
+[0m
+[0m$ [0m# Test redirect_url with encoded characters
+curl -sS -D- -o /dev/null "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&redirect_url=%2F%2Fevil.com" 2>&1 | head -15
+HTTP/2 400 
+date: Thu, 03 Sep 2026 20:00:07 GMT
+content-type: text/html
+content-length: 34482
+set-cookie: CF_Session=naCAxlajJ4KifOTHO; Path=/; Secure; Expires=Fri, 04 Sep 2026 00:00:07 GMT; HttpOnly; SameSite=none
+referrer-policy: strict-origin-when-cross-origin
+cf-version: 20-ce0df31
+server: cloudflare
+cf-ray: a35756be9b552b9e-LAX
+[0m
+Important findings:
+- **redirect_url to external domain** → 400 Bad Request (CF Access validates redirect URLs)
+- **CF Access login page** → 302 redirect to `staging.rainbet.com/` with `CF_Session` cookie
+- **api.rainbet.com** → all paths 403, no bypass
+- **staging.rainbet.com** → all paths 302, CF Access covers everything
+
+Let me check the CF Access error page content and try internal redirect_url manipulation.
+[0m$ [0m# Check if there's a different CF Access team domain or subdomain
+curl -sS -D- -o /dev/null "https://staging.rainbet.com/cdn-cgi/access/certs" 2>&1 | head -15
+HTTP/2 200 
+date: Thu, 03 Sep 2026 20:00:08 GMT
+content-type: application/json; charset=utf-8
+content-length: 5116
+access-control-allow-origin: *
+cache-control: public, max-age=14400, must-revalidate, no-transform
+expires: Fri, 04 Sep 2026 00:00:08 GMT
+vary: Origin
+referrer-policy: strict-origin-when-cross-origin
+cf-version: 20-ce0df31
+server: cloudflare
+cf-ray: a35756c5db6b69b5-LAX
+set-cookie: __cf_bm=Oy41bz3jR47gUj7D9Ku5DTe7Gw0S7SkqKfbimVe7Fns-1788465608.6133606-1.0.1.1-VfaUaXcX8RBhhKFu0gNkGXHJhZr9E3E967CbSnrP9TzYEG1225x97IHJEa63sSVLnD6Hr.4DdyV81Eb4pdfSmf9oEmNpfWSIln2zYAWdon.ZD9vhDWdpOvv9d4EtUdeV; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 20:30:08 GMT
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0m# Get the CF Access login page content to identify authentication methods
+curl -sS "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94" 2>&1 | grep -i -E "email|password|oauth|google|github|saml|oidc|one-time|otp|auth|button|form|input|login|sign" | head -30
+(no output)
+[0m
+[0m$ [0m# Check if there are any other CF Access team endpoints
+curl -sS -D- -o /dev/null "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/get-organizations" 2>&1 | head -15
+HTTP/2 404 
+date: Thu, 03 Sep 2026 20:00:41 GMT
+content-length: 0
+referrer-policy: strict-origin-when-cross-origin
+cf-version: 20-ce0df31
+server: cloudflare
+cf-ray: a357579038e469d1-LAX
+[0m
+[0m$ [0m# Test api.rainbet.com with different HTTP methods
+curl -sS -X OPTIONS -D- -o /dev/null "https://api.rainbet.com/" 2>&1 | head -15
+echo "---"
+curl -sS -X HEAD -D- -o /dev/null "https://api.rainbet.com/" 2>&1 | head -15
+HTTP/2 403 
+date: Thu, 03 Sep 2026 20:00:41 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=kxzffJGhm71KtQKm4OZkWu0K_NjWqR2XSlzTnHwUL.s-1788465641.8966956-1.0.1.1-VTD_qYuG1PjHVsmCuVKW1bEkhZeNPGDId4534d0hKn1cYKjTtzX5blHv7ai48vK3B4D60qUNxR9w734A_CmYzkrIqu1xSfto75WnWyaddCatLrBwPdQpkus6XVoB.5K.; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 20:30:41 GMT
+server: cloudflare
+cf-ray: a3575795d86c69b5-LAX
+alt-svc: h3=":443"; ma=86400
+
+---
+HTTP/2 403 
+date: Thu, 03 Sep 2026 20:00:41 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=hel7SUjZ97faVXjWKmgmip2OuwXcqgCIe.FaDa12Sxo-1788465641.949989-1.0.1.1-HGSOtrTZsWq24By_6E8ATllLl0wktYjIu8_HoX6HdLNwhLtNNvHwKH6nGtKrcNKl_klSeuhdQn_FqOknhoMf.bbI9pXj0LQNJ7c.NEWobCFqRl34VqSXRfR5129ZJH.V; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 20:30:41 GMT
+server: cloudflare
+cf-ray: a35757962a07cb96-LAX
+alt-svc: h3=":443"; ma=86400
+[0m
+Key findings:
+- **CF Access validates redirect_url** — returns "Invalid redirect URL" for external URLs (not an open redirect)
+- **JWKS endpoint accessible on staging.rainbet.com** — `/cdn-cgi/access/certs` returns public keys directly (standard CF Access)
+- **api.rainbet.com** — blanket 403 on all tested paths, no WAF bypass
+
+Let me check the CF Access login page for authentication methods and probe additional endpoints.
+[0m$ [0m# Check the CF Access login page HTML for specific auth method indicators
+curl -sS "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94" 2>&1 | python3 -c "
+import sys, re
+html = sys.stdin.read()
+# Extract text content between body tags
+body = re.search(r'<body[^>]*>(.*?)</body>', html, re.DOTALL)
+if body:
+    text = re.sub(r'<[^>]+>', ' ', body.group(1))
+    text = re.sub(r'\s+', ' ', text).strip()
+    print(text[:2000])
+"
+(no output)
+[0m
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead leads/lead-nemotron3.md
+The CF Access login page is a JavaScript SPA — auth methods not visible without browser. Let me check additional context and try a few more probes.
+[0m
+[0m$ [0m# Check the CF Access JWKS for key details
+curl -sS "https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/certs" 2>&1 | python3 -c "
+import sys, json, base64
+data = json.load(sys.stdin)
+for key in data.get('keys', []):
+    print(f\"kid: {key['kid']}\")
+    print(f\"alg: {key['alg']}\")
+    print(f\"kty: {key['kty']}\")
+    # Decode the modulus to check key size
+    n = key.get('n', '')
+    # Add padding
+    n += '=' * (4 - len(n) % 4)
+    n_bytes = base64.urlsafe_b64decode(n)
+    print(f\"modulus_length: {len(n_bytes)*8} bits\")
+    print()
+"
+kid: 0732f2a68167feac18f36e11c562e1585711e00ac69761bba0ee64ab3400ca72
+alg: RS256
+kty: RSA
+modulus_length: 2048 bits
+
+kid: 8aac9fdb34f4b43c92b6345beafb59796bac7e424a8aead8e01bc86dc2d02f0c
+alg: RS256
+kty: RSA
+modulus_length: 2048 bits
+[0m
+[0m$ [0m# Check if there are any other subdomains we might have missed
+dig +short staging.rainbet.com A 2>&1
+echo "---"
+dig +short api.rainbet.com A 2>&1
+echo "---"
+dig +short www.rainbet.com A 2>&1
+echo "---"
+# Check for any new subdomains via certificate transparency
+curl -sS "https://crt.sh/?q=%.rainbet.com&output=json" 2>&1 | python3 -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    names = set()
+    for entry in data:
+        for name in entry.get('name_value', '').split('\n'):
+            names.add(name.strip())
+    for name in sorted(names):
+        print(name)
+except:
+    print('Failed to parse CT data')
+" 2>&1 | head -40
+104.18.19.181
+104.18.18.181
+---
+104.18.19.181
+104.18.18.181
+---
+104.18.19.181
+104.18.18.181
+---
+*.clever.rainbet.com
+*.media.rainbet.com
+*.preprod.rainbet.com
+*.preview.rainbet.com
+*.rainbet.com
+*.staging.rainbet.com
+aggregator.rainbet.com
+aiostaging.rainbet.com
+alerts.rainbet.com
+api.rainbet.com
+api2.rainbet.com
+blog.rainbet.com
+case-battles.rainbet.com
+cdn.rainbet.com
+challenge.rainbet.com
+chat-socket.rainbet.com
+chat.rainbet.com
+checker.rainbet.com
+clever.rainbet.com
+cors.rainbet.com
+crash.rainbet.com
+dev-aggregator.rainbet.com
+dev-api.rainbet.com
+dev-mono.rainbet.com
+dev-originals.rainbet.com
+dev-services.rainbet.com
+dev.rainbet.com
+ds.rainbet.com
+feed.rainbet.com
+files.rainbet.com
+help.rainbet.com
+maintenance.rainbet.com
+media.rainbet.com
+mines.rainbet.com
+napi.rainbet.com
+next.rainbet.com
+originals.rainbet.com
+preprod.rainbet.com
+preview.rainbet.com
+raffles.rainbet.com
+[0m
+[0m$ [0m# Probe the most interesting new subdomains from CT logs
+for host in api2.rainbet.com napi.rainbet.com cdn.rainbet.com cors.rainbet.com dev-api.rainbet.com files.rainbet.com chat-socket.rainbet.com next.rainbet.com blog.rainbet.com help.rainbet.com challenge.rainbet.com; do
+    code=$(curl -sS -o /dev/null -w "%{http_code}" --connect-timeout 5 "https://$host/" 2>&1)
+    echo "$host -> $code"
+done
+api2.rainbet.com -> curl: (6) Could not resolve host: api2.rainbet.com
+000
+napi.rainbet.com -> curl: (6) Could not resolve host: napi.rainbet.com
+000
+cdn.rainbet.com -> 404
+cors.rainbet.com -> curl: (6) Could not resolve host: cors.rainbet.com
+000
+dev-api.rainbet.com -> curl: (6) Could not resolve host: dev-api.rainbet.com
+000
+files.rainbet.com -> 403
+chat-socket.rainbet.com -> curl: (6) Could not resolve host: chat-socket.rainbet.com
+000
+next.rainbet.com -> curl: (6) Could not resolve host: next.rainbet.com
+000
+blog.rainbet.com -> curl: (6) Could not resolve host: blog.rainbet.com
+000
+help.rainbet.com -> 403
+challenge.rainbet.com -> curl: (6) Could not resolve host: challenge.rainbet.com
+000
+[0m
+CT logs reveal **40+ subdomains** not in the original inventory. This is a significant new attack surface. Let me probe the most promising new targets.
+[0m$ [0m# Also check more subdomains
+for host in aiostaging.rainbet.com preprod.rainbet.com preview.rainbet.com aggregator.rainbet.com chat.rainbet.com checker.rainbet.com ds.rainbet.com feed.rainbet.com mines.rainbet.com crash.rainbet.com case-battles.rainbet.com originals.rainbet.com raffles.rainbet.com maintenance.rainbet.com media.rainbet.com clever.rainbet.com alert.rainbet.com dev-mono.rainbet.com dev-originals.rainbet.com dev-services.rainbet.com; do
+    code=$(curl -sS -o /dev/null -w "%{http_code}" --connect-timeout 5 "https://$host/" 2>&1)
+    echo "$host -> $code"
+done
+aiostaging.rainbet.com -> 403
+preprod.rainbet.com -> curl: (6) Could not resolve host: preprod.rainbet.com
+000
+preview.rainbet.com -> curl: (6) Could not resolve host: preview.rainbet.com
+000
+aggregator.rainbet.com -> curl: (6) Could not resolve host: aggregator.rainbet.com
+000
+chat.rainbet.com -> 403
+checker.rainbet.com -> curl: (6) Could not resolve host: checker.rainbet.com
+000
+ds.rainbet.com -> 403
+feed.rainbet.com -> curl: (6) Could not resolve host: feed.rainbet.com
+000
+mines.rainbet.com -> 301
+crash.rainbet.com -> curl: (6) Could not resolve host: crash.rainbet.com
+000
+case-battles.rainbet.com -> curl: (6) Could not resolve host: case-battles.rainbet.com
+000
+originals.rainbet.com -> 403
+raffles.rainbet.com -> 403
+maintenance.rainbet.com -> 301
+media.rainbet.com -> 403
+clever.rainbet.com -> 200
+alert.rainbet.com -> curl: (6) Could not resolve host: alert.rainbet.com
+000
+dev-mono.rainbet.com -> curl: (6) Could not resolve host: dev-mono.rainbet.com
+000
+dev-originals.rainbet.com -> curl: (6) Could not resolve host: dev-originals.rainbet.com
+000
+dev-services.rainbet.com -> curl: (6) Could not resolve host: dev-services.rainbet.com
+000
+[0m
+[0m$ [0m# Investigate clever.rainbet.com (200 response)
+curl -sS -D- "https://clever.rainbet.com/" 2>&1 | head -60
+HTTP/2 200 
+date: Thu, 03 Sep 2026 20:02:06 GMT
+content-type: text/html
+cf-cache-status: HIT
+cache-control: public, max-age=0, must-revalidate
+set-cookie: __cf_bm=Ox048DrB0tAyZbhYqCBsKzvkyo2c6UtrYXkN49.7lhU-1788465725.9922438-1.0.1.1-7fAwEy7SI4CzbCwyXPH2FGo57AlsRbDsgNCGDnlifpt9XsHf2cs4qEokiLBfzw0PPvSJpAtqEiOlAbVx3wmbOZicfvMrSazmHd5xKmPoKGve2ZgZ43Lr38YQp26sAngv; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 20:32:06 GMT
+vary: accept-encoding
+server: cloudflare
+cf-ray: a35759a37e965bf3-LAX
+alt-svc: h3=":443"; ma=86400
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clever &ndash; Rainbet</title>
+</head>
+<body>
+
+<script>
+(function () {
+  // Read URL parameters
+  const params = new URLSearchParams(window.location.search);
+
+  // Get the stag parameter
+  const stag = params.get("stag");
+
+  // Create/update cookie if stag exists
+  if (stag) {
+    document.cookie =
+      "stag=" + encodeURIComponent(stag) +
+      "; domain=rainbet.com" +
+      "; path=/" +
+      "; max-age=" + (60 * 60 * 24 * 30) +
+      "; SameSite=None" +
+      "; Secure";
+
+    console.log("stag cookie written:", stag);
+  }
+})();
+</script>
+
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a35759a37e965bf3',t:'MTc4ODQ2NTcyNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+[0m
+[0m$ [0m# Investigate mines.rainbet.com (301 redirect)
+curl -sS -D- -o /dev/null "https://mines.rainbet.com/" 2>&1 | head -20
+HTTP/2 301 
+date: Thu, 03 Sep 2026 20:02:06 GMT
+content-type: text/html; charset=UTF-8
+content-length: 167
+location: https://minesgames.io/
+server: cloudflare
+cf-ray: a35759a5ac532f76-LAX
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0m# Investigate maintenance.rainbet.com (301 redirect)
+curl -sS -D- -o /dev/null "https://maintenance.rainbet.com/" 2>&1 | head -20
+HTTP/2 301 
+date: Thu, 03 Sep 2026 20:02:06 GMT
+content-type: text/html; charset=UTF-8
+content-length: 167
+location: https://rainbet.com/
+server: cloudflare
+cf-ray: a35759a91e5ee66c-LAX
+alt-svc: h3=":443"; ma=86400
+[0m
+**NEW LIVE SUBDOMAINS DISCOVERED:**
+- `clever.rainbet.com` → **200** (potentially unprotected!)
+- `mines.rainbet.com` → 301 (redirect)
+- `maintenance.rainbet.com` → 301 (redirect)
+- `cdn.rainbet.com`, `files.rainbet.com`, `help.rainbet.com`, `chat.rainbet.com`, `ds.rainbet.com`, `aiostaging.rainbet.com`, `originals.rainbet.com`, `raffles.rainbet.com`, `media.rainbet.com` → 403 (CF block)
+
+`clever.rainbet.com` returning 200 is the highest priority — let me investigate immediately.
+[0m$ [0m# Get the full content of clever.rainbet.com
+curl -sS "https://clever.rainbet.com/" 2>&1 | python3 -c "
+import sys, re
+html = sys.stdin.read()
+# Extract title
+title = re.search(r'<title[^>]*>(.*?)</title>', html, re.DOTALL | re.IGNORECASE)
+if title:
+    print(f'Title: {title.group(1).strip()}')
+# Extract meta tags
+metas = re.findall(r'<meta[^>]+>', html, re.IGNORECASE)
+for m in metas[:10]:
+    print(f'Meta: {m}')
+# Extract links
+links = re.findall(r'href=[\"\\']([^\"\\']*)[\"\\']', html)
+for l in links[:15]:
+    print(f'Link: {l}')
+# Extract scripts
+scripts = re.findall(r'src=[\"\\']([^\"\\']*)[\"\\']', html)
+for s in scripts[:10]:
+    print(f'Script: {s}')
+print(f'\\nTotal HTML length: {len(html)} bytes')
+"
+Title: Clever &ndash; Rainbet
+Meta: <meta charset="UTF-8" />
+Meta: <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+Script: /cdn-cgi/challenge-platform/scripts/jsd/main.js
+
+Total HTML length: 1686 bytes
+[0m
+[0m$ [0m# Test the cookie setter on clever.rainbet.com with a controlled stag value
+curl -sS -D- -o /dev/null "https://clever.rainbet.com/?stag=test123" 2>&1 | head -20
+HTTP/2 200 
+date: Thu, 03 Sep 2026 20:02:32 GMT
+content-type: text/html
+cf-cache-status: HIT
+cache-control: public, max-age=0, must-revalidate
+set-cookie: __cf_bm=_RogmStoo5cULf2c9twXSZLPz4XdsYwOq7ESSu_xY8Q-1788465752.8595555-1.0.1.1-.9zpg0mTyuipplEhmSADduBUT852u6N276CWJRtIBioqW9iU1MPKdR3IXgoQv.PBZruW4tIvcRxqh1wm3ue1_Wtw8vHBOC1ALEDv.Rhkj9t5fFFeuRHjMO9A_3NEcZEV; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 03 Sep 2026 20:32:32 GMT
+vary: accept-encoding
+server: cloudflare
+cf-ray: a3575a4b59082f76-LAX
+alt-svc: h3=":443"; ma=86400
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0m# Check if the cookie is actually set and accessible
+curl -sS -c /tmp/clever-cookies.txt "https://clever.rainbet.com/?stag=INJECTED_VALUE" 2>&1 > /dev/null
+cat /tmp/clever-cookies.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[0m
+[0m$ [0m# Check if there are other paths on clever.rainbet.com
+curl -sS -o /dev/null -w "%{http_code}" "https://clever.rainbet.com/api" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://clever.rainbet.com/health" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://clever.rainbet.com/.env" 2>&1
+echo ""
+curl -sS -o /dev/null -w "%{http_code}" "https://clever.rainbet.com/admin" 2>&1
+404
+404
+404
+404
+[0m
+**CRITICAL FINDING:** `clever.rainbet.com` is a **cookie setter** that writes a `stag` parameter to a cookie on `.rainbet.com` domain. This could be a session fixation or cookie injection vector.
+
+- `mines.rainbet.com` → external redirect to `minesgames.io`
+- `maintenance.rainbet.com` → redirect to `rainbet.com`
+
+Let me dig deeper into the cookie setter.
+[0m$ [0m# Check if the cookie setter has any validation on the stag parameter
+curl -sS "https://clever.rainbet.com/?stag=%3Cscript%3Ealert(1)%3C/script%3E" 2>&1 | grep -i "stag\|cookie\|script\|inject" | head -10
+<script>
+  // Get the stag parameter
+  const stag = params.get("stag");
+  // Create/update cookie if stag exists
+  if (stag) {
+    document.cookie =
+      "stag=" + encodeURIComponent(stag) +
+    console.log("stag cookie written:", stag);
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3575a62bed7cb96',t:'MTc4ODQ2NTc1Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+[0m

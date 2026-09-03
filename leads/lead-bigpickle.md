@@ -36,3 +36,4 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED AUTH @ staging.rainbet.com: CF Access JWT contains `auth_status: NONE` and `is_wrap: false` — Access policy may be permissive or misconfigured.
 [LEARN] REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked.
 [RISK] RainBet: 35/100 — Heavy Cloudflare protection across all live hosts. CF WAF blocks automated requests to API. CF Access protects staging. Only 3/20 hosts respond. Cloudflare mitigations significantly reduce automated attack surface; manual/browser-assisted testing likely required for progress.
+## 2026-09-03 20:02:36 UTC [target] (model bigpickle)

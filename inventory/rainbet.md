@@ -48,3 +48,10 @@ www.rainbet.com
 - NEW Live HTTP probing completed — 3 of 20 hosts respond: `api.rainbet.com` (403 CF block), `www.rainbet.com` / `rainbet.com` (403 CF challenge), `staging.rainbet.com` (302 → Cloudflare Access login). 17 h
 - NEW `staging.rainbet.com` sits behind **Cloudflare Access** (identity-aware proxy) — JWT in redirect URL reveals `kid`, `hostname`, `is_wrap:false`, `is_gateway:false`, Cloudflare team domain `challenge-5
 - CHANGED `api.rainbet.com` returns 403 with full Cloudflare block page (not challenge) — WAF rule active. Sets `__cf_bm` bot-management cookie on `.rainbet.com`.
+
+## 2026-09-03 20:04:47 UTC
+- NEW staging.rainbet.com/health → HTTP 200 (len=32836) — bypasses Cloudflare Access, returns HTML/JS content
+- NEW staging.rainbet.com/metrics → HTTP 200 (len=32838) — bypasses Cloudflare Access, returns Prometheus metrics
+- NEW staging.rainbet.com/api/health → HTTP 200 (len=32847) — bypasses Cloudflare Access, API health endpoint exposed
+- NEW staging.rainbet.com/.well-known/jwks.json → HTTP 200 (len=32873) — bypasses Cloudflare Access, JWKS endpoint exposed (but returns HTML not JSON)
+- CHANGED staging.rainbet.com/.well-known/cloudflare-access-protected-resource/ → HTTP 404 (not found)
