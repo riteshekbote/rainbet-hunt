@@ -55,3 +55,13 @@ https://api.rainbet.com/api/v1/health -> HTTP 403
 https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/ -> HTTP 404
 https://staging.rainbet.com/api/health -> 200 len=32847
 https://rainbet.com/ -> HTTP 403
+
+## 2026-09-04 00:32:47 UTC
+https://staging.rainbet.com/health -> 200 len=32836
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v1/auth/login -> HTTP 403
+https://api.rainbet.com/ -> HTTP 403
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403

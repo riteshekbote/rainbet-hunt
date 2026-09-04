@@ -222,3 +222,27 @@ evidence_needed: whether redirect_url accepts https://evil.com (external) vs onl
 verify_steps: GET Access login URL with redirect_url=https://evil.com (no auth completion; observe if URL echoed/used). Passive.
 impact: Open redirect → phishing / auth-token theft if redirect carries tokens. Severity: LOW-MEDIUM.
 testability: PASSIVE
+## 2026-09-04 00:32:30 UTC [target] (model bigpickle)
+[CHANGED] Both remaining live hosts (api.rainbet.com, staging.rainbet.com) now show fully hardened surface — CORS reflected nowhere, HEAD/GET uniformly challenged, Access default-deny on all paths; cf-mitigated inconsistency resolved.
+[NEW] Only residual non-403 surface in the entire program: OPTIONS preflight passthrough on api (CORS-neutral) and post-auth `redirect_url` on staging CF Access (both fully probed, neither exploitable passively).
+[HYP] api.rainbet.com POST-with-JSON bypasses GET challenge → API router/contract reachable
+class: MISCONFIG
+asset: api.rainbet.com/api/v1/
+confidence: 42
+reasoning: CF challenge hits GET/HEAD uniformly (403, cf-mitigated) but OPTIONS preflight passes WAF to origin (200, Allow: HEAD,GET,POST,OPTIONS) — establishing that the WAF/WAF-vs-origin boundary is method-sensitive. A POST with a JSON body to a read/version/health route occasionally routes differently than GET on managed-challenge setups (bot-management vs WAF rule matching varies by method+Content-Type).
+evidence_needed: A non-403 response (application/json, 404/401/405 rather than CF 110KB challenge) for POST to a public/read endpoint.
+verify_steps: POST https://api.rainbet.com/api/v1/public/ping with Content-Type: application/json + empty {} body, no mutation. Expected either CF challenge (no finding) or origin JSON error (mapping surface → next probe). Read-only.
+impact: If POST reaches origin, API endpoint/contract disclosure → IDOR/BOLA mapping on a wallet API. Severity: MEDIUM.
+testability: AUTH_HELPED (result informs whether credentialed/mobile auth is required)
+[HYP] staging.rainbet.com Access policy bypass through /api/v1/ without trailing gating (already claimed, non-reproducible)
+class: AUTH
+asset: staging.rainbet.com/api/v1/
+confidence: 35 → PARK (unreproducible, contradicted twice)
+[PARKED] staging Access policy gap (/api/v1/health, /metrics, etc. return 200 HTML): contradicted twice by re-probes returning 302→login; transient/inconclusive, no corroboration. confidence<40.
+[PARKED] staging redirect_url open redirect: fully probed; Access default-deny authoritative; cannot complete auth passively; confidence 40 but needs HUMAN to confirm post-auth hop → drop from active passive work.
+[PARKED] api cf-mitigated inconsistency: contradicted — header now present, encoding bypass fails.
+[FINAL] POST-with-JSON body probe on api (confidence 42, the ONE untested request-level vector remaining on the only live non-403-signal host).
+[NEXT] PROBE: POST https://api.rainbet.com/api/v1/public/ping with headers `Content-Type: application/json` and body `{}` (single read-only POST to a public/read namespace; record status + presence of cf-mitigated/challenge vs origin JSON).
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding (200 on /health,/metrics,/api/health) is non-reproducible across independent probe rounds — both re-runs return 302→login; treat staging as default-deny.
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: POST-to-ping route remains untested — prior POST claims were to general /api/v1/ only; not yet re-probed, so not yet contradictable. (observation, not a finding)
+[RISK] RainBet: 20 — passive attack surface is minimal and fully hardened across all live hosts (api: uniform GET/HEAD challenge + CORS-neutral OPTIONS; www/root: managed challenge; staging: CF Access default-deny). Remaining vector (POST-with-body routing on api) is low-confidence and may itself be challenged. No credentialed/browser access → no realistic chain. Progressive effort should pivot to credentialed or mobile-app (POST/v1/ public namespace) surface via API-doc mining, or re-scan inventory in case a dead subdomain (17/20) comes back online.

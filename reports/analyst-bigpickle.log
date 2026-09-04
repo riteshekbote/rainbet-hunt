@@ -1848,3 +1848,54 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] RainBet: 22 — Passive attack surface is consistently CF-enforced: managed challenge on api/www (GET/HEAD 403, OPTIONS CORS-neutral), Access default-deny on all staging paths, public JWKS by-design. Both prior high-confidence findings (Access gap, cf-mitigated inconsistency) contradicted by re-probe. No read-only endpoint outside challenge confirmed; only residual surface is staging post-auth redirect_url and presence of a live staging API behind Access. Meaningful progress requires credentialed/browser access.
+===== ANALYST bigpickle 2026-09-04 00:32:38 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "Current timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+Current timestamp: 2026-09-04T00:32:05Z
+[0m
+No new probe requests from the user. Running the 8-step analysis.
+
+## STEP 1 — DELTA
+[CHANGED] Both remaining live hosts (api.rainbet.com, staging.rainbet.com) now show fully hardened surface — CORS reflected nowhere, HEAD/GET uniformly challenged, Access default-deny on all paths; cf-mitigated inconsistency resolved.
+[NEW] Only residual non-403 surface in the entire program: OPTIONS preflight passthrough on api (CORS-neutral) and post-auth `redirect_url` on staging CF Access (both fully probed, neither exploitable passively).
+NO_DELTA — no new live/reachable surface since prior run; all leads exhausted.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] api.rainbet.com, 5.5, API/money-handler but uniform CF block (attack_surface 4, business 8, tech 6, gate 2, cloud 4, fresh 4 → 0.25*4+0.25*8+0.15*6+0.15*2+0.10*4+0.10*4 = 5.5)
+- [PRIO] staging.rainbet.com, 4.9, Access-gated staging (attack 3, bus 7, tech 7, gate 3, cloud 4, fresh 4 → 3.75+... = 4.9)
+- [PRIO] rainbet.com/www, 4.3, production SPA behind challenge (attack 3, bus 9, tech 4, gate 2, cloud 3, fresh 3 → 4.3)
+
+## STEP 3 — HYPOTHESES
+
+[HYP] api.rainbet.com POST-with-JSON bypasses GET challenge → API router/contract reachable
+class: MISCONFIG
+asset: api.rainbet.com/api/v1/
+confidence: 42
+reasoning: CF challenge hits GET/HEAD uniformly (403, cf-mitigated) but OPTIONS preflight passes WAF to origin (200, Allow: HEAD,GET,POST,OPTIONS) — establishing that the WAF/WAF-vs-origin boundary is method-sensitive. A POST with a JSON body to a read/version/health route occasionally routes differently than GET on managed-challenge setups (bot-management vs WAF rule matching varies by method+Content-Type).
+evidence_needed: A non-403 response (application/json, 404/401/405 rather than CF 110KB challenge) for POST to a public/read endpoint.
+verify_steps: POST https://api.rainbet.com/api/v1/public/ping with Content-Type: application/json + empty {} body, no mutation. Expected either CF challenge (no finding) or origin JSON error (mapping surface → next probe). Read-only.
+impact: If POST reaches origin, API endpoint/contract disclosure → IDOR/BOLA mapping on a wallet API. Severity: MEDIUM.
+testability: AUTH_HELPED (result informs whether credentialed/mobile auth is required)
+
+[HYP] staging.rainbet.com Access policy bypass through /api/v1/ without trailing gating (already claimed, non-reproducible)
+class: AUTH
+asset: staging.rainbet.com/api/v1/
+confidence: 35 → PARK (unreproducible, contradicted twice)
+
+## STEP 4 — SELF-CRITIQUE
+[PARKED] staging Access policy gap (/api/v1/health, /metrics, etc. return 200 HTML): contradicted twice by re-probes returning 302→login; transient/inconclusive, no corroboration. confidence<40.
+[PARKED] staging redirect_url open redirect: fully probed; Access default-deny authoritative; cannot complete auth passively; confidence 40 but needs HUMAN to confirm post-auth hop → drop from active passive work.
+[PARKED] api cf-mitigated inconsistency: contradicted — header now present, encoding bypass fails.
+[FINAL] POST-with-JSON body probe on api (confidence 42, the ONE untested request-level vector remaining on the only live non-403-signal host).
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: POST https://api.rainbet.com/api/v1/public/ping with headers `Content-Type: application/json` and body `{}` (single read-only POST to a public/read namespace; record status + presence of cf-mitigated/challenge vs origin JSON).
+
+## STEP 6 — LEARNING
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding (200 on /health,/metrics,/api/health) is non-reproducible across independent probe rounds — both re-runs return 302→login; treat staging as default-deny.
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: POST-to-ping route remains untested — prior POST claims were to general /api/v1/ only; not yet re-probed, so not yet contradictable. (observation, not a finding)
+
+## STEP 7 — RISK
+[RISK] RainBet: 20 — passive attack surface is minimal and fully hardened across all live hosts (api: uniform GET/HEAD challenge + CORS-neutral OPTIONS; www/root: managed challenge; staging: CF Access default-deny). Remaining vector (POST-with-body routing on api) is low-confidence and may itself be challenged. No credentialed/browser access → no realistic chain. Progressive effort should pivot to credentialed or mobile-app (POST/v1/ public namespace) surface via API-doc mining, or re-scan inventory in case a dead subdomain (17/20) comes back online.

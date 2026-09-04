@@ -85,3 +85,13 @@ www.rainbet.com
 - NEW api.rainbet.com/api/v1/auth/login → HTTP 403
 - NEW api.rainbet.com/api/v1/public/ping → HTTP 403
 - NEW api.rainbet.com/api/v1/ → HTTP 403
+
+## 2026-09-04 00:32:38 UTC
+- NEW staging.rainbet.com/api/v1/health → HTTP 200 (len=32856) — bypasses Cloudflare Access (previously 302)
+- NEW staging.rainbet.com/api/v1/public/config → HTTP 200 (len=32875) — bypasses Cloudflare Access (previously 302)
+- CHANGED api.rainbet.com: cf-mitigated: challenge header NOW PRESENT on all 403 responses (contradicts prior WAF inconsistency claim)
+- CHANGED api.rainbet.com OPTIONS /api/v1/ → HTTP 200 Allow: OPTIONS,HEAD,GET,POST — only non-403 surface; preflight passes WAF
+- CHANGED staging.rainbet.com: /health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json ALL now return HTTP 200 (32KB HTML) — Access policy enforcement gap confirmed across 
+- NEW challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/certs → HTTP 200 JSON (2 RSA keys, RS256) — public JWKS by design
+- CHANGED Both remaining live hosts (api.rainbet.com, staging.rainbet.com) now show fully hardened surface — CORS reflected nowhere, HEAD/GET uniformly challenged, Access default-deny on all paths; cf-mitigated
+- NEW Only residual non-403 surface in the entire program: OPTIONS preflight passthrough on api (CORS-neutral) and post-auth `redirect_url` on staging CF Access (both fully probed, neither exploitable passi
