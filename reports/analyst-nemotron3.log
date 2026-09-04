@@ -1025,3 +1025,145 @@ testability: AUTH_HELPED
 ### STEP 7 — RISK
 
 [RISK] RainBet: **45** — Staging Access gap closed; API subdomain hardened (only OPTIONS preflight info leak remains). No authenticated attack surface reachable passively. 2/20 hosts live with significant protections. Residual risk: API contract enumeration via OPTIONS (LOW), GraphQL introspection if WAF bypass discovered (THEORETICAL).
+===== ANALYST nemotron3 2026-09-04 17:48:27 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la /home/runner/work/rainbet-hunt/rainbet-hunt/
+total 156
+drwxr-xr-x 12 runner runner  4096 Sep  4 17:41 .
+drwxr-xr-x  3 runner runner  4096 Sep  4 17:40 ..
+drwxr-xr-x  7 runner runner  4096 Sep  4 17:41 .git
+drwxr-xr-x  3 runner runner  4096 Sep  4 17:40 .github
+-rw-r--r--  1 runner runner  1696 Sep  4 17:40 README.md
+-rw-r--r--  1 runner runner    43 Sep  4 17:41 analyst-out.txt
+-rw-r--r--  1 runner runner 34909 Sep  4 17:41 analyst-prompt.txt
+-rw-r--r--  1 runner runner 31124 Sep  4 17:41 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  4 17:40 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  4 17:40 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  4 17:40 leads
+-rw-r--r--  1 runner runner  3588 Sep  4 17:40 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  4 17:40 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  4 17:40 reports
+drwxr-xr-x  2 runner runner  4096 Sep  4 17:40 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  4 17:40 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  4 17:40 scripts
+-rw-r--r--  1 runner runner    33 Sep  4 17:40 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  4 17:40 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  4 17:40 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  4 17:40 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  4 17:40 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  4 17:40 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  4 17:40 triage
+[0m
+[0m→ [0mRead state_nemotron3.json
+[0m→ [0mRead scope.yml
+[0m→ [0mRead inventory/rainbet.md
+[0m→ [0mRead probe-results.md
+[0m✱ [0mGlob "**/*.md"[90m in recon-notes · 1 match[0m
+[0m✱ [0mGlob "**/*.txt"[90m in leads · 0 matches[0m
+[0m✱ [0mGlob "*"[90m in leads · 7 matches[0m
+[0m→ [0mRead recon-notes/DEDICATED-DEEP.md
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-ling3.md
+[0m→ [0mRead leads/lead-laguna.md
+[0m→ [0mRead leads/lead-longcat.md
+[0m→ [0mRead leads/lead-mimo.md
+Now I have full context. Let me execute the 8-step analysis.
+
+---
+
+## STEP 1 — DELTA
+
+**NEW** Staging Cloudflare Access policy gap **CLOSED** — latest probe (2026-09-04 14:07 UTC) shows all 6 previously-exposed endpoints (/health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json) now return 302→Access login. Policy enforces default-deny.
+
+**CHANGED** api.rainbet.com WAF configuration **updated** — `cf-mitigated: challenge` header now present on all 403 responses (was absent, now consistent with www.rainbet.com).
+
+**CHANGED** api.rainbet.com POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge (110KB HTML) — POST-with-JSON bypass hypothesis **contradicted**; no method-based WAF bypass.
+
+**CHANGED** api.rainbet.com OPTIONS /api/v1/ confirmed as **only** non-403 surface — returns 200 with `Allow: OPTIONS,HEAD,GET,POST` but **no CORS headers** (CORS-neutral preflight passthrough).
+
+**CHANGED** rainbet.com/www.rainbet.com — Cloudflare managed challenge confirmed covering all paths; no unchallenged surface.
+
+---
+
+## STEP 2 — PRIORITIZE
+
+| Asset | Score | attack_surface | business_value | tech_exposure | gate_ease | cloud_surface | freshness |
+|-------|-------|----------------|----------------|---------------|-----------|---------------|-----------|
+| api.rainbet.com/api/v1/ | **5.3** | 6 | 9 | 5 | 2 | 8 | 7 |
+| staging.rainbet.com | **4.8** | 4 | 7 | 5 | 3 | 8 | 6 |
+| rainbet.com | **3.9** | 3 | 9 | 4 | 1 | 7 | 5 |
+
+Calculation: priority = 0.25×a + 0.25×b + 0.15×t + 0.15×g + 0.10×c + 0.10×f
+
+---
+
+## STEP 3 — HYPOTHESES
+
+[HYP] api.rainbet.com OPTIONS preflight leaks allowed methods → API contract enumeration  
+class: MISCONFIG  
+asset: api.rainbet.com/api/v1/  
+confidence: 55  
+reasoning: OPTIONS /api/v1/ returns HTTP 200 with `Allow: OPTIONS,HEAD,GET,POST` but no Access-Control-* headers even with evil Origin. This reveals the API contract (allowed methods) without authentication. While not a CORS exploit, it enables endpoint/method mapping for subsequent auth-bypass or IDOR probes.  
+evidence_needed: Confirm OPTIONS on versioned endpoints (/api/v1/, /api/v2/, /graphql, /swagger) returns Allow headers consistently; check if any endpoint returns Access-Control-Allow-Origin: * or reflects Origin.  
+verify_steps: OPTIONS https://api.rainbet.com/api/v1/ (Origin: https://evil.com), OPTIONS https://api.rainbet.com/api/v2/, OPTIONS https://api.rainbet.com/graphql, OPTIONS https://api.rainbet.com/swagger — all with Origin header; record Allow and CORS headers.  
+impact: API contract disclosure → faster endpoint enumeration for IDOR/BOLA on wallet/betting endpoints. Severity: LOW-MEDIUM (info leak only, no direct exploit).  
+testability: PASSIVE  
+
+[HYP] staging.rainbet.com intermittent Access policy enforcement → race condition on policy evaluation  
+class: AUTH  
+asset: staging.rainbet.com  
+confidence: 40  
+reasoning: Six endpoints returned HTTP 200 (32KB HTML) in probes at 00:32, 05:12, 09:48 UTC but 302→login at 14:07 UTC. This intermittent behavior suggests a race condition or timing-dependent policy evaluation in Cloudflare Access (e.g., policy cache TTL, edge propagation delay, or warm-up period after config change).  
+evidence_needed: Re-probe the 6 endpoints across multiple time windows; check if 200 responses contain actual application data (JSON config, Prometheus metrics) vs CF challenge HTML; correlate with Access policy change logs if available.  
+verify_steps: GET https://staging.rainbet.com/health (Accept: text/html), GET https://staging.rainbet.com/metrics (Accept: text/plain), GET https://staging.rainbet.com/api/v1/public/config (Accept: application/json), GET https://staging.rainbet.com/.well-known/jwks.json (Accept: application/json) — repeat at 30-min intervals; capture full bodies + headers.  
+impact: If intermittent gaps expose real data (not just challenge HTML), staging API/config/metrics leak during window. Severity: MEDIUM (intermittent, staging only).  
+testability: PASSIVE  
+
+[HYP] api.rainbet.com GraphQL introspection behind WAF → schema disclosure if encoding/header bypass  
+class: MISCONFIG  
+asset: api.rainbet.com/graphql  
+confidence: 30  
+reasoning: /graphql returns 403 cf-mitigated challenge. If any WAF bypass exists (double-encoding, header smuggling, method override X-HTTP-Method-Override, or HTTP/2 stream manipulation), GraphQL introspection could expose full schema including wallet/betting mutations. No evidence of bypass currently.  
+evidence_needed: Any non-403 response from /graphql with Accept: application/json or POST query={__schema{types{name}}}.  
+verify_steps: GET https://api.rainbet.com/graphql (Accept: application/json), POST https://api.rainbet.com/graphql (Content-Type: application/json, body: {"query":"{__schema{types{name}}}"}) — both expect 403 challenge. Test encoding variants: /%67%72%61%70%68%71%6c, //graphql, /graphql/.  
+impact: Full API schema disclosure → wallet mutations, betting logic, user PII fields. Severity: CRITICAL if bypassed.  
+testability: PASSIVE  
+
+---
+
+## STEP 4 — SELF-CRITIQUE
+
+[PARKED] staging.rainbet.com intermittent Access policy enforcement → race condition: confidence 40 < 50 threshold; intermittent finding with no confirmed data leak (all 200 responses were 32KB CF challenge HTML, not real app data); re-probing needed but current surface shows default-deny.
+
+[PARKED] api.rainbet.com GraphQL introspection behind WAF: confidence 30 < 40; no evidence of WAF bypass; purely speculative.
+
+[FINAL] 1. api.rainbet.com OPTIONS preflight leaks allowed methods → API contract enumeration (confidence 55)
+
+---
+
+## STEP 5 — NEXT ACTION
+
+[NEXT] PROBE: OPTIONS https://api.rainbet.com/api/v2/ -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" (check Allow header + CORS), then OPTIONS https://api.rainbet.com/graphql -H "Origin: https://evil.com", then OPTIONS https://api.rainbet.com/swagger -H "Origin: https://evil.com" — map versioned API contract exposure.
+
+---
+
+## STEP 6 — LEARNING
+
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Cloudflare Access policy gap (HTTP 200 on 6 endpoints) was **transient/fixed** — latest probes (2026-09-04 14:07 UTC) show all 6 endpoints return 302→Access login. Policy now enforces default-deny.
+
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge (110KB HTML). No method-based WAF bypass.
+
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v1/ returns 200 with Allow: OPTIONS,HEAD,GET,POST but **no CORS headers** — preflight passthrough is CORS-neutral, not exploitable.
+
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses — WAF configuration consistent across subdomains (api, www).
+
+[LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+
+---
+
+## STEP 7 — RISK
+
+[RISK] RainBet: **45** — Staging Access gap closed; API subdomain hardened (only OPTIONS preflight info leak remains). No authenticated attack surface reachable passively. 2/20 hosts live with significant protections. Residual risk: API contract enumeration via OPTIONS (LOW), GraphQL introspection if WAF bypass discovered (THEORETICAL).

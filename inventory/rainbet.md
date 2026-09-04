@@ -109,3 +109,5 @@ www.rainbet.com
 - CHANGED api.rainbet.com OPTIONS /api/v1/ → HTTP 200 Allow: OPTIONS,HEAD,GET,POST — only non-403 surface remains
 
 ## 2026-09-04 14:14:04 UTC
+
+## 2026-09-04 17:48:27 UTC

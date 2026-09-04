@@ -287,3 +287,33 @@ testability: AUTH_HELPED
 [LEARN] REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding non-reproducible across rounds, but latest 2026-09-04 00:32 probe shows reappearance — treating as intermittent/confirmed with caveats.
 [RISK] RainBet: 20 — passive attack surface fully hardened across all live hosts. api: uniform GET/HEAD challenge + CORS-neutral OPTIONS; www/root: managed challenge; staging: CF Access default-deny on all paths (with intermittent gaps on 6 endpoints). Remaining vector (POST-with-body routing on api) is low-confidence. No credentialed/browser access → no realistic chain. Progressive effort should pivot to credentialed or mobile-app surface via API-doc mining, or re-scan dead subdomains for re-activation.
 ## 2026-09-04 14:06:15 UTC [target] (model bigpickle)
+## 2026-09-04 17:47:16 UTC [target] (model bigpickle)
+[HYP] api/services DO direct-origin bypass via x-do-app-origin leak → CF WAF-less origin access
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 45
+reasoning: OPTIONS passthrough reaches origin on 6 hosts with distinct x-do-app-origin UUIDs; all non-OPTIONS methods return CF challenge (110KB) or block (5.4KB). DigitalOcean App Platform assigns an unproxied default FQDN `<app>.<suffix>.ondigitalocean.app`; if that FQDN (not behind CF WAF) is discoverable, the full API becomes reachable without challenge.
+evidence_needed: A reachable `<app>.ondigitalocean.app` hostname serving api/services/chat content without cf-mitigated.
+verify_steps: OSINT lookup of UUIDs/slugs; then single read-only GET https://<candidate>/api/v1/public/ping — expect origin JSON (401/404/200) instead of CF 403 challenge. Passive.
+impact: WAF bypass → unchallenged origin → full API endpoint/contract mapping → IDOR/BOLA on wallet API. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] Media/files origin method-divergence → route presence disclosure across fleet
+class: MISCONFIG
+asset: media.rainbet.com
+confidence: 44
+reasoning: OPTIONS on media returns origin 405 (OPTIONS not allowed) and files 204, while api/services/chat/socket/slot-integrations/alerts return 404/204 with DO headers — non-uniform WAF rule application per host, indicating per-host policies; method-differential may reveal live routes on unprobed hosts (ds, files, media) similarly to api.
+evidence_needed: Any host in the fleet returning a non-403, non-CF origin response for HEAD/POST to a guessed route.
+verify_steps: POST https://files.rainbet.com/api/v1/public/ping (Content-Type: application/json, body {}) and HEAD https://media.rainbet.com/robots.txt — record status + origin headers; expect CF challenge (no finding) or origin response (route mapping → next probe). Read-only.
+impact: Route/contract disclosure on unsecured microservice backends → IDOR/authz testing surface. Severity: MEDIUM.
+testability: PASSIVE
+[HYP] staging Access gap intermittent re-open (6 endpoints 200)
+class: AUTH
+asset: staging.rainbet.com
+confidence: 38
+reasoning: Gap reappeared 2026-09-04 00:32 (200 on /health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json); latest probes this round show 302→login on /api/v1/public/config. Pattern suggests periodic policy drift/gradual rollout rather than fixed config.
+evidence_needed: Any of the 6 endpoints returning 200 with JSON body (not CF challenge HTML) during drift window.
+verify_steps: GET https://staging.rainbet.com/api/v1/public/config with Accept: application/json, on 30-min drift check; if 200, fetch body and grep for embedded JSON/tokens. Passive.
+impact: Public exposure of staging API config/keys → cred reuse on prod staging. Severity: MEDIUM.
+testability: PASSIVE
+[NEXT] RAG: OSINT-hunt the six DigitalOcean App UUIDs and RainBet app slugs for `*.ondigitalocean.app` default-domain FQDNs (unproxied by Cloudflare WAF); verify any candidate with a single read-only GET https://<candidate>/api/v1/public/ping — a non-cf-mitigated origin response confirms the WAF-bypass chain.
+[RISK] RainBet: **45** — Surface materially larger than prior assessment (16 live hosts; 6 distinct DO App Platform origins reachable for method/probe passthrough) and the uniform-CH challenge thesis is disproven at the origin level. However, all content-bearing methods (GET/HEAD/POST/PUT/DELETE) remain challenged, CORS is neutral everywhere, and no origin UUID is yet resolvable to an unproxied FQDN. Highest-leverage residual: direct-origin discovery (WAF bypass) and intermittent staging Access drift. Below 50 pending either chain landing.
