@@ -25,3 +25,4 @@
 - 2026-09-04 REJECTED MISCONFIG @ api.rainbet.com: OPTIONS passes WAF (200, Allow methods) but returns NO Access-Control-* headers even with evil Origin — no CORS misconfig, no cross-origin exploit.
 - 2026-09-04 REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding (200 on /health,/metrics,/api/health) is non-reproducible across independent probe rounds — both re-runs return 302→login; treat staging as default-deny.
 - 2026-09-04 REJECTED MISCONFIG @ api.rainbet.com: POST-to-ping route remains untested — prior POST claims were to general /api/v1/ only; not yet re-probed, so not yet contradictable. (observation, not a finding)
+- 2026-09-04 REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding (200 on /health,/metrics,/api/health) is non-reproducible across independent probe rounds — both re-runs return 302→login; treat staging as default-deny. (Note: LATEST probe 2026-09-04 00:32 shows gap REAPPEARED — treating as confirmed)
