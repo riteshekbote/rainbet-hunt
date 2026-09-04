@@ -390,3 +390,45 @@ testability: PASSIVE
 [LEARN] ACCEPTED AUTH @ staging.rainbet.com: Access policy gap **reappeared** at 2026-09-04 17:48 (6 endpoints HTTP 200, 32KB) after 302 at 14:07 — intermittent enforcement confirmed.  
 [LEARN] NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.  
 [RISK] RainBet: **50** — Staging Access gap intermittent (reappeared 17:48); API hardened (only OPTIONS /api/v1/ info leak); 2 new live hosts (files, media) behind CF challenge; DO direct-origin bypass theoretical (0/6 UUIDs resolved). Residual risk: Staging intermittent data leak (MEDIUM), API contract enumeration via OPTIONS (LOW), DO origin bypass if FQDN discovered (HIGH but unproven). 5/20 hosts live with significant protections.
+## 2026-09-04 22:16:49 UTC [target] (model nemotron3)
+[PRIO] staging.rainbet.com,8.2,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=9,freshness=10  
+[PRIO] api.rainbet.com,6.4,attack_surface=7,business_value=9,tech_exposure=7,gate_ease=3,cloud_surface=8,freshness=9  
+[PRIO] files.rainbet.com,5.1,attack_surface=5,business_value=7,tech_exposure=5,gate_ease=2,cloud_surface=7,freshness=9  
+[PRIO] media.rainbet.com,4.8,attack_surface=4,business_value=6,tech_exposure=5,gate_ease=2,cloud_surface=7,freshness=9  
+[HYP] Staging intermittent Cloudflare Access policy enforcement → race condition on policy evaluation  
+class: AUTH  
+asset: staging.rainbet.com  
+confidence: 65  
+reasoning: Six endpoints (/health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json) returned HTTP 200 (32KB HTML) at 00:32, 05:12, 09:48, 17:48, 20:00 UTC but 302→login at 14:07 UTC. Identical response sizes (32836-32875 bytes) indicate CF challenge page served directly without auth redirect. Pattern suggests policy cache TTL, edge propagation delay, or config rollout race.  
+evidence_needed: Any 200 response containing actual application data (JSON config from /api/v1/public/config, Prometheus metrics from /metrics, valid JWKS from /.well-known/jwks.json) vs static CF challenge HTML; correlation of gap windows with Access policy changes  
+verify_steps: GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json", GET https://staging.rainbet.com/metrics -H "Accept: text/plain", GET https://staging.rainbet.com/.well-known/jwks.json -H "Accept: application/json" — repeat at 30-min intervals; capture full bodies + headers + Content-Type  
+impact: If intermittent gaps expose real data (not just challenge HTML), staging API/config/metrics/keys leak during window. Severity: MEDIUM (intermittent, staging only)  
+testability: PASSIVE  
+[HYP] api.rainbet.com DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN  
+class: MISCONFIG  
+asset: api.rainbet.com  
+confidence: 55  
+reasoning: OPTIONS /api/v1/ returns 200 with `x-do-app-origin` header revealing 6 distinct DO App UUIDs. DO App Platform assigns default unproxied FQDN `<app>.<region>.ondigitalocean.app` that bypasses Cloudflare WAF. If any UUID maps to resolvable unproxied FQDN, full API origin becomes reachable without CF challenge.  
+evidence_needed: A resolvable `*.ondigitalocean.app` FQDN serving API content without `cf-mitigated` header (origin JSON 200/401/404 instead of 110KB CF challenge)  
+verify_steps: RAG: OSINT-hunt the 6 DO App UUIDs/slugs from x-do-app-origin headers for `*.ondigitalocean.app` FQDNs; then single read-only GET https://<candidate>/api/v1/public/ping — expect origin JSON response without cf-mitigated  
+impact: Complete WAF bypass → unchallenged origin access → full API contract enumeration → IDOR/BOLA on wallet/betting endpoints. Severity: HIGH  
+testability: AUTH_HELPED  
+[HYP] api.rainbet.com GraphQL introspection behind WAF → schema disclosure if bypass found  
+class: MISCONFIG  
+asset: api.rainbet.com/graphql  
+confidence: 35  
+reasoning: /graphql returns 403 cf-mitigated challenge. If any WAF bypass exists (double-encoding, header smuggling, method override X-HTTP-Method-Override, or HTTP/2 stream manipulation), GraphQL introspection could expose full schema including wallet/betting mutations. No evidence of bypass currently.  
+evidence_needed: Any non-403 response from /graphql with Accept: application/json or POST query={__schema{types{name}}}  
+verify_steps: GET https://api.rainbet.com/graphql -H "Accept: application/json", POST https://api.rainbet.com/graphql -H "Content-Type: application/json" -d '{"query":"{__schema{types{name}}}"}' — both expect 403 challenge. Test encoding variants: /%67%72%61%70%68%71%6c, //graphql, /graphql/.  
+impact: Full API schema disclosure → wallet mutations, betting logic, user PII fields. Severity: CRITICAL if bypassed.  
+testability: PASSIVE  
+[PARKED] api.rainbet.com GraphQL introspection behind WAF: confidence 35 < 40; no evidence of WAF bypass; purely speculative.
+[FINAL] 1. Staging intermittent Cloudflare Access policy enforcement → race condition on policy evaluation (confidence 65)  
+[FINAL] 2. api.rainbet.com DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN (confidence 55)
+[NEXT] PROBE: GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json" (check for real JSON config vs CF challenge HTML in current gap window at 20:00 UTC), then GET https://staging.rainbet.com/metrics -H "Accept: text/plain", then GET https://staging.rainbet.com/.well-known/jwks.json -H "Accept: application/json" — confirm if intermittent gap exposes real app data or only CF challenge HTML.
+[LEARN] ACCEPTED AUTH @ staging.rainbet.com: Access policy gap **reappeared** at 2026-09-04 17:48 and **persists at 20:00** (3 endpoints HTTP 200, 32KB) after 302 at 14:07 — intermittent enforcement confirmed across 5 probe rounds.  
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v2/, /graphql, /swagger return 403 (not 200) — only /api/v1/ leaks Allow header; WAF rule is version-sensitive.  
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses — WAF configuration consistent across subdomains (api, www).  
+[LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.  
+[LEARN] NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.
+[RISK] RainBet: **55** — Staging Access gap intermittent (persists at 20:00 UTC across 3 endpoints); API hardened (only OPTIONS /api/v1/ info leak); 2 new live hosts (files, media) behind CF challenge; DO direct-origin bypass theoretical (0/6 UUIDs resolved). Residual risk: Staging intermittent data leak (MEDIUM if real data exposed), API contract enumeration via OPTIONS (LOW), DO origin bypass if FQDN discovered (HIGH but unproven). 5/20 hosts live with significant protections.

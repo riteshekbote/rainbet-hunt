@@ -2983,3 +2983,421 @@ testability: AUTH_HELPED
 
 ## STEP 7 — RISK
 [RISK] RainBet: **45** — Fleet uniform hardening confirmed (all 12+ tested hosts GET/HEAD-challenged); api origin reachable only via CORS-neutral OPTIONS; staging Access drift currently closed; DO-origin OSINT dead. Remaining upside requires non-passive assets (client bundle mining, credentialed browser). No reduction in exposure observed this round.
+===== ANALYST bigpickle 2026-09-04 22:17:39 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls art/ 2>/dev/null | tail -30
+total 160
+drwxr-xr-x 12 runner runner  4096 Sep  4 22:14 .
+drwxr-xr-x  3 runner runner  4096 Sep  4 22:14 ..
+drwxr-xr-x  7 runner runner  4096 Sep  4 22:15 .git
+drwxr-xr-x  3 runner runner  4096 Sep  4 22:14 .github
+-rw-r--r--  1 runner runner  1696 Sep  4 22:14 README.md
+-rw-r--r--  1 runner runner    32 Sep  4 22:15 analyst-out.txt
+-rw-r--r--  1 runner runner 33026 Sep  4 22:14 analyst-prompt.txt
+-rw-r--r--  1 runner runner 29241 Sep  4 22:14 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 leads
+-rw-r--r--  1 runner runner  4482 Sep  4 22:14 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 reports
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  4 22:14 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 scripts
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 triage
+[0m
+[0m$ [0mcat scope.yml 2>/dev/null | head -50; echo "---"; ls inventory/ 2>/dev/null
+programs:
+  rainbet:
+    name: RainBet Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, gaming platforms, wallets, APIs, user systems, mobile/web applications, and domains operated by RainBet"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+---
+rainbet.md
+[0m
+[0m$ [0mtail -40 probe-results.md 2>/dev/null; echo "===LEADS==="; ls leads/; echo "===RECENT LEADS==="; for f in $(ls -t leads/ | head -3); do echo "--- $f ---"; tail -20 leads/$f; done
+## 2026-09-04 05:12:55 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+
+## 2026-09-04 09:48:52 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://staging.rainbet.com/health -> 200 len=32836
+
+## 2026-09-04 14:14:11 UTC
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/graphql -> HTTP 403
+https://api.rainbet.com/swagger -> HTTP 403
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/api/v1/public/config -> HTTP 404
+
+## 2026-09-04 17:48:38 UTC
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/graphql -> HTTP 403
+https://api.rainbet.com/swagger -> HTTP 403
+https://staging.rainbet.com/health -> 200 len=32836
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://files.rainbet.com/api/v1/public/ping -> HTTP 403
+https://media.rainbet.com/robots.txt -> HTTP 403
+
+## 2026-09-04 20:00:58 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/graphql -> HTTP 403
+===LEADS===
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-mimo.md
+lead-nemotron3.md
+reposcan-rainbet.md
+===RECENT LEADS===
+--- lead-laguna.md ---
+## 2026-09-03 17:12:44 UTC [target] (model laguna)
+## 2026-09-03 19:56:34 UTC [target] (model laguna)
+## 2026-09-03 22:29:20 UTC [target] (model laguna)
+## 2026-09-04 00:24:00 UTC [target] (model laguna)
+## 2026-09-04 05:06:32 UTC [target] (model laguna)
+## 2026-09-04 09:47:32 UTC [target] (model laguna)
+## 2026-09-04 14:06:03 UTC [target] (model laguna)
+## 2026-09-04 17:41:27 UTC [target] (model laguna)
+## 2026-09-04 19:54:42 UTC [target] (model laguna)
+--- lead-ling3.md ---
+## 2026-09-03 17:12:59 UTC [target] (model ling3)
+## 2026-09-03 19:56:29 UTC [target] (model ling3)
+## 2026-09-03 22:29:22 UTC [target] (model ling3)
+## 2026-09-04 00:25:44 UTC [target] (model ling3)
+## 2026-09-04 05:06:53 UTC [target] (model ling3)
+## 2026-09-04 09:47:07 UTC [target] (model ling3)
+## 2026-09-04 14:06:04 UTC [target] (model ling3)
+## 2026-09-04 17:41:48 UTC [target] (model ling3)
+## 2026-09-04 19:56:30 UTC [target] (model ling3)
+--- lead-longcat.md ---
+## 2026-09-03 17:12:46 UTC [target] (model longcat)
+## 2026-09-03 19:56:30 UTC [target] (model longcat)
+## 2026-09-03 22:29:21 UTC [target] (model longcat)
+## 2026-09-04 00:27:48 UTC [target] (model longcat)
+## 2026-09-04 05:05:23 UTC [target] (model longcat)
+## 2026-09-04 09:45:47 UTC [target] (model longcat)
+## 2026-09-04 14:06:00 UTC [target] (model longcat)
+## 2026-09-04 17:40:29 UTC [target] (model longcat)
+## 2026-09-04 19:55:08 UTC [target] (model longcat)
+[0m
+[0m$ [0mcat analyst-out.txt; echo "==="; cat state_bigpickle.json; echo; ls knowledge/ reports/ 2>/dev/null
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls art/ 2>/dev/null | tail -30
+total 160
+drwxr-xr-x 12 runner runner  4096 Sep  4 22:14 .
+drwxr-xr-x  3 runner runner  4096 Sep  4 22:14 ..
+drwxr-xr-x  7 runner runner  4096 Sep  4 22:15 .git
+drwxr-xr-x  3 runner runner  4096 Sep  4 22:14 .github
+-rw-r--r--  1 runner runner  1696 Sep  4 22:14 README.md
+-rw-r--r--  1 runner runner    32 Sep  4 22:15 analyst-out.txt
+-rw-r--r--  1 runner runner 33026 Sep  4 22:14 analyst-prompt.txt
+-rw-r--r--  1 runner runner 29241 Sep  4 22:14 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 leads
+-rw-r--r--  1 runner runner  4482 Sep  4 22:14 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 reports
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  4 22:14 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 scripts
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:14 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:14 triage
+[0m
+[0m$ [0mcat scope.yml 2>/dev/null | head -50; echo "---"; ls inventory/ 2>/dev/null
+programs:
+  rainbet:
+    name: RainBet Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, gaming platforms, wallets, APIs, user systems, mobile/web applications, and domains operated by RainBet"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+---
+rainbet.md
+[0m
+[0m$ [0mtail -40 probe-results.md 2>/dev/null; echo "===LEADS==="; ls leads/; echo "===RECENT LEADS==="; for f in $(ls -t leads/ | head -3); do echo "--- $f ---"; tail -20 leads/$f; done
+## 2026-09-04 05:12:55 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+
+## 2026-09-04 09:48:52 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://staging.rainbet.com/health -> 200 len=32836
+
+## 2026-09-04 14:14:11 UTC
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/graphql -> HTTP 403
+https://api.rainbet.com/swagger -> HTTP 403
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/api/v1/public/config -> HTTP 404
+
+## 2026-09-04 17:48:38 UTC
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/graphql -> HTTP 403
+https://api.rainbet.com/swagger -> HTTP 403
+https://staging.rainbet.com/health -> 200 len=32836
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://files.rainbet.com/api/v1/public/ping -> HTTP 403
+https://media.rainbet.com/robots.txt -> HTTP 403
+
+## 2026-09-04 20:00:58 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/graphql -> HTTP 403
+===LEADS===
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-mimo.md
+lead-nemotron3.md
+reposcan-rainbet.md
+===RECENT LEADS===
+--- lead-laguna.md ---
+## 2026-09-03 17:12:44 UTC [target] (model laguna)
+## 2026-09-03 19:56:34 UTC [target] (model laguna)
+## 2026-09-03 22:29:20 UTC [target] (model laguna)
+## 2026-09-04 00:24:00 UTC [target] (model laguna)
+## 2026-09-04 05:06:32 UTC [target] (model laguna)
+## 2026-09-04 09:47:32 UTC [target] (model laguna)
+## 2026-09-04 14:06:03 UTC [target] (model laguna)
+## 2026-09-04 17:41:27 UTC [target] (model laguna)
+## 2026-09-04 19:54:42 UTC [target] (model laguna)
+--- lead-ling3.md ---
+## 2026-09-03 17:12:59 UTC [target] (model ling3)
+## 2026-09-03 19:56:29 UTC [target] (model ling3)
+## 2026-09-03 22:29:22 UTC [target] (model ling3)
+## 2026-09-04 00:25:44 UTC [target] (model ling3)
+## 2026-09-04 05:06:53 UTC [target] (model ling3)
+## 2026-09-04 09:47:07 UTC [target] (model ling3)
+## 2026-09-04 14:06:04 UTC [target] (model ling3)
+## 2026-09-04 17:41:48 UTC [target] (model ling3)
+## 2026-09-04 19:56:30 UTC [target] (model ling3)
+--- lead-longcat.md ---
+## 2026-09-03 17:12:46 UTC [target] (model longcat)
+## 2026-09-03 19:56:30 UTC [target] (model longcat)
+## 2026-09-03 22:29:21 UTC [target] (model longcat)
+## 2026-09-04 00:27:48 UTC [target] (model longcat)
+## 2026-09-04 05:05:23 UTC [target] (model longcat)
+## 2026-09-04 09:45:47 UTC [target] (model longcat)
+## 2026-09-04 14:06:00 UTC [target] (model longcat)
+## 2026-09-04 17:40:29 UTC [target] (model longcat)
+## 2026-09-04 19:55:08 UTC [target] (model longcat)
+[0m
+===
+{"phase": "POC", "target": "api"}
+knowledge/:
+index.md
+
+reports/:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m$ [0mdate -u +"%Y-%m-%d %H:%M:%S UTC"; echo "==="; tail -25 leads/lead-bigpickle.md; echo "===HYP==="; tail -30 reports/hypotheses-bigpickle.txt
+2026-09-04 22:15:10 UTC
+===
+reasoning: RainBet is RBGAMING N.V. crypto casino (BTC/ETH/…, wallet/deposit/withdraw/rakeback) likely with mobile/web bundles. Whole GET/HEAD fleet is CF-challenged, but the origin (single DO app) is real; discovering the true route contract + header/token scheme from a shipped bundle (mobile APK/IPA, leaked env, GitHub) converts the dead OPTIONS oracle into precise future probes.
+evidence_needed: Any published RainBet client bundle, API doc, or config containing real path→method→auth mapping for api.rainbet.com.
+verify_steps: RAG across GitHub code search, CommonCrawl, APK mirrors, and paste sites for rainbet client bundles and api path strings (v1 publics/auth/wallet). Read-only; no live probing.
+impact: Reveals credential-free endpoints (public balance, ws, config) and auth model → grounds the only in-scope needle: BOLA/IDOR on wallet API. Severity: HIGH.
+testability: HUMAN_ONLY
+[HYP] staging Access drift window re-opens 6 endpoints with origin JSON behind 200
+class: AUTH
+asset: staging.rainbet.com
+confidence: 35
+reasoning: Reappeared 00:32Z, closed 14:07Z to 19:54Z — enforcement flip-flops. When open (200/32KB), body is CF challenge HTML, not app JSON; no evidence origin data ever leaks, only the Access-enforcement gap itself.
+evidence_needed: A 200 response whose body is NOT CF challenge HTML (real health/metrics/config JSON).
+verify_steps: Repeat GET /api/v1/public/config + Accept: application/json every ~30 min; compare body signature vs known 32KB challenge shell. Passive.
+impact: If any body differs from challenge HTML: real leak of config/JWKS/metrics. Severity: MEDIUM.
+testability: PASSIVE
+[HYP] DO default-FQDN reachability of api origin
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 38
+reasoning: x-do-app-origin confirms DO App Platform ingress, but leaked UUID ≠ ondigitalocean.app suffix; OSINT yielded zero. No derivable candidate hostname → hypothesis not falsifiable with current info.
+evidence_needed: A resolvable `*.ondigitalocean.app` name serving RainBet API without cf-mitigated.
+verify_steps: RAG for the app slug only (e.g. pointer from bundle discovery above); verify with single GET /api/v1/public/ping on candidates. Passive/AUTH_HELPED.
+impact: WAF-less origin → full contract mapping → BOLA. Severity: HIGH.
+testability: AUTH_HELPED
+[NEXT] RAG: GitHub code search + CommonCrawl + APK mirrors for a RainBet (RBGAMING) client bundle or API docs containing api.rainbet.com path/auth strings; extract real route contracts and token scheme. No live requests.
+[RISK] RainBet: **45** — Fleet uniform hardening confirmed (all 12+ tested hosts GET/HEAD-challenged); api origin reachable only via CORS-neutral OPTIONS; staging Access drift currently closed; DO-origin OSINT dead. Remaining upside requires non-passive assets (client bundle mining, credentialed browser). No reduction in exposure observed this round.
+===HYP===
+## 2026-09-04 19:57:09 UTC [target] (model bigpickle)
+[HYP] RainBet API contract & auth-scheme mining from leaked/mobile assets
+class: OTHER
+asset: api.rainbet.com
+confidence: 55
+reasoning: RainBet is RBGAMING N.V. crypto casino (BTC/ETH/…, wallet/deposit/withdraw/rakeback) likely with mobile/web bundles. Whole GET/HEAD fleet is CF-challenged, but the origin (single DO app) is real; discovering the true route contract + header/token scheme from a shipped bundle (mobile APK/IPA, leaked env, GitHub) converts the dead OPTIONS oracle into precise future probes.
+evidence_needed: Any published RainBet client bundle, API doc, or config containing real path→method→auth mapping for api.rainbet.com.
+verify_steps: RAG across GitHub code search, CommonCrawl, APK mirrors, and paste sites for rainbet client bundles and api path strings (v1 publics/auth/wallet). Read-only; no live probing.
+impact: Reveals credential-free endpoints (public balance, ws, config) and auth model → grounds the only in-scope needle: BOLA/IDOR on wallet API. Severity: HIGH.
+testability: HUMAN_ONLY
+[HYP] staging Access drift window re-opens 6 endpoints with origin JSON behind 200
+class: AUTH
+asset: staging.rainbet.com
+confidence: 35
+reasoning: Reappeared 00:32Z, closed 14:07Z to 19:54Z — enforcement flip-flops. When open (200/32KB), body is CF challenge HTML, not app JSON; no evidence origin data ever leaks, only the Access-enforcement gap itself.
+evidence_needed: A 200 response whose body is NOT CF challenge HTML (real health/metrics/config JSON).
+verify_steps: Repeat GET /api/v1/public/config + Accept: application/json every ~30 min; compare body signature vs known 32KB challenge shell. Passive.
+impact: If any body differs from challenge HTML: real leak of config/JWKS/metrics. Severity: MEDIUM.
+testability: PASSIVE
+[HYP] DO default-FQDN reachability of api origin
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 38
+reasoning: x-do-app-origin confirms DO App Platform ingress, but leaked UUID ≠ ondigitalocean.app suffix; OSINT yielded zero. No derivable candidate hostname → hypothesis not falsifiable with current info.
+evidence_needed: A resolvable `*.ondigitalocean.app` name serving RainBet API without cf-mitigated.
+verify_steps: RAG for the app slug only (e.g. pointer from bundle discovery above); verify with single GET /api/v1/public/ping on candidates. Passive/AUTH_HELPED.
+impact: WAF-less origin → full contract mapping → BOLA. Severity: HIGH.
+testability: AUTH_HELPED
+[NEXT] RAG: GitHub code search + CommonCrawl + APK mirrors for a RainBet (RBGAMING) client bundle or API docs containing api.rainbet.com path/auth strings; extract real route contracts and token scheme. No live requests.
+[RISK] RainBet: **45** — Fleet uniform hardening confirmed (all 12+ tested hosts GET/HEAD-challenged); api origin reachable only via CORS-neutral OPTIONS; staging Access drift currently closed; DO-origin OSINT dead. Remaining upside requires non-passive assets (client bundle mining, credentialed browser). No reduction in exposure observed this round.
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mprobe() { curl -s -o /tmp/rb_resp.bin -w "%{http_code} %{size_download}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" --max-time 15 "$1"; ft=$(grep -aoE 'cf-mitigated|cf-chl' /tmp/rb_resp.bin | head -1); echo " <= $1 [$ft]"; rm -f /tmp/rb_resp.bin; }
+echo "-- staging drift check --"
+probe "https://staging.rainbet.com/api/v1/public/config"
+sleep 1
+printf "location/inspect: "; curl -s -o /dev/null -w "%{http_code} size=%{size_download} redirect=%{redirect_url}\n" -A "Mozilla/5.0" --max-time 15 "https://staging.rainbet.com/api/v1/public/config" failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
