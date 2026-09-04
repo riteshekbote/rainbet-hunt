@@ -1,30 +1,30 @@
-## 2026-09-04 17:47:16 UTC [target] (model bigpickle)
-[HYP] api/services DO direct-origin bypass via x-do-app-origin leak → CF WAF-less origin access
-class: MISCONFIG
+## 2026-09-04 19:57:09 UTC [target] (model bigpickle)
+[HYP] RainBet API contract & auth-scheme mining from leaked/mobile assets
+class: OTHER
 asset: api.rainbet.com
-confidence: 45
-reasoning: OPTIONS passthrough reaches origin on 6 hosts with distinct x-do-app-origin UUIDs; all non-OPTIONS methods return CF challenge (110KB) or block (5.4KB). DigitalOcean App Platform assigns an unproxied default FQDN `<app>.<suffix>.ondigitalocean.app`; if that FQDN (not behind CF WAF) is discoverable, the full API becomes reachable without challenge.
-evidence_needed: A reachable `<app>.ondigitalocean.app` hostname serving api/services/chat content without cf-mitigated.
-verify_steps: OSINT lookup of UUIDs/slugs; then single read-only GET https://<candidate>/api/v1/public/ping — expect origin JSON (401/404/200) instead of CF 403 challenge. Passive.
-impact: WAF bypass → unchallenged origin → full API endpoint/contract mapping → IDOR/BOLA on wallet API. Severity: HIGH.
-testability: AUTH_HELPED
-[HYP] Media/files origin method-divergence → route presence disclosure across fleet
-class: MISCONFIG
-asset: media.rainbet.com
-confidence: 44
-reasoning: OPTIONS on media returns origin 405 (OPTIONS not allowed) and files 204, while api/services/chat/socket/slot-integrations/alerts return 404/204 with DO headers — non-uniform WAF rule application per host, indicating per-host policies; method-differential may reveal live routes on unprobed hosts (ds, files, media) similarly to api.
-evidence_needed: Any host in the fleet returning a non-403, non-CF origin response for HEAD/POST to a guessed route.
-verify_steps: POST https://files.rainbet.com/api/v1/public/ping (Content-Type: application/json, body {}) and HEAD https://media.rainbet.com/robots.txt — record status + origin headers; expect CF challenge (no finding) or origin response (route mapping → next probe). Read-only.
-impact: Route/contract disclosure on unsecured microservice backends → IDOR/authz testing surface. Severity: MEDIUM.
-testability: PASSIVE
-[HYP] staging Access gap intermittent re-open (6 endpoints 200)
+confidence: 55
+reasoning: RainBet is RBGAMING N.V. crypto casino (BTC/ETH/…, wallet/deposit/withdraw/rakeback) likely with mobile/web bundles. Whole GET/HEAD fleet is CF-challenged, but the origin (single DO app) is real; discovering the true route contract + header/token scheme from a shipped bundle (mobile APK/IPA, leaked env, GitHub) converts the dead OPTIONS oracle into precise future probes.
+evidence_needed: Any published RainBet client bundle, API doc, or config containing real path→method→auth mapping for api.rainbet.com.
+verify_steps: RAG across GitHub code search, CommonCrawl, APK mirrors, and paste sites for rainbet client bundles and api path strings (v1 publics/auth/wallet). Read-only; no live probing.
+impact: Reveals credential-free endpoints (public balance, ws, config) and auth model → grounds the only in-scope needle: BOLA/IDOR on wallet API. Severity: HIGH.
+testability: HUMAN_ONLY
+[HYP] staging Access drift window re-opens 6 endpoints with origin JSON behind 200
 class: AUTH
 asset: staging.rainbet.com
-confidence: 38
-reasoning: Gap reappeared 2026-09-04 00:32 (200 on /health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json); latest probes this round show 302→login on /api/v1/public/config. Pattern suggests periodic policy drift/gradual rollout rather than fixed config.
-evidence_needed: Any of the 6 endpoints returning 200 with JSON body (not CF challenge HTML) during drift window.
-verify_steps: GET https://staging.rainbet.com/api/v1/public/config with Accept: application/json, on 30-min drift check; if 200, fetch body and grep for embedded JSON/tokens. Passive.
-impact: Public exposure of staging API config/keys → cred reuse on prod staging. Severity: MEDIUM.
+confidence: 35
+reasoning: Reappeared 00:32Z, closed 14:07Z to 19:54Z — enforcement flip-flops. When open (200/32KB), body is CF challenge HTML, not app JSON; no evidence origin data ever leaks, only the Access-enforcement gap itself.
+evidence_needed: A 200 response whose body is NOT CF challenge HTML (real health/metrics/config JSON).
+verify_steps: Repeat GET /api/v1/public/config + Accept: application/json every ~30 min; compare body signature vs known 32KB challenge shell. Passive.
+impact: If any body differs from challenge HTML: real leak of config/JWKS/metrics. Severity: MEDIUM.
 testability: PASSIVE
-[NEXT] RAG: OSINT-hunt the six DigitalOcean App UUIDs and RainBet app slugs for `*.ondigitalocean.app` default-domain FQDNs (unproxied by Cloudflare WAF); verify any candidate with a single read-only GET https://<candidate>/api/v1/public/ping — a non-cf-mitigated origin response confirms the WAF-bypass chain.
-[RISK] RainBet: **45** — Surface materially larger than prior assessment (16 live hosts; 6 distinct DO App Platform origins reachable for method/probe passthrough) and the uniform-CH challenge thesis is disproven at the origin level. However, all content-bearing methods (GET/HEAD/POST/PUT/DELETE) remain challenged, CORS is neutral everywhere, and no origin UUID is yet resolvable to an unproxied FQDN. Highest-leverage residual: direct-origin discovery (WAF bypass) and intermittent staging Access drift. Below 50 pending either chain landing.
+[HYP] DO default-FQDN reachability of api origin
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 38
+reasoning: x-do-app-origin confirms DO App Platform ingress, but leaked UUID ≠ ondigitalocean.app suffix; OSINT yielded zero. No derivable candidate hostname → hypothesis not falsifiable with current info.
+evidence_needed: A resolvable `*.ondigitalocean.app` name serving RainBet API without cf-mitigated.
+verify_steps: RAG for the app slug only (e.g. pointer from bundle discovery above); verify with single GET /api/v1/public/ping on candidates. Passive/AUTH_HELPED.
+impact: WAF-less origin → full contract mapping → BOLA. Severity: HIGH.
+testability: AUTH_HELPED
+[NEXT] RAG: GitHub code search + CommonCrawl + APK mirrors for a RainBet (RBGAMING) client bundle or API docs containing api.rainbet.com path/auth strings; extract real route contracts and token scheme. No live requests.
+[RISK] RainBet: **45** — Fleet uniform hardening confirmed (all 12+ tested hosts GET/HEAD-challenged); api origin reachable only via CORS-neutral OPTIONS; staging Access drift currently closed; DO-origin OSINT dead. Remaining upside requires non-passive assets (client bundle mining, credentialed browser). No reduction in exposure observed this round.
