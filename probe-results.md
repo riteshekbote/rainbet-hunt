@@ -71,3 +71,10 @@ https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
 https://api.rainbet.com/api/v1/public/ping -> HTTP 403
 https://staging.rainbet.com/metrics -> 200 len=32838
 https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+
+## 2026-09-04 09:48:52 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://staging.rainbet.com/health -> 200 len=32836

@@ -247,3 +247,42 @@ confidence: 35 → PARK (unreproducible, contradicted twice)
 [LEARN] REJECTED MISCONFIG @ api.rainbet.com: POST-to-ping route remains untested — prior POST claims were to general /api/v1/ only; not yet re-probed, so not yet contradictable. (observation, not a finding)
 [RISK] RainBet: 20 — passive attack surface is minimal and fully hardened across all live hosts (api: uniform GET/HEAD challenge + CORS-neutral OPTIONS; www/root: managed challenge; staging: CF Access default-deny). Remaining vector (POST-with-body routing on api) is low-confidence and may itself be challenged. No credentialed/browser access → no realistic chain. Progressive effort should pivot to credentialed or mobile-app (POST/v1/ public namespace) surface via API-doc mining, or re-scan inventory in case a dead subdomain (17/20) comes back online.
 ## 2026-09-04 05:08:53 UTC [target] (model bigpickle)
+## 2026-09-04 09:48:37 UTC [target] (model bigpickle)
+[PRIO] api.rainbet.com, 22, attack_surface:3/business_value:9/tech_exposure:6/gate_ease:2/cloud_surface:5/freshness:4
+[PRIO] staging.rainbet.com, 18, attack_surface:4/business_value:6/tech_exposure:5/gate_ease:3/cloud_surface:5/freshness:5
+[PRIO] rainbet.com, 15, attack_surface:2/business_value:9/tech_exposure:4/gate_ease:1/cloud_surface:3/freshness:3
+[HYP] api.rainbet.com POST-with-JSON bypasses GET challenge → API router/contract reachable
+class: MISCONFIG
+asset: api.rainbet.com/api/v1/public/ping
+confidence: 42
+reasoning: OPTIONS preflight passes WAF (200, Allow: HEAD,GET,POST,OPTIONS) while GET/HEAD uniformly return 403 cf-mitigated — WAF rule matching is method-sensitive. POST with JSON body to a read endpoint may route through different WAF rule path. Prior probes used only GET/HEAD; POST+Content-Type:application/json remains untested against this host.
+evidence_needed: Non-403 response (origin JSON 401/404/200) instead of CF challenge HTML for POST to public endpoint.
+verify_steps: POST https://api.rainbet.com/api/v1/public/ping with Content-Type: application/json + body {} — single read-only request, no auth, record status + cf-mitigated presence + response body. Passive.
+impact: Origin response → API contract/version disclosure → IDOR/BOLA surface mapping on wallet API. Severity: MEDIUM.
+testability: PASSIVE
+[HYP] staging.rainbet.com Access policy gap endpoints — check for real JSON content behind 32KB HTML shell
+class: AUTH
+asset: staging.rainbet.com/api/v1/public/config
+confidence: 38
+reasoning: 6 endpoints return HTTP 200 with 32KB HTML rather than 302→Access login, but prior analysis assumed this was CF challenge HTML (non-real content). If the 32KB response contains embedded JSON config, API keys, or origin content in a <script> tag or data attribute, Access bypass yields real data. This was REJECTED as transient but has REAPPEARED in latest probes — may be intermittent Access enforcement.
+evidence_needed: Whether the 32KB HTML body contains embedded JSON, API config, tokens, or is purely static CF challenge page.
+verify_steps: GET https://staging.rainbet.com/api/v1/public/config with Accept: application/json — record full response body, check for embedded JSON in script tags or data attributes. GET https://staging.rainbet.com/health — compare body lengths; check for HTML vs JSON content-type header. Passive.
+impact: Real config/token leak from staging API → credential reuse on production. Severity: MEDIUM-HIGH if real data found.
+testability: PASSIVE
+[HYP] staging.rainbet.com CF Access open redirect via redirect_url parameter
+class: OATH
+asset: staging.rainbet.com
+confidence: 36
+reasoning: CF Access login URL embeds redirect_url=path as query param on challenge-5te-pages.cloudflareaccess.com. If redirect_url accepts external fully-qualified URLs (https://evil.com) without allowlist validation, post-authentication redirect could leak OAuth/code tokens or enable phishing. Cannot complete auth flow passively to confirm. Confidence dropped from 40 due to inability to verify.
+evidence_needed: Whether redirect_url parameter accepts external domain vs only path-relative values on staging.rainbet.com.
+verify_steps: Obtain Access login redirect URL from 302 response; inspect redirect_url parameter value; test whether Access login page echoes or accepts external redirect_url. Passive — no auth completion.
+impact: Open redirect → OAuth token/code theft or phishing. Severity: LOW-MEDIUM (bounded by needing valid Access credentials).
+testability: AUTH_HELPED
+[PARKED] staging.rainbet.com Access policy gap: REJECTED twice, REAPPEARED — intermittent, cannot confirm root cause passively. Confidence 38 < 40 threshold → PARKED pending re-probe with body inspection.
+[PARKED] staging.rainbet.com open redirect: Cannot complete auth flow passively; confidence 36 < 40 → PARKED.
+[FINAL] api.rainbet.com POST-with-JSON: confidence 42, untested vector, read-only probe → CARRY FORWARD.
+[NEXT] PROBE: POST https://api.rainbet.com/api/v1/public/ping with `Content-Type: application/json` and body `{}` — single read-only POST to public namespace, record status + cf-mitigated header + response body + content-type. Then GET https://staging.rainbet.com/api/v1/public/config with `Accept: application/json` — record full response body and content-type to inspect whether real JSON data is embedded in the 32KB HTML shell.
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: OPTIONS passes WAF (200, Allow methods) but returns NO Access-Control-* headers even with evil Origin — no CORS misconfig, no cross-origin exploit.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v1/ 200 Allow OPTIONS,HEAD,GET,POST — preflight passthrough confirmed; method-sensitive WAF rule.
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding non-reproducible across rounds, but latest 2026-09-04 00:32 probe shows reappearance — treating as intermittent/confirmed with caveats.
+[RISK] RainBet: 20 — passive attack surface fully hardened across all live hosts. api: uniform GET/HEAD challenge + CORS-neutral OPTIONS; www/root: managed challenge; staging: CF Access default-deny on all paths (with intermittent gaps on 6 endpoints). Remaining vector (POST-with-body routing on api) is low-confidence. No credentialed/browser access → no realistic chain. Progressive effort should pivot to credentialed or mobile-app surface via API-doc mining, or re-scan dead subdomains for re-activation.

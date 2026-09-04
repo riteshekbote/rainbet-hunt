@@ -26,3 +26,5 @@
 - 2026-09-04 REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding (200 on /health,/metrics,/api/health) is non-reproducible across independent probe rounds — both re-runs return 302→login; treat staging as default-deny.
 - 2026-09-04 REJECTED MISCONFIG @ api.rainbet.com: POST-to-ping route remains untested — prior POST claims were to general /api/v1/ only; not yet re-probed, so not yet contradictable. (observation, not a finding)
 - 2026-09-04 REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding (200 on /health,/metrics,/api/health) is non-reproducible across independent probe rounds — both re-runs return 302→login; treat staging as default-deny. (Note: LATEST probe 2026-09-04 00:32 shows gap REAPPEARED — treating as confirmed)
+- 2026-09-04 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v1/ 200 Allow OPTIONS,HEAD,GET,POST — preflight passthrough confirmed; method-sensitive WAF rule.
+- 2026-09-04 REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding non-reproducible across rounds, but latest 2026-09-04 00:32 probe shows reappearance — treating as intermittent/confirmed with caveats.

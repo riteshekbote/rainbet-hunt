@@ -102,3 +102,8 @@ www.rainbet.com
 - CHANGED api.rainbet.com OPTIONS /api/v1/ → HTTP 200 Allow: OPTIONS,HEAD,GET,POST — only non-403 surface; preflight passes WAF
 - NEW challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/certs → HTTP 200 JSON (2 RSA keys, RS256) — public JWKS by design
 - CHANGED Both live hosts (api, staging) show fully hardened surface except: OPTIONS preflight on api (CORS-neutral) and staging's 6 endpoints returning CF challenge HTML (not real app data)
+
+## 2026-09-04 09:48:46 UTC
+- NEW staging.rainbet.com: 6 endpoints (/health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json) still return HTTP 200 (32KB CF challenge HTML) — Access policy gap pers
+- NEW api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses (WAF configuration updated)
+- CHANGED api.rainbet.com OPTIONS /api/v1/ → HTTP 200 Allow: OPTIONS,HEAD,GET,POST — only non-403 surface remains
