@@ -286,3 +286,4 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v1/ 200 Allow OPTIONS,HEAD,GET,POST — preflight passthrough confirmed; method-sensitive WAF rule.
 [LEARN] REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding non-reproducible across rounds, but latest 2026-09-04 00:32 probe shows reappearance — treating as intermittent/confirmed with caveats.
 [RISK] RainBet: 20 — passive attack surface fully hardened across all live hosts. api: uniform GET/HEAD challenge + CORS-neutral OPTIONS; www/root: managed challenge; staging: CF Access default-deny on all paths (with intermittent gaps on 6 endpoints). Remaining vector (POST-with-body routing on api) is low-confidence. No credentialed/browser access → no realistic chain. Progressive effort should pivot to credentialed or mobile-app surface via API-doc mining, or re-scan dead subdomains for re-activation.
+## 2026-09-04 14:06:15 UTC [target] (model bigpickle)

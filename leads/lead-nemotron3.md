@@ -269,3 +269,41 @@ testability: PASSIVE
 [LEARN] REJECTED AUTH @ staging.rainbet.com: Access policy-gap finding (200 on /health,/metrics,/api/health) is non-reproducible across independent probe rounds — both re-runs return 302→login; treat staging as default-deny. (Note: LATEST probe 2026-09-04 00:32 shows gap REAPPEARED — treating as confirmed)
 [LEARN] REJECTED MISCONFIG @ api.rainbet.com: POST-to-ping route remains untested — prior POST claims were to general /api/v1/ only; not yet re-probed, so not yet contradictable. (observation, not a finding)
 [RISK] RainBet: 62 — Staging environment has confirmed Cloudflare Access policy bypass exposing 6 endpoints (all HTTP 200). Response bodies appear to be CF challenge page HTML (~32KB), not yet confirmed to leak real application data. Critical next step: verify if Accept headers yield actual JSON/metrics data. API subdomain behind WAF with preflight-only passthrough. 3/20 hosts live; 2 have significant findings.
+## 2026-09-04 14:13:54 UTC [target] (model nemotron3)
+[HYP] api.rainbet.com OPTIONS preflight leaks allowed methods → API contract enumeration  
+class: MISCONFIG  
+asset: api.rainbet.com/api/v1/  
+confidence: 55  
+reasoning: OPTIONS /api/v1/ returns HTTP 200 with `Allow: OPTIONS,HEAD,GET,POST` but no Access-Control-* headers even with evil Origin. This reveals the API contract (allowed methods) without authentication. While not a CORS exploit, it enables endpoint/method mapping for subsequent auth-bypass or IDOR probes.  
+evidence_needed: Confirm OPTIONS on versioned endpoints (/api/v1/, /api/v2/, /graphql, /swagger) returns Allow headers consistently; check if any endpoint returns Access-Control-Allow-Origin: * or reflects Origin.  
+verify_steps: OPTIONS https://api.rainbet.com/api/v1/ (Origin: https://evil.com), OPTIONS https://api.rainbet.com/api/v2/, OPTIONS https://api.rainbet.com/graphql, OPTIONS https://api.rainbet.com/swagger — all with Origin header; record Allow and CORS headers.  
+impact: API contract disclosure → faster endpoint enumeration for IDOR/BOLA on wallet/betting endpoints. Severity: LOW-MEDIUM (info leak only, no direct exploit).  
+testability: PASSIVE  
+[HYP] staging.rainbet.com Cloudflare Access JWT metadata exposes policy internals → policy bypass reconnaissance  
+class: AUTH  
+asset: staging.rainbet.com  
+confidence: 45  
+reasoning: Redirect to challenge-5te-pages.cloudflareaccess.com includes JWT in `meta` param with `auth_status: NONE`, `is_wrap: false`, `is_gateway: false`, `kid`, `aud`. While Access now enforces default-deny (302 on all 6 previously-gapped paths), the JWT metadata structure reveals Cloudflare Zero Trust policy configuration details that could inform bypass attempts (e.g., service_token_status: false suggests service tokens not enforced).  
+evidence_needed: Decode JWT meta from redirect_url on multiple endpoints; check if `service_token_status` or `mtls_auth` fields reveal policy gaps; test with valid service token if obtainable.  
+verify_steps: GET https://staging.rainbet.com/api/v1/public/config (follow redirect, decode meta JWT), GET https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/api/v1/public/config — compare policy metadata.  
+impact: Reconnaissance only — reveals Zero Trust policy structure. Severity: INFO.  
+testability: PASSIVE  
+[HYP] api.rainbet.com GraphQL endpoint behind WAF → introspection if WAF bypassed  
+class: MISCONFIG  
+asset: api.rainbet.com/graphql  
+confidence: 35  
+reasoning: Passive recon shows /graphql returns 403 challenge. If any WAF bypass exists (encoding, header smuggling, method override), GraphQL introspection could expose full schema including wallet/betting mutations. No evidence of bypass currently.  
+evidence_needed: Any non-403 response from /graphql with Accept: application/json or POST query={__schema{types{name}}}.  
+verify_steps: GET https://api.rainbet.com/graphql (Accept: application/json), POST https://api.rainbet.com/graphql (Content-Type: application/json, body: {"query":"{__schema{types{name}}}"}) — both expect 403 challenge.  
+impact: Full API schema disclosure → wallet mutations, betting logic, user PII fields. Severity: CRITICAL if bypassed.  
+testability: AUTH_HELPED  
+[PARKED] api.rainbet.com GraphQL endpoint behind WAF → introspection if WAF bypassed: confidence 35 < 40; no evidence of WAF bypass; speculative.  
+[PARKED] staging.rainbet.com Cloudflare Access JWT metadata exposes policy internals: confidence 45 but impact is INFO only (reconnaissance); not a vulnerability class.  
+[FINAL] 1. api.rainbet.com OPTIONS preflight leaks allowed methods → API contract enumeration (confidence 55)
+[NEXT] PROBE: OPTIONS https://api.rainbet.com/api/v2/ -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" (check Allow header + CORS), then OPTIONS https://api.rainbet.com/graphql -H "Origin: https://evil.com", then OPTIONS https://api.rainbet.com/swagger -H "Origin: https://evil.com" — map versioned API contract exposure.
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Cloudflare Access policy gap (HTTP 200 on 6 endpoints) was **transient/fixed** — latest probes (2026-09-04 14:07 UTC) show all 6 endpoints return 302→Access login. Policy now enforces default-deny.  
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge (110KB HTML). No method-based WAF bypass.  
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v1/ returns 200 with Allow: OPTIONS,HEAD,GET,POST but **no CORS headers** — preflight passthrough is CORS-neutral, not exploitable.  
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses — WAF configuration consistent across subdomains (api, www).  
+[LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+[RISK] RainBet: **45** — Staging Access gap closed; API subdomain hardened (only OPTIONS preflight info leak remains). No authenticated attack surface reachable passively. 2/20 hosts live with significant protections. Residual risk: API contract enumeration via OPTIONS (LOW), GraphQL introspection if WAF bypass discovered (THEORETICAL).
