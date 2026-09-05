@@ -1,123 +1,50 @@
-## 2026-09-05 12:06:18 UTC [target] (model bigpickle)
-[HYP] <title>
-class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
-asset: <host/endpoint>
-confidence: <0-100>
-reasoning: <facts only>
-evidence_needed: <what proves it>
-verify_steps: <passive-first concrete HTTP requests>
-impact: <what attacker gets + severity>
-testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
-[HYP] Staging Socket.IO pocket app (1ce4ff55) reaches beyond /health into the session plane or leaks DB/version state
+## 2026-09-05 15:24:11 UTC [target] (model bigpickle)
+[CHANGED] api.rainbet.com: OPTIONS exemption confirmed blanket-path (200 on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense) — widens each operator edit cycle; GET stays 403. Rule scope: everything but `/` and `/docs`(origin 400).
+[CHANGED] staging-raffles.rainbet.com: REAL origin JSON exposed unprotected (~09:00Z) — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
+[CHANGED] staging-chat/alerts/socket/raffles.rainbet.com: engine.io v4 handshake issues anonymous sids unauthenticated on 4 hostnames of one DO app — socket plane exposed, no CF Access/challenge.
+[CHANGED] staging-cdn.rainbet.com: Cloudflare R2 public-access bucket (28KB "Object not found" page); exposure limited to known keys.
+[CHANGED] staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows have only ever served the 32875B challenge shell.
+[CHANGED] staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not a takeoverable dangling host.
+[NEW] rainbet-com-rabbitmq: Internet-exposed RabbitMQ brokers (management + plaintext AMQP) on direct DigitalOcean origins bypassing Cloudflare.
+[PRIO] staging-raffles.rainbet.com,9.2,attack_surface=9|business_value=8|tech_exposure=8|gate_ease=9|cloud_surface=9|freshness=10
+[PRIO] api.rainbet.com,7.8,attack_surface=8|business_value=9|tech_exposure=7|gate_ease=4|cloud_surface=6|freshness=8
+[PRIO] staging-chat/alerts/socket/raffles.rainbet.com,8.5,attack_surface=8|business_value=7|tech_exposure=8|gate_ease=9|cloud_surface=9|freshness=10
+[HYP] Staging raffles app exposes full API contract without auth — version/db/remote_addr in /health; socket.io plane on 4 hostnames issues unauthenticated sids
 class: MISCONFIG
-asset: staging-raffles.rainbet.com / staging-chat / staging-socket / staging-alerts (DO app 1ce4ff55-e85f-4c30-8033-5129a1812504)
-confidence: 60
-reasoning: 4 hostnames resolve to one DO app bypassing CF Access AND the cf-mitigated challenge; /health returns live JSON with db status + internal version "v0.00.0002-rc1"; engine.io v4 handshake issues anonymous sids (sid lwBdzEgz1FlQ8rO0AAFe) with no token required; 35-route wordlist returns only /health and /socket.io, so the app's entire external surface is health telemetry + an open socket (near-certain chat/game backbone for the staging namespace).
-evidence_needed: A namespace connect (socket.io "40" packet) that reveals room/user payloads, or /health→contract that exposes config/DB creds. Unknown: whether middleware requires JWT at connect.
-verify_steps: PASSIVE today: cadence GET /health + handshake GET; the single unauthenticated namespace connect/read (responses only, no writes) is a data-plane test — confirm deployment authorization first (AUTH_HELPED).
-impact: Staging chat/messaging state read cross-session; DB/version info disclosure feeding parity attacks against prod. Severity: MEDIUM-HIGH.
-testability: AUTH_HELPED
-[HYP] api WAF method-rule is being widened by the operator on a schedule — next edit may expose a content method
-class: MISCONFIG
-asset: api.rainbet.com
-confidence: 55
-reasoning: OPTIONS exemption historically pinned to /api/v1/, then this round extended to /api/v2/, /graphql, /swagger, /openapi.json, and any arbitrary path — the rule is no longer path-pinned and the operator demonstrably edits it asynchronously (Allow header re-orders across probes). GPT/other content methods (GET/HEAD/POST) remain cf-mitigated today (GET /openapi.json → 403, 110KB).
-evidence_needed: any GET/HEAD/POST/PUT/PATCH returning origin 2xx/4xx/5xx (non-challenge) on a public path.
-verify_steps: OPTIONS + GET cadence on /openapi.json,/graphql,/swagger,/api/v1/public/ping per round; any first origin response captured with full headers + body hash.
-impact: Origin router contract (openapi/docs/ping) leak → grounded IDOR/BOLA targeting on prod money API. Severity: HIGH if a content method opens; latent now.
-testability: PASSIVE
-[HYP] RabbitMQ brokers use default/weak AMQP or mgmt credentials
-class: MISCONFIG
-asset: rainbet-com-rabbitmq / rainbet-us-staging-rabbitmq / rbtmq-stg .rainbet.com (159.203.34.207:15671-72,165.227.255.111,159.203.53.157)
-confidence: 60
-reasoning: mgmt console + plaintext AMQP 5672 + clustering 25672 internet-exposed on direct DO IPs (no CF). All /api probes returned 401 so far (no anonymous leak), but default guest/guest is unverified — brokers on a real-money event bus with admin UI.
-evidence_needed: credentialed login (guest/guest or weak cred) on 15672 /api/overview OR any authenticated queue read — requires deployer authorization (OFF-LIMITS this round by policy).
-verify_steps: AUTH_HELPED: single Basic-auth GET http://<ip>:15672/api/overview with default creds under authorization; report exposure as-is meanwhile.
-impact: Full message-bus compromise → queue read/write → payment/withdrawal event injection. Severity: CRITICAL if default creds; MEDIUM exposure as-is.
-testability: AUTH_HELPED
-[NEXT] PROBE: cadence every ~30 min: GET staging-raffles.rainbet.com/health (hash/compare vs known `{"code":200,"db":"Running"...v0.00.0002-rc1}` shell) + GET staging-raffles.rainbet.com/socket.io/?EIO=4&transport=polling (watch for sid + upgrade policy changes); GET staging-originals.rainbet.com/health (catch 504 recovery of the slot-originals app, next live JSON candidate); GET staging.rainbet.com/api/v1/public/config -H "Accept: application/json" (drift window re-open capture); OPTIONS api.rainbet.com/openapi.json + GET api.rainbet.com/api/v1/public/ping (method-rule widening watch).
-[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected (~09:00Z) — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
-[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption is now BLANKET-path (200 on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense) — widens each operator edit cycle; GET stays 403. Rule scope: everything but `/` and `/docs`(origin 400).
-[LEARN] ACCEPTED AUTH @ staging-chat/alerts/socket/raffles.rainbet.com: engine.io v4 handshake issues anonymous sids unauthenticated on 4 hostnames of one DO app (app id 1ce4ff55) — socket plane exposed, no CF Access/challenge.
-[LEARN] REJECTED AUTH @ staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows have only ever served the 32875B challenge shell.
-[LEARN] REJECTED MISCONFIG @ staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not a takeoverable dangling host.
-[LEARN] ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: Cloudflare R2 public-access bucket (28KB "Object not found" page); exposure limited to known keys.
-[RISK] RainBet: **68** — Up from 63: the staging-namespace CF-policy gap is now CONFIRMED exploitable in the pass/fail sense (real origin JSON served via direct DO origin on staging-raffles, plus an anonymous Socket.IO plane on 4 hostnames), and the prod API's OPTIONS pass-through was demo'd as blanket-path with active rule-widening. No customer/employee/financial/authentication data accessed (all probes read-only GET/HEAD/OPTIONS, socket sids issued by design, no creds attempted, RabbitMQ /api untouched at 401). Mitigating: staging apps hold no money surface yet (bare health+socket), socket namespace auth (middleware JWT) unverified and resilient to passive testing, GET/HEAD/POST still cf-mitigated on prod, staging Access drift remains challenge-shell-only. Risk driver: next operator WAF edit or staging-app recovery (staging-originals 504) could expose a content-bearing contract; RabbitMQ default-creds check remains the single highest-potential AUTH_HELPED item.
-verify_steps: HUMAN with credentialed browser (solve CF) + account: derive real vault routes from PWA bundle at www.rainbet.com; GET /vault, /vault/balance, /vault/transactions; vary id params. Mutating endpoints off-limits.
-impact: Cross-user vault balance/transaction disclosure or tampering on a money surface. Severity: HIGH.
-testability: HUMAN_ONLY
-[NEXT] PROBE: cadence GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json" every ~30 min (state 302→login at 00:12Z; on 200 capture length/content-type/body-hash to separate origin JSON from the known 32875B CF challenge shell), plus keep one OPTIONS to a random api path per round to detect further WAF method-rule edits.
-[RISK] RainBet: 47 — Operator actively editing WAF method-rules (OPTIONS exemption widened to blanket fleet-wide this round) raises probability of a future over-broad method/path exemption; recently publicized HIGH business-logic bug (vault deposit/withdraw race) proves money-flow logic was vulnerable and makes BOLA/IDOR on the same vault plausible behind credentials; staging Access drift still recurs (open 17:48→closed 00:12). Mitigating: every content-bearing method still cf-mitigated on all live hosts, no origin data has ever leaked during drift windows, DO default-FQDN remains unresolvable, and no passive path to the credentialed surface exists.
-[HYP] Internet-exposed RabbitMQ brokers (management + plaintext AMQP) on direct DigitalOcean origins bypassing Cloudflare
-class: MISCONFIG
-asset: rainbet-com-rabbitmq / rainbet-us-staging-rabbitmq / rbtmq-stg .rainbet.com (159.203.34.207 / 165.227.255.111 / 159.203.53.157)
+asset: staging-raffles.rainbet.com / staging-chat/alerts/socket/raffles.rainbet.com
 confidence: 75
-reasoning: CT cert exists for all 3; A records point directly to DO (no CF IP); probes confirm mgmt console (15671/15672, RabbitMQ Management index) on all 3, plaintext AMQP 5672 on 2, Erlang clustering 25672 on 1, port 80 on 2. Brokers on a real-money gaming event/messaging bus sit on the public internet with admin UI.
-evidence_needed: A successful credentialed mgmt/AMQP login (default guest/guest or weak cred) OR any anonymous /api info leak on 15672 — require credentialed auth before concluding impact.
-verify_steps: PASSIVE(proven): banner/TCP confirmed. AUTH_HELPED (requires deployer authorization): single Basic-auth GET http://<ip>:15672/api/overview with default guest:guest is OFF-LIMITS this round — report exposure as-is for triage.
-impact: Full message-bus compromise → queue read/write → payment/withdrawal event injection, cross-service command flows, broker data at rest. Severity: HIGH-CRITICAL if creds default; MEDIUM exposure as-is (admin console + unencrypted broker internet-reachable, no CF).
-testability: AUTH_HELPED
-[HYP] Live unauthenticated Socket.IO plane on unprotected origin (staging-chat)
-class: AUTH
-asset: staging-chat.rainbet.com (DO app 1ce4ff55-…)
-confidence: 60
-reasoning: engine.io handshake (`?EIO=4&transport=polling`) returns 200 `0{"sid":...}` with NO Cloudflare Access login, NO cf-mitigated challenge, x-do-orig-status 200. Origin is fully proxied-through unprotected. CORS probe with Origin: evil.com returned no ACAO reflection (standard deny) — CSWSH blocked, but server-side auth state of the socket namespace is unverified.
-evidence_needed: An authenticated socket message/state reachable without session proof — requires opening a real socket (socket.io-client) and observing namespace payload on /chat or /rooms — treat as data-plane test, deployment-authorized only.
-verify_steps: HEAD/GET https://staging-chat.rainbet.com/socket.io/ confirmed; deeper = HUMAN on authorized staging account only.
-impact: If namespace rooms broadcast without token, chat/history/PII of users readable cross-session. Severity: MEDIUM-HIGH.
-testability: AUTH_HELPED
-[HYP] staging-* subdomains form a systemic Cloudflare-policy gap on the whole zone staging namespace
-class: MISCONFIG
-asset: staging-api / staging-services / staging-monorepo / staging-originals / staging-chat .rainbet.com
-confidence: 70
-reasoning: 5 staging-* hosts return direct origin responses (200/400/404/504 with x-do-orig-status + x-do-app-origin) while prod homologues (api/services/originals) return 403 cf-mitigated. Distinct zone rule coverage: WAF challenge rule binds prod hostnames only.
-evidence_needed: One of these apps returning real JSON (not 404-shell) when healthy — staging-originals currently 504 (recovering) is the candidate.
-verify_steps: Cadence GET https://staging-originals.rainbet.com/health and / OPEN; on 200, capture content-type + body signature.
-impact: Unchallenged staging API surface → full contract enumeration, staging creds/config, parity exploits against prod. Severity: HIGH when any app is live.
-testability: PASSIVE
-[HYP] api OPTIONS exemption is blanket (any path) — widens to content methods on operator's next WAF edit
-class: MISCONFIG
-asset: api.rainbet.com
-confidence: 55
-reasoning: 200 + x-do-orig-status:200 on OPTIONS of a random nonexistent path proves the exemption is not rule-pinned to /api/v1/; same operator who widened OPTIONS controls sibling method rules (HEAD/POST still 403-challenged).
-evidence_needed: Non-challenge response (404/405/JSON) for a GET/HEAD/POST/PUT/PATCH on any public path.
-verify_steps: OPTIONS-monitor rounds already confirm; content-method verification requires AUTH_HELPED triage before PUT/PATCH.
-impact: Origin router contract disclosure → grounded IDOR/BOLA targeting. Severity: HIGH if method rule widens.
-testability: PASSIVE
-[NEXT] SCAN: single GET (0.7s spacing) over remaining live CT-hosts — `alerts, aiostaging, chat, clever, ds, help, maintenance, raffles, slot-integrations, staging-alerts, staging-blog, staging-cdn, staging-monorepo, staging-originals, staging-raffles, staging-socket` — classify absent-cf-mitigated + x-do-* = unprotected; re-probe any 2xx/4xx-x-do returns on /health,/graphql,/socket.io; PLUS add cadence GET `staging-originals.rainbet.com/health` to catch recovery of the 504 app.
-[RISK] RainBet: **63** — Surface expanded materially: 3 direct-digitalocean RabbitMQ brokers w/ internet-exposed management + plaintext AMQP (unproxied origins), a systemic CF-policy gap on the staging namespace (5 hosts, incl. 1 live unauthenticated socket.io), and path-agnostic OPTIONS origin passthrough on the prod API. No customer data accessed this round (all probes read-only, no creds attempted). Mitigating: staging apps mostly empty/404 shells, socket.io CORS deny, RabbitMQ /api still 401 (creds needed), CF protects prod content-methods. Risk: broker compromise if default/weak AMQP creds (AUTH_HELPED to confirm); staging application data exposure on recovery; method-rule widening.
-[HYP] Staging Socket.IO pocket app (1ce4ff55) reaches beyond /health into the session plane or leaks DB/version state
-class: MISCONFIG
-asset: staging-raffles.rainbet.com / staging-chat / staging-socket / staging-alerts (DO app 1ce4ff55-e85f-4c30-8033-5129a1812504)
-confidence: 60
-reasoning: 4 hostnames resolve to one DO app bypassing CF Access AND the cf-mitigated challenge; /health returns live JSON with db status + internal version "v0.00.0002-rc1"; engine.io v4 handshake issues anonymous sids (sid lwBdzEgz1FlQ8rO0AAFe) with no token required; 35-route wordlist returns only /health and /socket.io, so the app's entire external surface is health telemetry + an open socket (near-certain chat/game backbone for the staging namespace).
-evidence_needed: A namespace connect (socket.io "40" packet) that reveals room/user payloads, or /health→contract that exposes config/DB creds. Unknown: whether middleware requires JWT at connect.
-verify_steps: PASSIVE today: cadence GET /health + handshake GET; the single unauthenticated namespace connect/read (responses only, no writes) is a data-plane test — confirm deployment authorization first (AUTH_HELPED).
+reasoning: /health returns live origin JSON with db status and internal version; engine.io v4 handshake issues anonymous sids; 4 hostnames resolve to one DO app (1ce4ff55) bypassing CF Access entirely; no cf-mitigated header on any response.
+evidence_needed: A namespace connect (socket.io "40" packet) that reveals room/user payloads, or /health→contract that exposes config/DB creds; currently only /health and /socket.io in 35-route wordlist.
+verify_steps: PASSIVE: cadence GET /health + handshake GET; the single unauthenticated namespace connect/read is a data-plane test — confirm deployment authorization first (AUTH_HELPED).
 impact: Staging chat/messaging state read cross-session; DB/version info disclosure feeding parity attacks against prod. Severity: MEDIUM-HIGH.
 testability: AUTH_HELPED
-[HYP] api WAF method-rule is being widened by the operator on a schedule — next edit may expose a content method
+[HYP] api OPTIONS exemption blanket-path widens to content methods on operator's next WAF edit cycle — latent origin contract disclosure
 class: MISCONFIG
 asset: api.rainbet.com
 confidence: 55
-reasoning: OPTIONS exemption historically pinned to /api/v1/, then this round extended to /api/v2/, /graphql, /swagger, /openapi.json, and any arbitrary path — the rule is no longer path-pinned and the operator demonstrably edits it asynchronously (Allow header re-orders across probes). GPT/other content methods (GET/HEAD/POST) remain cf-mitigated today (GET /openapi.json → 403, 110KB).
+reasoning: OPTIONS returns 200 + Allow on any arbitrary path (/nonsense, /openapi.json, /graphql, /swagger); operator demonstrably edits WAF rules asynchronously (Allow header re-orders across probes); GET/HEAD/POST remain cf-mitigated today.
 evidence_needed: any GET/HEAD/POST/PUT/PATCH returning origin 2xx/4xx/5xx (non-challenge) on a public path.
-verify_steps: OPTIONS + GET cadence on /openapi.json,/graphql,/swagger,/api/v1/public/ping per round; any first origin response captured with full headers + body hash.
+verify_steps: OPTIONS + GET cadence on /openapi.json, /graphql, /swagger, /api/v1/public/ping per round; any first origin response captured with full headers + body hash.
 impact: Origin router contract (openapi/docs/ping) leak → grounded IDOR/BOLA targeting on prod money API. Severity: HIGH if a content method opens; latent now.
 testability: PASSIVE
-[HYP] RabbitMQ brokers use default/weak AMQP or mgmt credentials
+[HYP] RabbitMQ brokers use default/weak AMQP or mgmt credentials — internet-exposed on DO origins bypassing Cloudflare
 class: MISCONFIG
-asset: rainbet-com-rabbitmq / rainbet-us-staging-rabbitmq / rbtmq-stg .rainbet.com (159.203.34.207:15671-72,165.227.255.111,159.203.53.157)
+asset: rainbet-com-rabbitmq / rainbet-us-staging-rabbitmq / rbtmq-stg
 confidence: 60
-reasoning: mgmt console + plaintext AMQP 5672 + clustering 25672 internet-exposed on direct DO IPs (no CF). All /api probes returned 401 so far (no anonymous leak), but default guest/guest is unverified — brokers on a real-money event bus with admin UI.
-evidence_needed: credentialed login (guest/guest or weak cred) on 15672 /api/overview OR any authenticated queue read — requires deployer authorization (OFF-LIMITS this round by policy).
+reasoning: mgmt console + plaintext AMQP 5672 + clustering 25672 internet-exposed on direct DO IPs (no CF); all /api probes returned 401 so far (no anonymous leak), but default guest/guest is unverified.
+evidence_needed: credentialed login (guest/guest or weak cred) on 15672 /api/overview OR any authenticated queue read.
 verify_steps: AUTH_HELPED: single Basic-auth GET http://<ip>:15672/api/overview with default creds under authorization; report exposure as-is meanwhile.
 impact: Full message-bus compromise → queue read/write → payment/withdrawal event injection. Severity: CRITICAL if default creds; MEDIUM exposure as-is.
 testability: AUTH_HELPED
-[NEXT] PROBE: cadence every ~30 min: GET staging-raffles.rainbet.com/health (hash/compare vs known `{"code":200,"db":"Running"...v0.00.0002-rc1}` shell) + GET staging-raffles.rainbet.com/socket.io/?EIO=4&transport=polling (watch for sid + upgrade policy changes); GET staging-originals.rainbet.com/health (catch 504 recovery of the slot-originals app, next live JSON candidate); GET staging.rainbet.com/api/v1/public/config -H "Accept: application/json" (drift window re-open capture); OPTIONS api.rainbet.com/openapi.json + GET api.rainbet.com/api/v1/public/ping (method-rule widening watch).
-[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected (~09:00Z) — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
-[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption is now BLANKET-path (200 on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense) — widens each operator edit cycle; GET stays 403. Rule scope: everything but `/` and `/docs`(origin 400).
-[LEARN] ACCEPTED AUTH @ staging-chat/alerts/socket/raffles.rainbet.com: engine.io v4 handshake issues anonymous sids unauthenticated on 4 hostnames of one DO app (app id 1ce4ff55) — socket plane exposed, no CF Access/challenge.
-[LEARN] REJECTED AUTH @ staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows have only ever served the 32875B challenge shell.
-[LEARN] REJECTED MISCONFIG @ staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not a takeoverable dangling host.
-[LEARN] ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: Cloudflare R2 public-access bucket (28KB "Object not found" page); exposure limited to known keys.
-[RISK] RainBet: **68** — Up from 63: the staging-namespace CF-policy gap is now CONFIRMED exploitable in the pass/fail sense (real origin JSON served via direct DO origin on staging-raffles, plus an anonymous Socket.IO plane on 4 hostnames), and the prod API's OPTIONS pass-through was demo'd as blanket-path with active rule-widening. No customer/employee/financial/authentication data accessed (all probes read-only GET/HEAD/OPTIONS, socket sids issued by design, no creds attempted, RabbitMQ /api untouched at 401). Mitigating: staging apps hold no money surface yet (bare health+socket), socket namespace auth (middleware JWT) unverified and resilient to passive testing, GET/HEAD/POST still cf-mitigated on prod, staging Access drift remains challenge-shell-only. Risk driver: next operator WAF edit or staging-app recovery (staging-originals 504) could expose a content-bearing contract; RabbitMQ default-creds check remains the single highest-potential AUTH_HELPED item.
+[PARKED] api WAF method-rule widening: confidence 55 remains below action threshold — no content method has opened yet; hypothesis is latent, not testable passively without AUTH_HELPED. Parked until operator next edit cycle or AUTH_HELPED triage confirms GET/HEAD/POST origin response.
+[FINAL] staging-raffles Socket.IO + health: 75 — AUTH_HELPED only for namespace connect; passive cadence on /health is the immediate action.
+[FINAL] RabbitMQ default creds: 60 — AUTH_HELPED only; single probe confirms exposure, default-cred hypothesis untestable without authorization.
+[FINAL] api OPTIONS blanket-path widening: 55 — PASSIVE only; action is OPTIONS + GET cadence; insufficient for exploitation today.
+[NEXT] PROBE: cadence GET staging-raffles.rainbet.com/health (hash/compare vs known `{"code":200,"db":"Running"...v0.00.0002-rc1}` shell) + GET staging-originals.rainbet.com/health (catch 504 recovery of the slot-originals app, next live JSON candidate) + OPTIONS api.rainbet.com/openapi.json + GET api.rainbet.com/api/v1/public/ping (method-rule widening watch).
+[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption is now BLANKET-path (200 on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense) — widens each operator edit cycle; GET stays 403.
+[LEARN] ACCEPTED AUTH @ staging-chat/alerts/socket/raffles.rainbet.com: engine.io v4 handshake issues anonymous sids unauthenticated on 4 hostnames of one DO app (1ce4ff55).
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80).
+[LEARN] REJECTED MISCONFIG @ staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not takeoverable.
+[LEARN] ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: Cloudflare R2 public-access bucket; exposure limited to known keys.
+[RISK] RainBet: **68** — Up from 63: staging-namespace CF-policy gap confirmed exploitable (real origin JSON via direct DO on staging-raffles, plus anonymous Socket.IO plane on 4 hostnames); prod API OPTIONS pass-through demo'd as blanket-path with active rule-widening. No customer/employee/financial/auth data accessed (all probes read-only GET/HEAD/OPTIONS, socket sids issued by design, no creds attempted, RabbitMQ /api untouched at 401). Mitigating: staging apps hold no money surface yet (bare health+socket), socket namespace auth (middleware JWT) unverified, GET/HEAD/POST still cf-mitigated on prod, staging Access drift remains challenge-shell-only. Risk drivers: next operator WAF edit or staging-app recovery could expose content-bearing contract; RabbitMQ default-creds check remains highest-potential AUTH_HELPED item.
