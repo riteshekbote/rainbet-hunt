@@ -470,3 +470,39 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
 [LEARN] NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.
 [RISK] RainBet: **55** — Staging Access gap intermittent (persists at 22:17 UTC across 3 endpoints); API hardened (only OPTIONS /api/v1/ info leak); 2 new live hosts (files, media) behind CF challenge; DO direct-origin bypass theoretical (0/6 UUIDs resolved). Residual risk: Staging intermittent data leak (MEDIUM if real data exposed), API contract enumeration via OPTIONS (LOW), DO origin bypass if FQDN discovered (HIGH but unproven). 5/20 hosts live with significant protections.
+## 2026-09-05 04:41:58 UTC [target] (model nemotron3)
+[PRIO] staging.rainbet.com,8.2,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=9,freshness=10
+[PRIO] api.rainbet.com,6.4,attack_surface=7,business_value=9,tech_exposure=7,gate_ease=3,cloud_surface=8,freshness=9
+[PRIO] files.rainbet.com,5.1,attack_surface=5,business_value=7,tech_exposure=5,gate_ease=2,cloud_surface=7,freshness=9
+[PRIO] media.rainbet.com,4.8,attack_surface=4,business_value=6,tech_exposure=5,gate_ease=2,cloud_surface=7,freshness=9
+class: AUTH
+asset: staging.rainbet.com
+confidence: 70
+reasoning: Gap opened at 00:32, 05:12, 09:48, 17:48, 20:00, 22:17 UTC (6 rounds) but closed at 14:07 and now at ~00:15 UTC. Identical 32KB HTML responses indicate CF challenge page served without auth redirect. Pattern suggests policy cache TTL, edge propagation delay, or config rollout race.
+evidence_needed: Any 200 response containing actual application data (JSON config from /api/v1/public/config, Prometheus metrics from /metrics, valid JWKS from /.well-known/jwks.json) vs static CF challenge HTML; correlation of gap windows with Access policy changes
+verify_steps: GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json"; GET https://staging.rainbet.com/metrics -H "Accept: text/plain"; GET https://staging.rainbet.com/.well-known/jwks.json -H "Accept: application/json" — repeat every 30-60 min to catch gap window
+impact: Intermittent exposure of internal config, metrics, JWKS → info leak enabling further attacks. Severity: MEDIUM (data-only, no direct auth bypass)
+testability: PASSIVE
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 55
+reasoning: x-do-app-origin headers observed on api.rainbet.com responses indicate DO App Platform origin. If any *.ondigitalocean.app FQDN maps to same app without CF proxy, WAF bypass → unchallenged origin access. 6 UUIDs/slugs from headers not yet resolved to FQDNs.
+evidence_needed: OSINT discovery of valid *.ondigitalocean.app FQDN for the DO App; single GET to that FQDN /api/v1/public/ping returns JSON without cf-mitigated header
+verify_steps: RAG: GitHub/GitLab search for RainBet DO App names; CommonCrawl search for x-do-app-origin values; crt.sh for *.ondigitalocean.app certs with rainbet; then GET https://<candidate>.ondigitalocean.app/api/v1/public/ping -H "Accept: application/json"
+impact: Complete WAF bypass → full API contract enumeration → IDOR/BOLA on wallet/betting endpoints. Severity: HIGH
+testability: AUTH_HELPED
+class: MISCONFIG
+asset: files.rainbet.com, media.rainbet.com
+confidence: 40
+reasoning: Two new live hosts behind CF challenge. Unknown if they serve user-uploaded files, game assets, or internal media. CF challenge on /api/v1/public/ping suggests API surface but primary purpose may be static asset hosting with different auth model.
+evidence_needed: Directory listing, exposed .git, backup files, or unauthenticated asset access on non-API paths (/, /assets/, /uploads/, /static/)
+verify_steps: GET https://files.rainbet.com/ -H "Accept: text/html"; GET https://files.rainbet.com/robots.txt; GET https://media.rainbet.com/ -H "Accept: text/html"; GET https://media.rainbet.com/robots.txt — check for non-403 responses, directory indexes, or asset paths
+impact: Potential unauthorized access to user media, game assets, or internal files. Severity: MEDIUM-HIGH depending on content
+testability: PASSIVE
+[PARKED] files.rainbet.com / media.rainbet.com serve sensitive assets without auth: confidence 40 at threshold; no evidence of actual misconfig yet — purely speculative based on new host discovery.
+[FINAL] 1. Staging intermittent Cloudflare Access policy enforcement → race condition on policy evaluation (confidence 70)
+[FINAL] 2. api.rainbet.com DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN (confidence 55)
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v1/ returns 200 with Allow: HEAD,GET,POST,OPTIONS but no CORS headers — preflight passthrough is CORS-neutral, not exploitable.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
+[LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+[LEARN] NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.

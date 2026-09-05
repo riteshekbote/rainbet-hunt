@@ -121,3 +121,5 @@ www.rainbet.com
 - CHANGED staging.rainbet.com — Access policy gap persists at 22:17 UTC (3 endpoints: /api/v1/public/config, /metrics, /.well-known/jwks.json return HTTP 200 32KB HTML); was 302 at 14:07, gap reappeared 17:48
 - CHANGED api.rainbet.com — only /graphql probed at 22:17 (403); OPTIONS /api/v1/ Allow header leak confirmed persistent; cf-mitigated header present on all 403
 - NEW 5 live hosts confirmed: api, www, staging, files, media (15 dead/no-HTTP)
+
+## 2026-09-05 04:45:45 UTC
