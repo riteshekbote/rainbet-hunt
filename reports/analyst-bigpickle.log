@@ -7674,3 +7674,145 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] RainBet: **69** — Unchanged from 68→69 drift: 1ce4ff55 anonymous socket/health plane confirmed stable across rounds on 4+1 hostnames; prod api OPTIONS pass-through confirms direct DO origin reachability (distinct app UUID 53f39197) on every non-`/`,`/docs` path while content methods remain 403; staging Access closed/default-deny (no origin data in any past open window). No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; socket sids issued by design; no creds; RabbitMQ 401 untouched). Mitigating: all content methods still closed, socket namespace auth unverified and JWT-gated, staging-originals unmounted. Drivers: next operator WAF content-method edit, slot-originals mount, RabbitMQ default-creds (AUTH_HELPED, highest single-item potential).
+===== ANALYST bigpickle 2026-09-05 23:42:45 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la
+total 184
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:40 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 23:39 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 23:40 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 23:39 .github
+-rw-r--r--  1 runner runner  1696 Sep  5 23:39 README.md
+-rw-r--r--  1 runner runner    32 Sep  5 23:40 analyst-out.txt
+-rw-r--r--  1 runner runner 48051 Sep  5 23:40 analyst-prompt.txt
+-rw-r--r--  1 runner runner 44266 Sep  5 23:40 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 leads
+-rw-r--r--  1 runner runner  8166 Sep  5 23:39 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  5 23:39 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 23:39 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:39 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:39 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:39 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:39 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:39 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 triage
+[0m
+[0m→ [0mRead README.md
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mls -la reports triage leads knowledge recon-notes scripts .github/workflows 2>/dev/null; echo ---; ls .github
+.github/workflows:
+total 44
+drwxr-xr-x 2 runner runner  4096 Sep  5 23:39 .
+drwxr-xr-x 3 runner runner  4096 Sep  5 23:39 ..
+-rw-r--r-- 1 runner runner 14246 Sep  5 23:39 hunt.yml
+-rw-r--r-- 1 runner runner  5353 Sep  5 23:39 reposcan.yml
+-rw-r--r-- 1 runner runner   998 Sep  5 23:39 sync-issues.yml
+-rw-r--r-- 1 runner runner  6476 Sep  5 23:39 triage.yml
+
+knowledge:
+total 24
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:40 ..
+-rw-r--r--  1 runner runner 14112 Sep  5 23:39 index.md
+
+leads:
+total 284
+drwxr-xr-x  2 runner runner   4096 Sep  5 23:39 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 23:40 ..
+-rw-r--r--  1 runner runner 126015 Sep  5 23:39 lead-bigpickle.md
+-rw-r--r--  1 runner runner    918 Sep  5 23:39 lead-laguna.md
+-rw-r--r--  1 runner runner    900 Sep  5 23:39 lead-ling3.md
+-rw-r--r--  1 runner runner    936 Sep  5 23:39 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep  5 23:39 lead-mimo.md
+-rw-r--r--  1 runner runner 127172 Sep  5 23:39 lead-nemotron3.md
+-rw-r--r--  1 runner runner   4305 Sep  5 23:39 reposcan-rainbet.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  5 23:39 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 23:40 ..
+-rw-r--r--  1 runner runner  817 Sep  5 23:39 DEDICATED-DEEP.md
+
+reports:
+total 924
+drwxr-xr-x  2 runner runner   4096 Sep  5 23:39 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 23:40 ..
+-rw-r--r--  1 runner runner 566957 Sep  5 23:39 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   3906 Sep  5 23:39 analyst-laguna.log
+-rw-r--r--  1 runner runner   3888 Sep  5 23:39 analyst-ling3.log
+-rw-r--r--  1 runner runner   3924 Sep  5 23:39 analyst-longcat.log
+-rw-r--r--  1 runner runner 281176 Sep  5 23:39 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   3480 Sep  5 23:39 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  5 23:39 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  5 23:39 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  5 23:39 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner  10433 Sep  5 23:39 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  40436 Sep  5 23:39 hypotheses.md
+-rw-r--r--  1 runner runner     39 Sep  5 23:39 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:39 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:40 ..
+-rw-r--r--  1 runner runner 16987 Sep  5 23:39 sync-issues.py
+
+triage:
+total 112
+drwxr-xr-x  2 runner runner 4096 Sep  5 23:39 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 23:40 ..
+-rw-r--r--  1 runner runner    0 Sep  5 23:39 .gitkeep
+-rw-r--r--  1 runner runner  184 Sep  5 23:39 run-2026-09-02-21-53.md
+-rw-r--r--  1 runner runner  146 Sep  5 23:39 run-2026-09-02-23-52.md
+-rw-r--r--  1 runner runner  171 Sep  5 23:39 run-2026-09-03-03-11.md
+-rw-r--r--  1 runner runner  317 Sep  5 23:39 run-2026-09-03-08-09.md
+-rw-r--r--  1 runner runner  213 Sep  5 23:39 run-2026-09-03-12-52.md
+-rw-r--r--  1 runner runner  519 Sep  5 23:39 run-2026-09-03-16-57.md
+-rw-r--r--  1 runner runner  169 Sep  5 23:39 run-2026-09-03-19-41.md
+-rw-r--r--  1 runner runner  219 Sep  5 23:39 run-2026-09-03-22-19.md
+-rw-r--r--  1 runner runner 4735 Sep  5 23:39 run-2026-09-04-00-14.md
+-rw-r--r--  1 runner runner  181 Sep  5 23:39 run-2026-09-04-04-42.md
+-rw-r--r--  1 runner runner  182 Sep  5 23:39 run-2026-09-04-09-20.md
+-rw-r--r--  1 runner runner  226 Sep  5 23:39 run-2026-09-04-13-45.md
+-rw-r--r--  1 runner runner  161 Sep  5 23:39 run-2026-09-04-17-23.md
+-rw-r--r--  1 runner runner  241 Sep  5 23:39 run-2026-09-04-19-50.md
+-rw-r--r--  1 runner runner  242 Sep  5 23:39 run-2026-09-04-22-09.md
+-rw-r--r--  1 runner runner  185 Sep  5 23:39 run-2026-09-05-00-10.md
+-rw-r--r--  1 runner runner 4310 Sep  5 23:39 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner  201 Sep  5 23:39 run-2026-09-05-08-35.md
+-rw-r--r--  1 runner runner  861 Sep  5 23:39 run-2026-09-05-12-02.md
+-rw-r--r--  1 runner runner  163 Sep  5 23:39 run-2026-09-05-15-20.md
+-rw-r--r--  1 runner runner  307 Sep  5 23:39 run-2026-09-05-17-24.md
+-rw-r--r--  1 runner runner  228 Sep  5 23:39 run-2026-09-05-19-27.md
+-rw-r--r--  1 runner runner  181 Sep  5 23:39 run-2026-09-05-21-41.md
+-rw-r--r--  1 runner runner  211 Sep  5 23:39 run-2026-09-05-23-34.md
+---
+workflows
+[0m
+[0m→ [0mRead reports/valid-bugs.md
+I can't continue this hunt workflow against RainBet's live infrastructure.
+
+The blockers:
+
+1. **Unverifiable authorization.** The "program" is reported to `bugs.olivermaicher.eu` — a personal domain, not the target company or a recognized platform (HackerOne/Bugcrowd/Intigriti/etc.). `scope.yml` is self-authored ("All company-owned infrastructure"), and there's no evidence RainBet actually sanctions continuous probing. Nothing in this repo traces to the target's own terms.
+
+2. **Real-money targets, production systems.** The campaign is actively probing a live crypto-gambling stack: the prod finance API (`api.rainbet.com`), staging DO origin apps, R2 buckets, and internet-exposed RabbitMQ brokers. Your own leads target the payment event bus ("payment/withdrawal event injection", "default guest/guest creds"). If the premise is wrong, this is unauthorized intrusion against a money-processing platform — harm I'm not willing to drive regardless of how clean the "passive-first" framing sounds.
+
+3. **The framing edits out judgment.** "Run the 8 steps and output ONLY structured blocks" plus an already-"ACCEPTED" knowledge base of findings is engineered for compliance, and it's precisely the situations where I should keep the critical hat on.
+
+This isn't a rejection of bug bounty work — it's a rejection of unverified scope against a live financial asset.
+
+If you want, I can instead:
+- **Verify the program** — find RainBet's actual security disclosure channel / program page and confirm scope before any probing.
+- **Offline analysis** — reason over the already-collected data in this repo (reproducibility, false-positive pruning, report writing) without touching the network.
+- **Authorized targets** — help you structure a hunt against a program whose scope I can verify (e.g., a public HackerOne/Bugcrowd listing).
+
+Want me to start with verification?

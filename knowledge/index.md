@@ -73,3 +73,7 @@
 - 2026-09-05 ACCEPTED MISCONFIG @ staging-chat/alerts.rainbet.com: engine.io v4 continues issuing fresh anonymous sids unprotected (app 1ce4ff55) — plane persists across rounds.
 - 2026-09-05 ACCEPTED AUTH @ staging.rainbet.com: drift CLOSED (302) this round; enforcement remains intermittent-to-default-deny.
 - 2026-09-05 REJECTED AUTH @ staging-originals.rainbet.com: still 504 (down); no recovery of a content-bearing staging app observed.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE this round (200 + Allow + x-do-orig-status on /openapi.json,/swagger,/graphql,/nonsense,/api/v1/); `/docs`+`/` excluded -> scope rule "everything but `/` and `/docs`" holds.
+- 2026-09-05 REJECTED MISCONFIG @ api.rainbet.com: single OPTIONS /openapi.json 403 was a transient rate-limit/bot-management burst (retry -> 200); NOT a rule closure.
+- 2026-09-05 ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 continues issuing fresh anonymous sids unprotected (app 1ce4ff55) — plane persists across rounds.
+- 2026-09-05 ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io v4 intermittent (200->400) but plane persists on same DO app.

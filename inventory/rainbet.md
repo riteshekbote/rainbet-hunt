@@ -175,3 +175,9 @@ www.rainbet.com
 - CHANGED api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (200 + `x-do-orig-status:200` + `Allow: HEAD,GET,POST,OPTIONS` on /api/v1/, /graphql, /swagger, /openapi.json, /nonsense); `/docs` and `/` e
 - CHANGED staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows only served 32KB challenge shell
 - CHANGED staging-blog.rainbet.com: 530/1016 confirmed CF origin-DNS error, not takeoverable dangling host
+
+## 2026-09-05 23:42:45 UTC
+- NEW staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling -> HTTP 400 (was 200 len=116 at 19:34)
+- NEW staging-raffles.rainbet.com/api/v1/public/config -> HTTP 404 (was unprobed at depth; /health returns real JSON)
+- NEW staging-raffles.rainbet.com/api/v1/health -> HTTP 404
+- CHANGED staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 len=116 PERSISTS (engine.io handshake issuing anonymous sids)
