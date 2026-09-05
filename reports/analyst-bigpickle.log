@@ -6192,3 +6192,689 @@ testability: AUTH_HELPED
 
 ## STEP 7 — RISK
 [RISK] RainBet: **68** — Up from 63: the staging-namespace CF-policy gap is now CONFIRMED exploitable in the pass/fail sense (real origin JSON served via direct DO origin on staging-raffles, plus an anonymous Socket.IO plane on 4 hostnames), and the prod API's OPTIONS pass-through was demo'd as blanket-path with active rule-widening. No customer/employee/financial/authentication data accessed (all probes read-only GET/HEAD/OPTIONS, socket sids issued by design, no creds attempted, RabbitMQ /api untouched at 401). Mitigating: staging apps hold no money surface yet (bare health+socket), socket namespace auth (middleware JWT) unverified and resilient to passive testing, GET/HEAD/POST still cf-mitigated on prod, staging Access drift remains challenge-shell-only. Risk driver: next operator WAF edit or staging-app recovery (staging-originals 504) could expose a content-bearing contract; RabbitMQ default-creds check remains the single highest-potential AUTH_HELPED item.
+===== ANALYST bigpickle 2026-09-05 12:24:29 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m# [0mTodos
+[•] Extract actionable intel from rainbet-hunt state
+[ ] Re-score priorities based on findings
+[ ] Generate top 5 new hypotheses
+[ ] Record next concrete probe actions
+[0m
+I need to understand the current working directory state to run the analysis properly. Let me explore the repo.
+[0m$ [0mls -la; echo "---"; ls -la art/ 2>/dev/null; echo "---SCOPE---"; cat scope.yml 2>/dev/null
+total 176
+drwxr-xr-x 12 runner runner  4096 Sep  5 12:05 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 12:05 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 12:05 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 12:05 .github
+-rw-r--r--  1 runner runner  1696 Sep  5 12:05 README.md
+-rw-r--r--  1 runner runner   335 Sep  5 12:06 analyst-out.txt
+-rw-r--r--  1 runner runner 42178 Sep  5 12:05 analyst-prompt.txt
+-rw-r--r--  1 runner runner 38393 Sep  5 12:05 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 leads
+-rw-r--r--  1 runner runner  5774 Sep  5 12:05 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  5 12:05 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 triage
+---
+---SCOPE---
+programs:
+  rainbet:
+    name: RainBet Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, gaming platforms, wallets, APIs, user systems, mobile/web applications, and domains operated by RainBet"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+Let me examine the analysis files.
+[0m$ [0mcat analyst-out.txt; echo "---STATE---"; cat state_bigpickle.json; echo; echo "---LS leads/triage/knowledge/reports---"; ls -la leads triage knowledge reports inventory recon-notes 2>/dev/null
+[0m
+> build · big-pickle
+[0m
+[0m# [0mTodos
+[•] Extract actionable intel from rainbet-hunt state
+[ ] Re-score priorities based on findings
+[ ] Generate top 5 new hypotheses
+[ ] Record next concrete probe actions
+[0m
+I need to understand the current working directory state to run the analysis properly. Let me explore the repo.
+[0m$ [0mls -la; echo "---"; ls -la art/ 2>/dev/null; echo "---SCOPE---"; cat scope.yml 2>/dev/null
+total 176
+drwxr-xr-x 12 runner runner  4096 Sep  5 12:05 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 12:05 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 12:05 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 12:05 .github
+-rw-r--r--  1 runner runner  1696 Sep  5 12:05 README.md
+-rw-r--r--  1 runner runner   335 Sep  5 12:06 analyst-out.txt
+-rw-r--r--  1 runner runner 42178 Sep  5 12:05 analyst-prompt.txt
+-rw-r--r--  1 runner runner 38393 Sep  5 12:05 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 leads
+-rw-r--r--  1 runner runner  5774 Sep  5 12:05 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  5 12:05 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 12:05 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 triage
+---
+---SCOPE---
+programs:
+  rainbet:
+    name: RainBet Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, gaming platforms, wallets, APIs, user systems, mobile/web applications, and domains operated by RainBet"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+---STATE---
+{"phase": "POC", "target": "api"}
+---LS leads/triage/knowledge/reports---
+inventory:
+total 20
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 12:05 ..
+-rw-r--r--  1 runner runner 10012 Sep  5 12:05 rainbet.md
+
+knowledge:
+total 24
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 12:05 ..
+-rw-r--r--  1 runner runner 12424 Sep  5 12:05 index.md
+
+leads:
+total 188
+drwxr-xr-x  2 runner runner  4096 Sep  5 12:05 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 12:05 ..
+-rw-r--r--  1 runner runner 83995 Sep  5 12:05 lead-bigpickle.md
+-rw-r--r--  1 runner runner   663 Sep  5 12:05 lead-laguna.md
+-rw-r--r--  1 runner runner   650 Sep  5 12:05 lead-ling3.md
+-rw-r--r--  1 runner runner   676 Sep  5 12:05 lead-longcat.md
+-rw-r--r--  1 runner runner    18 Sep  5 12:05 lead-mimo.md
+-rw-r--r--  1 runner runner 76035 Sep  5 12:05 lead-nemotron3.md
+-rw-r--r--  1 runner runner  3415 Sep  5 12:05 reposcan-rainbet.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  5 12:05 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 12:05 ..
+-rw-r--r--  1 runner runner  817 Sep  5 12:05 DEDICATED-DEEP.md
+
+reports:
+total 732
+drwxr-xr-x  2 runner runner   4096 Sep  5 12:05 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 12:05 ..
+-rw-r--r--  1 runner runner 452024 Sep  5 12:05 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   2821 Sep  5 12:05 analyst-laguna.log
+-rw-r--r--  1 runner runner   2808 Sep  5 12:05 analyst-ling3.log
+-rw-r--r--  1 runner runner   2834 Sep  5 12:05 analyst-longcat.log
+-rw-r--r--  1 runner runner 212999 Sep  5 12:05 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   6251 Sep  5 12:05 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  5 12:05 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  5 12:05 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  5 12:05 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner     54 Sep  5 12:05 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  25653 Sep  5 12:05 hypotheses.md
+-rw-r--r--  1 runner runner     39 Sep  5 12:05 valid-bugs.md
+
+triage:
+total 92
+drwxr-xr-x  2 runner runner 4096 Sep  5 12:05 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 12:05 ..
+-rw-r--r--  1 runner runner    0 Sep  5 12:05 .gitkeep
+-rw-r--r--  1 runner runner  184 Sep  5 12:05 run-2026-09-02-21-53.md
+-rw-r--r--  1 runner runner  146 Sep  5 12:05 run-2026-09-02-23-52.md
+-rw-r--r--  1 runner runner  171 Sep  5 12:05 run-2026-09-03-03-11.md
+-rw-r--r--  1 runner runner  317 Sep  5 12:05 run-2026-09-03-08-09.md
+-rw-r--r--  1 runner runner  213 Sep  5 12:05 run-2026-09-03-12-52.md
+-rw-r--r--  1 runner runner  519 Sep  5 12:05 run-2026-09-03-16-57.md
+-rw-r--r--  1 runner runner  169 Sep  5 12:05 run-2026-09-03-19-41.md
+-rw-r--r--  1 runner runner  219 Sep  5 12:05 run-2026-09-03-22-19.md
+-rw-r--r--  1 runner runner 4735 Sep  5 12:05 run-2026-09-04-00-14.md
+-rw-r--r--  1 runner runner  181 Sep  5 12:05 run-2026-09-04-04-42.md
+-rw-r--r--  1 runner runner  182 Sep  5 12:05 run-2026-09-04-09-20.md
+-rw-r--r--  1 runner runner  226 Sep  5 12:05 run-2026-09-04-13-45.md
+-rw-r--r--  1 runner runner  161 Sep  5 12:05 run-2026-09-04-17-23.md
+-rw-r--r--  1 runner runner  241 Sep  5 12:05 run-2026-09-04-19-50.md
+-rw-r--r--  1 runner runner  242 Sep  5 12:05 run-2026-09-04-22-09.md
+-rw-r--r--  1 runner runner  185 Sep  5 12:05 run-2026-09-05-00-10.md
+-rw-r--r--  1 runner runner 4310 Sep  5 12:05 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner  201 Sep  5 12:05 run-2026-09-05-08-35.md
+-rw-r--r--  1 runner runner  861 Sep  5 12:05 run-2026-09-05-12-02.md
+[0m
+[0m$ [0mcat probes/probe-results.md 2>/dev/null; echo "===PROBE-RESULTS (root)==="; cat probe-results.md; echo "===LATEST TRIAGE==="; cat triage/run-2026-09-05-12-02.md; echo "===LATEST run 08:35==="; cat triage/run-2026-09-05-08-35.md; echo "===analyst-prompt tail==="; tail -60 analyst-prompt.txt
+===PROBE-RESULTS (root)===
+
+## 2026-09-02 21:55:57 UTC
+
+
+## 2026-09-02 23:56:28 UTC
+
+
+## 2026-09-03 03:59:57 UTC
+
+
+## 2026-09-03 08:57:58 UTC
+
+
+## 2026-09-03 13:31:20 UTC
+
+
+## 2026-09-03 17:24:50 UTC
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://api.rainbet.com/api/v1/health -> HTTP 403
+https://api.rainbet.com/ -> HTTP 403
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/ -> HTTP 404
+https://staging.rainbet.com/health -> 200 len=32836
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/api/health -> 200 len=32847
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://rainbet.com/ -> HTTP 403
+https://rainbet.com/assets/ -> HTTP 403
+https://rainbet.com/api/ -> HTTP 403
+
+## 2026-09-03 20:05:00 UTC
+https://staging.rainbet.com/health -> 200 len=32836
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/api/health -> 200 len=32847
+https://staging.rainbet.com/api/v1/health -> 200 len=32856
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/.well-known/security.txt -> HTTP 403
+https://api.rainbet.com/robots.txt -> HTTP 403
+https://api.rainbet.com/favicon.ico -> HTTP 403
+https://api.rainbet.com/api/v1/auth/login -> HTTP 403
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://api.rainbet.com/api/v1/ -> HTTP 403
+
+## 2026-09-03 22:32:32 UTC
+https://staging.rainbet.com/health -> 200 len=32836
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v1/auth/login -> HTTP 403
+https://api.rainbet.com/ -> HTTP 403
+https://api.rainbet.com/api/v1/health -> HTTP 403
+https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/ -> HTTP 404
+https://staging.rainbet.com/api/health -> 200 len=32847
+https://rainbet.com/ -> HTTP 403
+
+## 2026-09-04 00:32:47 UTC
+https://staging.rainbet.com/health -> 200 len=32836
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v1/auth/login -> HTTP 403
+https://api.rainbet.com/ -> HTTP 403
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+
+## 2026-09-04 05:12:55 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+
+## 2026-09-04 09:48:52 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+https://staging.rainbet.com/health -> 200 len=32836
+
+## 2026-09-04 14:14:11 UTC
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/graphql -> HTTP 403
+https://api.rainbet.com/swagger -> HTTP 403
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/api/v1/public/config -> HTTP 404
+
+## 2026-09-04 17:48:38 UTC
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/graphql -> HTTP 403
+https://api.rainbet.com/swagger -> HTTP 403
+https://staging.rainbet.com/health -> 200 len=32836
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://files.rainbet.com/api/v1/public/ping -> HTTP 403
+https://media.rainbet.com/robots.txt -> HTTP 403
+
+## 2026-09-04 20:00:58 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/graphql -> HTTP 403
+
+## 2026-09-04 22:17:44 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/graphql -> HTTP 403
+
+## 2026-09-05 00:16:06 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-know[0m -> ERR URL can't contain control characters. '/.well-know
+https://api.rainbet.com/graphql -> HTTP 403
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+
+## 2026-09-05 04:45:56 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://files.rainbet.com/ -> HTTP 403
+https://files.rainbet.com/robots.txt -> HTTP 403
+https://media.rainbet.com/ -> HTTP 403
+https://media.rainbet.com/robots.txt -> HTTP 403
+https://staging-chat.rainbet.com/socket.io/ -> HTTP 400
+https://staging-originals.rainbet.com/health -> HTTP 504
+
+## 2026-09-05 08:45:33 UTC
+
+===LATEST TRIAGE===
+
+===== TRIAGE 2026-09-05 12:02:24 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+[0m✱ [0mGlob "**/*.yml"[90m 1 match[0m
+[0m✱ [0mGlob "**/rainbet*"[90m 1 match[0m
+[0m✱ [0mGlob "**/scope*"[90m 1 match[0m
+I'll check the repository for program context first.
+[0m→ [0mRead scope.yml
+[0m→ [0mRead inventory/rainbet.md
+**No leads provided.** The `LEADS:` section is empty — there's nothing to triage.
+
+The inventory shows passive recon data from 2026-09-02 to 2026-09-05 with:
+- **5 live hosts**: api, www, staging, files, media
+- **15 dead/no-HTTP hosts**
+- Notable findings: staging.rainbet.com Access policy gap (6 endpoints returning 200 instead of 302), OPTIONS preflight passthrough on api.rainbet.com, files/media.rainbet.com newly discovered
+
+Paste or list the leads you want evaluated and I'll run each through the 7-Question Gate.
+===LATEST run 08:35===
+
+===== TRIAGE 2026-09-05 08:35:38 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+I see the leads section is empty. Please provide the actual probe results/leads to validate against the 7-Question Gate.
+===analyst-prompt tail===
+- NEW Only residual non-403 surface in the entire program: OPTIONS preflight passthrough on api (CORS-neutral) and post-auth `redirect_url` on staging CF Access (both fully probed, neither exploitable passi
+
+## 2026-09-04 05:12:50 UTC
+- NEW staging.rainbet.com: /health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json ALL return HTTP 200 (32KB HTML) — Access policy gap CONFIRMED across 6 endpoints (rea
+- CHANGED api.rainbet.com: cf-mitigated: challenge header NOW PRESENT on all 403 responses (contradicts prior WAF inconsistency claim)
+- CHANGED api.rainbet.com OPTIONS /api/v1/ → HTTP 200 Allow: OPTIONS,HEAD,GET,POST — only non-403 surface; preflight passes WAF
+- NEW challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/certs → HTTP 200 JSON (2 RSA keys, RS256) — public JWKS by design
+- CHANGED Both live hosts (api, staging) show fully hardened surface except: OPTIONS preflight on api (CORS-neutral) and staging's 6 endpoints returning CF challenge HTML (not real app data)
+
+## 2026-09-04 09:48:46 UTC
+- NEW staging.rainbet.com: 6 endpoints (/health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json) still return HTTP 200 (32KB CF challenge HTML) — Access policy gap pers
+- NEW api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses (WAF configuration updated)
+- CHANGED api.rainbet.com OPTIONS /api/v1/ → HTTP 200 Allow: OPTIONS,HEAD,GET,POST — only non-403 surface remains
+
+## 2026-09-04 14:14:04 UTC
+
+## 2026-09-04 17:48:27 UTC
+
+## 2026-09-04 20:00:51 UTC
+
+## 2026-09-04 22:17:39 UTC
+
+## 2026-09-05 00:15:57 UTC
+- NEW files.rainbet.com, media.rainbet.com — live hosts discovered 2026-09-04 17:48, both resolve and return 403 on /api/v1/public/ping and /robots.txt
+- CHANGED staging.rainbet.com — Access policy gap persists at 22:17 UTC (3 endpoints: /api/v1/public/config, /metrics, /.well-known/jwks.json return HTTP 200 32KB HTML); was 302 at 14:07, gap reappeared 17:48
+- CHANGED api.rainbet.com — only /graphql probed at 22:17 (403); OPTIONS /api/v1/ Allow header leak confirmed persistent; cf-mitigated header present on all 403
+- NEW 5 live hosts confirmed: api, www, staging, files, media (15 dead/no-HTTP)
+
+## 2026-09-05 04:45:45 UTC
+
+## 2026-09-05 08:45:33 UTC
+You are a senior bug bounty hunter ANALYST for the RainBet program (report channel: bugs.olivermaicher.eu).
+Eligible in-scope assets (ONLY these, from scope.yml + inventory/rainbet.md): All company-owned infrastructure, gaming platforms, wallets, APIs, user systems, mobile/web applications, and domains operated by RainBet
+Deep-hunt directives:
+- Prioritize HIGH-VALUE classes: broken auth/session, IDOR/BOLA, SSRF-to-cloud-metadata (169.254.169.254), mass assignment, JWT alg/key confusion, OAuth redirect_uri/state flaws, business logic on money/auth flows, file upload, GraphQL introspection+mutations, subdomain takeover.
+- CHAIN aggressively: open redirect -> OAuth code theft -> ATO; IDOR -> cross-tenant PII dump; SSRF -> metadata -> keys; XSS -> session theft -> ATO.
+- Request-level reasoning: exact METHOD path params headers body, expected vs actual status. No filler.
+- Breadth over the full inventory for anomalies (odd status codes, id/uid/email/user_id params, versioned /api/v1|v2|beta|internal, debug/test flags, swagger/openapi/json), then depth on top-3 anomalies.
+- If a hypothesis needs live confirmation you cannot do passively, emit [NEXT] PROBE with the EXACT read-only request.
+OUT OF SCOPE (REJECTED classes): network DoS, account-lockout DoS, descriptive errors/headers only, robots.txt / known public files, outdated library versions, OPTIONS/TRACE, CSRF on logout or anonymous forms, cookie flags on non-sensitive data, self-XSS, scanner reports without POC, physical access, social engineering of employees/vendors, username enumeration on login/forgot-password, brute-force/rate-limit/lockout policy, SSL/TLS best practice, SSL attacks, clickjacking without demonstrated exploit, mail config (SPF/DKIM/DMARC), known-vulnerable library without program-specific exploit, password/account-recovery policy, autocomplete in fields, public login panels, lack of email verification, session control during email/password change, and any exposure of customer/employee/financial/authentication data during testing (program note). Focus on real logic flaws in scoped assets.
+Your job is NOT to invent vulnerabilities. Run the 8 steps and output ONLY structured blocks.
+
+STEP 1 — DELTA: compare inventory+knowledge+last leads against current surface. [NEW]/[CHANGED] one line each, or NO_DELTA.
+STEP 2 — PRIORITIZE: score top new (or existing) assets 0-10 on attack_surface, business_value, tech_exposure (GraphQL/OAuth/JWT/upload/admin/uncommon), gate_ease (10=no auth), cloud_surface, freshness. priority=0.25a+0.25b+0.15t+0.15g+0.10c+0.10f. Emit [PRIO] asset,score,axis.
+STEP 3 — HYPOTHESES: top 3 assets, max 1 hypothesis each. Strict schema, one field per line under [HYP] title line:
+[HYP] <title>
+class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+asset: <host/endpoint>
+confidence: <0-100>
+reasoning: <facts only>
+evidence_needed: <what proves it>
+verify_steps: <passive-first concrete HTTP requests>
+impact: <what attacker gets + severity>
+testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
+Never put fields inline in the [HYP] title.
+STEP 4 — SELF-CRITIQUE: drop confidence<40 or REJECTED-class or no-verify-steps. [PARKED] <title>: <why>. [FINAL] survivors ranked.
+STEP 5 — NEXT ACTION: exactly one [NEXT] <PROBE|SCAN|RAG|HUMAN>: <one concrete action, exact endpoint if PROBE>.
+STEP 6 — LEARNING: [LEARN] REJECTED/ACCEPTED <class> @ <asset>: <reason>.
+STEP 7 — RISK: [RISK] <program>: <0-100> reason.
+RULES: facts vs hypotheses strictly separated; no endpoint-map-only; no REJECTED class; sha256 any secret; all claims trace to context or your own read-only probes; passive-first, <=1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass or mutating tests against live customer data; any scanner output requires manual validation.
+[0m
+Let me read the key analysis files including the latest state, hypotheses-bigpickle, the probe results, and the current run triage.
+[0m$ [0mcat reports/hypotheses-bigpickle.txt; echo "===LEAD-BIGPICKLE tail==="; tail -80 leads/lead-bigpickle.md
+## 2026-09-05 08:45:22 UTC [target] (model bigpickle)
+[HYP] Staging Socket.IO pocket app (1ce4ff55) reaches beyond /health into the session plane or leaks DB/version state
+class: MISCONFIG
+asset: staging-raffles.rainbet.com / staging-chat / staging-socket / staging-alerts (DO app 1ce4ff55-e85f-4c30-8033-5129a1812504)
+confidence: 60
+reasoning: 4 hostnames resolve to one DO app bypassing CF Access AND the cf-mitigated challenge; /health returns live JSON with db status + internal version "v0.00.0002-rc1"; engine.io v4 handshake issues anonymous sids (sid lwBdzEgz1FlQ8rO0AAFe) with no token required; 35-route wordlist returns only /health and /socket.io, so the app's entire external surface is health telemetry + an open socket (near-certain chat/game backbone for the staging namespace).
+evidence_needed: A namespace connect (socket.io "40" packet) that reveals room/user payloads, or /health→contract that exposes config/DB creds. Unknown: whether middleware requires JWT at connect.
+verify_steps: PASSIVE today: cadence GET /health + handshake GET; the single unauthenticated namespace connect/read (responses only, no writes) is a data-plane test — confirm deployment authorization first (AUTH_HELPED).
+impact: Staging chat/messaging state read cross-session; DB/version info disclosure feeding parity attacks against prod. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] api WAF method-rule is being widened by the operator on a schedule — next edit may expose a content method
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 55
+reasoning: OPTIONS exemption historically pinned to /api/v1/, then this round extended to /api/v2/, /graphql, /swagger, /openapi.json, and any arbitrary path — the rule is no longer path-pinned and the operator demonstrably edits it asynchronously (Allow header re-orders across probes). GPT/other content methods (GET/HEAD/POST) remain cf-mitigated today (GET /openapi.json → 403, 110KB).
+evidence_needed: any GET/HEAD/POST/PUT/PATCH returning origin 2xx/4xx/5xx (non-challenge) on a public path.
+verify_steps: OPTIONS + GET cadence on /openapi.json,/graphql,/swagger,/api/v1/public/ping per round; any first origin response captured with full headers + body hash.
+impact: Origin router contract (openapi/docs/ping) leak → grounded IDOR/BOLA targeting on prod money API. Severity: HIGH if a content method opens; latent now.
+testability: PASSIVE
+[HYP] RabbitMQ brokers use default/weak AMQP or mgmt credentials
+class: MISCONFIG
+asset: rainbet-com-rabbitmq / rainbet-us-staging-rabbitmq / rbtmq-stg .rainbet.com (159.203.34.207:15671-72,165.227.255.111,159.203.53.157)
+confidence: 60
+reasoning: mgmt console + plaintext AMQP 5672 + clustering 25672 internet-exposed on direct DO IPs (no CF). All /api probes returned 401 so far (no anonymous leak), but default guest/guest is unverified — brokers on a real-money event bus with admin UI.
+evidence_needed: credentialed login (guest/guest or weak cred) on 15672 /api/overview OR any authenticated queue read — requires deployer authorization (OFF-LIMITS this round by policy).
+verify_steps: AUTH_HELPED: single Basic-auth GET http://<ip>:15672/api/overview with default creds under authorization; report exposure as-is meanwhile.
+impact: Full message-bus compromise → queue read/write → payment/withdrawal event injection. Severity: CRITICAL if default creds; MEDIUM exposure as-is.
+testability: AUTH_HELPED
+[NEXT] PROBE: cadence every ~30 min: GET staging-raffles.rainbet.com/health (hash/compare vs known `{"code":200,"db":"Running"...v0.00.0002-rc1}` shell) + GET staging-raffles.rainbet.com/socket.io/?EIO=4&transport=polling (watch for sid + upgrade policy changes); GET staging-originals.rainbet.com/health (catch 504 recovery of the slot-originals app, next live JSON candidate); GET staging.rainbet.com/api/v1/public/config -H "Accept: application/json" (drift window re-open capture); OPTIONS api.rainbet.com/openapi.json + GET api.rainbet.com/api/v1/public/ping (method-rule widening watch).
+[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected (~09:00Z) — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption is now BLANKET-path (200 on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense) — widens each operator edit cycle; GET stays 403. Rule scope: everything but `/` and `/docs`(origin 400).
+[LEARN] ACCEPTED AUTH @ staging-chat/alerts/socket/raffles.rainbet.com: engine.io v4 handshake issues anonymous sids unauthenticated on 4 hostnames of one DO app (app id 1ce4ff55) — socket plane exposed, no CF Access/challenge.
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows have only ever served the 32875B challenge shell.
+[LEARN] REJECTED MISCONFIG @ staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not a takeoverable dangling host.
+[LEARN] ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: Cloudflare R2 public-access bucket (28KB "Object not found" page); exposure limited to known keys.
+[RISK] RainBet: **68** — Up from 63: the staging-namespace CF-policy gap is now CONFIRMED exploitable in the pass/fail sense (real origin JSON served via direct DO origin on staging-raffles, plus an anonymous Socket.IO plane on 4 hostnames), and the prod API's OPTIONS pass-through was demo'd as blanket-path with active rule-widening. No customer/employee/financial/authentication data accessed (all probes read-only GET/HEAD/OPTIONS, socket sids issued by design, no creds attempted, RabbitMQ /api untouched at 401). Mitigating: staging apps hold no money surface yet (bare health+socket), socket namespace auth (middleware JWT) unverified and resilient to passive testing, GET/HEAD/POST still cf-mitigated on prod, staging Access drift remains challenge-shell-only. Risk driver: next operator WAF edit or staging-app recovery (staging-originals 504) could expose a content-bearing contract; RabbitMQ default-creds check remains the single highest-potential AUTH_HELPED item.
+===LEAD-BIGPICKLE tail===
+verify_steps: HUMAN with credentialed browser (solve CF) + account: derive real vault routes from PWA bundle at www.rainbet.com; GET /vault, /vault/balance, /vault/transactions; vary id params. Mutating endpoints off-limits.
+impact: Cross-user vault balance/transaction disclosure or tampering on a money surface. Severity: HIGH.
+testability: HUMAN_ONLY
+[NEXT] PROBE: cadence GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json" every ~30 min (state 302→login at 00:12Z; on 200 capture length/content-type/body-hash to separate origin JSON from the known 32875B CF challenge shell), plus keep one OPTIONS to a random api path per round to detect further WAF method-rule edits.
+[RISK] RainBet: 47 — Operator actively editing WAF method-rules (OPTIONS exemption widened to blanket fleet-wide this round) raises probability of a future over-broad method/path exemption; recently publicized HIGH business-logic bug (vault deposit/withdraw race) proves money-flow logic was vulnerable and makes BOLA/IDOR on the same vault plausible behind credentials; staging Access drift still recurs (open 17:48→closed 00:12). Mitigating: every content-bearing method still cf-mitigated on all live hosts, no origin data has ever leaked during drift windows, DO default-FQDN remains unresolvable, and no passive path to the credentialed surface exists.
+## 2026-09-05 04:45:31 UTC [target] (model bigpickle)
+[HYP] Internet-exposed RabbitMQ brokers (management + plaintext AMQP) on direct DigitalOcean origins bypassing Cloudflare
+class: MISCONFIG
+asset: rainbet-com-rabbitmq / rainbet-us-staging-rabbitmq / rbtmq-stg .rainbet.com (159.203.34.207 / 165.227.255.111 / 159.203.53.157)
+confidence: 75
+reasoning: CT cert exists for all 3; A records point directly to DO (no CF IP); probes confirm mgmt console (15671/15672, RabbitMQ Management index) on all 3, plaintext AMQP 5672 on 2, Erlang clustering 25672 on 1, port 80 on 2. Brokers on a real-money gaming event/messaging bus sit on the public internet with admin UI.
+evidence_needed: A successful credentialed mgmt/AMQP login (default guest/guest or weak cred) OR any anonymous /api info leak on 15672 — require credentialed auth before concluding impact.
+verify_steps: PASSIVE(proven): banner/TCP confirmed. AUTH_HELPED (requires deployer authorization): single Basic-auth GET http://<ip>:15672/api/overview with default guest:guest is OFF-LIMITS this round — report exposure as-is for triage.
+impact: Full message-bus compromise → queue read/write → payment/withdrawal event injection, cross-service command flows, broker data at rest. Severity: HIGH-CRITICAL if creds default; MEDIUM exposure as-is (admin console + unencrypted broker internet-reachable, no CF).
+testability: AUTH_HELPED
+[HYP] Live unauthenticated Socket.IO plane on unprotected origin (staging-chat)
+class: AUTH
+asset: staging-chat.rainbet.com (DO app 1ce4ff55-…)
+confidence: 60
+reasoning: engine.io handshake (`?EIO=4&transport=polling`) returns 200 `0{"sid":...}` with NO Cloudflare Access login, NO cf-mitigated challenge, x-do-orig-status 200. Origin is fully proxied-through unprotected. CORS probe with Origin: evil.com returned no ACAO reflection (standard deny) — CSWSH blocked, but server-side auth state of the socket namespace is unverified.
+evidence_needed: An authenticated socket message/state reachable without session proof — requires opening a real socket (socket.io-client) and observing namespace payload on /chat or /rooms — treat as data-plane test, deployment-authorized only.
+verify_steps: HEAD/GET https://staging-chat.rainbet.com/socket.io/ confirmed; deeper = HUMAN on authorized staging account only.
+impact: If namespace rooms broadcast without token, chat/history/PII of users readable cross-session. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] staging-* subdomains form a systemic Cloudflare-policy gap on the whole zone staging namespace
+class: MISCONFIG
+asset: staging-api / staging-services / staging-monorepo / staging-originals / staging-chat .rainbet.com
+confidence: 70
+reasoning: 5 staging-* hosts return direct origin responses (200/400/404/504 with x-do-orig-status + x-do-app-origin) while prod homologues (api/services/originals) return 403 cf-mitigated. Distinct zone rule coverage: WAF challenge rule binds prod hostnames only.
+evidence_needed: One of these apps returning real JSON (not 404-shell) when healthy — staging-originals currently 504 (recovering) is the candidate.
+verify_steps: Cadence GET https://staging-originals.rainbet.com/health and / OPEN; on 200, capture content-type + body signature.
+impact: Unchallenged staging API surface → full contract enumeration, staging creds/config, parity exploits against prod. Severity: HIGH when any app is live.
+testability: PASSIVE
+[HYP] api OPTIONS exemption is blanket (any path) — widens to content methods on operator's next WAF edit
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 55
+reasoning: 200 + x-do-orig-status:200 on OPTIONS of a random nonexistent path proves the exemption is not rule-pinned to /api/v1/; same operator who widened OPTIONS controls sibling method rules (HEAD/POST still 403-challenged).
+evidence_needed: Non-challenge response (404/405/JSON) for a GET/HEAD/POST/PUT/PATCH on any public path.
+verify_steps: OPTIONS-monitor rounds already confirm; content-method verification requires AUTH_HELPED triage before PUT/PATCH.
+impact: Origin router contract disclosure → grounded IDOR/BOLA targeting. Severity: HIGH if method rule widens.
+testability: PASSIVE
+[NEXT] SCAN: single GET (0.7s spacing) over remaining live CT-hosts — `alerts, aiostaging, chat, clever, ds, help, maintenance, raffles, slot-integrations, staging-alerts, staging-blog, staging-cdn, staging-monorepo, staging-originals, staging-raffles, staging-socket` — classify absent-cf-mitigated + x-do-* = unprotected; re-probe any 2xx/4xx-x-do returns on /health,/graphql,/socket.io; PLUS add cadence GET `staging-originals.rainbet.com/health` to catch recovery of the 504 app.
+[RISK] RainBet: **63** — Surface expanded materially: 3 direct-digitalocean RabbitMQ brokers w/ internet-exposed management + plaintext AMQP (unproxied origins), a systemic CF-policy gap on the staging namespace (5 hosts, incl. 1 live unauthenticated socket.io), and path-agnostic OPTIONS origin passthrough on the prod API. No customer data accessed this round (all probes read-only, no creds attempted). Mitigating: staging apps mostly empty/404 shells, socket.io CORS deny, RabbitMQ /api still 401 (creds needed), CF protects prod content-methods. Risk: broker compromise if default/weak AMQP creds (AUTH_HELPED to confirm); staging application data exposure on recovery; method-rule widening.
+## 2026-09-05 08:45:22 UTC [target] (model bigpickle)
+[HYP] Staging Socket.IO pocket app (1ce4ff55) reaches beyond /health into the session plane or leaks DB/version state
+class: MISCONFIG
+asset: staging-raffles.rainbet.com / staging-chat / staging-socket / staging-alerts (DO app 1ce4ff55-e85f-4c30-8033-5129a1812504)
+confidence: 60
+reasoning: 4 hostnames resolve to one DO app bypassing CF Access AND the cf-mitigated challenge; /health returns live JSON with db status + internal version "v0.00.0002-rc1"; engine.io v4 handshake issues anonymous sids (sid lwBdzEgz1FlQ8rO0AAFe) with no token required; 35-route wordlist returns only /health and /socket.io, so the app's entire external surface is health telemetry + an open socket (near-certain chat/game backbone for the staging namespace).
+evidence_needed: A namespace connect (socket.io "40" packet) that reveals room/user payloads, or /health→contract that exposes config/DB creds. Unknown: whether middleware requires JWT at connect.
+verify_steps: PASSIVE today: cadence GET /health + handshake GET; the single unauthenticated namespace connect/read (responses only, no writes) is a data-plane test — confirm deployment authorization first (AUTH_HELPED).
+impact: Staging chat/messaging state read cross-session; DB/version info disclosure feeding parity attacks against prod. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] api WAF method-rule is being widened by the operator on a schedule — next edit may expose a content method
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 55
+reasoning: OPTIONS exemption historically pinned to /api/v1/, then this round extended to /api/v2/, /graphql, /swagger, /openapi.json, and any arbitrary path — the rule is no longer path-pinned and the operator demonstrably edits it asynchronously (Allow header re-orders across probes). GPT/other content methods (GET/HEAD/POST) remain cf-mitigated today (GET /openapi.json → 403, 110KB).
+evidence_needed: any GET/HEAD/POST/PUT/PATCH returning origin 2xx/4xx/5xx (non-challenge) on a public path.
+verify_steps: OPTIONS + GET cadence on /openapi.json,/graphql,/swagger,/api/v1/public/ping per round; any first origin response captured with full headers + body hash.
+impact: Origin router contract (openapi/docs/ping) leak → grounded IDOR/BOLA targeting on prod money API. Severity: HIGH if a content method opens; latent now.
+testability: PASSIVE
+[HYP] RabbitMQ brokers use default/weak AMQP or mgmt credentials
+class: MISCONFIG
+asset: rainbet-com-rabbitmq / rainbet-us-staging-rabbitmq / rbtmq-stg .rainbet.com (159.203.34.207:15671-72,165.227.255.111,159.203.53.157)
+confidence: 60
+reasoning: mgmt console + plaintext AMQP 5672 + clustering 25672 internet-exposed on direct DO IPs (no CF). All /api probes returned 401 so far (no anonymous leak), but default guest/guest is unverified — brokers on a real-money event bus with admin UI.
+evidence_needed: credentialed login (guest/guest or weak cred) on 15672 /api/overview OR any authenticated queue read — requires deployer authorization (OFF-LIMITS this round by policy).
+verify_steps: AUTH_HELPED: single Basic-auth GET http://<ip>:15672/api/overview with default creds under authorization; report exposure as-is meanwhile.
+impact: Full message-bus compromise → queue read/write → payment/withdrawal event injection. Severity: CRITICAL if default creds; MEDIUM exposure as-is.
+testability: AUTH_HELPED
+[NEXT] PROBE: cadence every ~30 min: GET staging-raffles.rainbet.com/health (hash/compare vs known `{"code":200,"db":"Running"...v0.00.0002-rc1}` shell) + GET staging-raffles.rainbet.com/socket.io/?EIO=4&transport=polling (watch for sid + upgrade policy changes); GET staging-originals.rainbet.com/health (catch 504 recovery of the slot-originals app, next live JSON candidate); GET staging.rainbet.com/api/v1/public/config -H "Accept: application/json" (drift window re-open capture); OPTIONS api.rainbet.com/openapi.json + GET api.rainbet.com/api/v1/public/ping (method-rule widening watch).
+[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected (~09:00Z) — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption is now BLANKET-path (200 on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense) — widens each operator edit cycle; GET stays 403. Rule scope: everything but `/` and `/docs`(origin 400).
+[LEARN] ACCEPTED AUTH @ staging-chat/alerts/socket/raffles.rainbet.com: engine.io v4 handshake issues anonymous sids unauthenticated on 4 hostnames of one DO app (app id 1ce4ff55) — socket plane exposed, no CF Access/challenge.
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows have only ever served the 32875B challenge shell.
+[LEARN] REJECTED MISCONFIG @ staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not a takeoverable dangling host.
+[LEARN] ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: Cloudflare R2 public-access bucket (28KB "Object not found" page); exposure limited to known keys.
+[RISK] RainBet: **68** — Up from 63: the staging-namespace CF-policy gap is now CONFIRMED exploitable in the pass/fail sense (real origin JSON served via direct DO origin on staging-raffles, plus an anonymous Socket.IO plane on 4 hostnames), and the prod API's OPTIONS pass-through was demo'd as blanket-path with active rule-widening. No customer/employee/financial/authentication data accessed (all probes read-only GET/HEAD/OPTIONS, socket sids issued by design, no creds attempted, RabbitMQ /api untouched at 401). Mitigating: staging apps hold no money surface yet (bare health+socket), socket namespace auth (middleware JWT) unverified and resilient to passive testing, GET/HEAD/POST still cf-mitigated on prod, staging Access drift remains challenge-shell-only. Risk driver: next operator WAF edit or staging-app recovery (staging-originals 504) could expose a content-bearing contract; RabbitMQ default-creds check remains the single highest-potential AUTH_HELPED item.
+[0m
+I have the full context. Let me look at the most recent hypotheses and lead files to understand the latest thinking, then run the analysis.
+[0m$ [0mcd /home/runner/work/rainbet-hunt/rainbet-hunt; git log --oneline -5 2>/dev/null; echo "---"; cat recon-notes/DEDICATED-DEEP.md; echo "---KNOWLEDGE index tail---"; tail -30 knowledge/index.md
+89e6b2c reposcan 2026-09-05-12-03
+---
+# Dedicated deep surface (wildcard-filtered) 2026-09-03
+
+**Target:** `rainbet`
+**Root zones:** `rainbet.com`
+
+## Wildcard analysis
+
+- Total resolving hostnames in zone: 0
+- After shared/wildcard IP filtering: **0 genuinely dedicated hosts**
+- Reason: all resolving hostnames use shared/CDN/wildcard IP signatures
+
+## Honest conclusion
+
+This target's subdomain space is wildcard-dominated. No genuinely dedicated
+subdomain surface was recovered from passive brute + subfinder enumeration.
+The surface either (a) uses wildcard DNS records, (b) all CNAME records
+point to shared CDN/Cloudflare/CloudFront/AWS IPs, or (c) has no
+subdomain program at all. This is the honest exhaustive result.
+
+---
+_Honest framing: passive DNS enumeration + shared-IP wildcard filtering. No finding claimed. No active testing performed._
+---KNOWLEDGE index tail---
+- 2026-09-04 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v2/, /graphql, /swagger return 403 (not 200) — only /api/v1/ leaks Allow header; WAF rule is version-sensitive.
+- 2026-09-04 ACCEPTED AUTH @ staging.rainbet.com: Access policy gap **reappeared** at 2026-09-04 17:48 (6 endpoints HTTP 200, 32KB) after 302 at 14:07 — intermittent enforcement confirmed.
+- 2026-09-04 NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.
+- 2026-09-04 ACCEPTED AUTH @ staging.rainbet.com: Access policy gap **reappeared** at 2026-09-04 17:48 and **persists at 20:00** (3 endpoints HTTP 200, 32KB) after 302 at 14:07 — intermittent enforcement confirmed across 5 probe rounds.
+- 2026-09-05 REJECTED AUTH @ staging.rainbet.com: Cloudflare Access policy gap (HTTP 200 on 6 endpoints) was **transient/fixed** — latest probes (2026-09-04 14:07 UTC) show all 6 endpoints return 302→Access login. Policy now enforces default-deny.
+- 2026-09-05 REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge (110KB HTML). No method-based WAF bypass.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v1/ returns 200 with Allow: OPTIONS,HEAD,GET,POST but **no CORS headers** — preflight passthrough is CORS-neutral, not exploitable.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses — WAF configuration consistent across subdomains (api, www).
+- 2026-09-05 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v2/, /graphql, /swagger return 403 (not 200) — only /api/v1/ leaks Allow header; WAF rule is version-sensitive.
+- 2026-09-05 ACCEPTED AUTH @ staging.rainbet.com: Access policy gap **reappeared** at 2026-09-04 17:48 (6 endpoints HTTP 200, 32KB) after 302 at 14:07 — intermittent enforcement confirmed.
+- 2026-09-05 NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.
+- 2026-09-05 ACCEPTED AUTH @ staging.rainbet.com: Access policy gap **reappeared** at 2026-09-04 17:48 and **persists at 20:00** (3 endpoints HTTP 200, 32KB) after 302 at 14:07 — intermittent enforcement confirmed across 5 probe rounds.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v2/, /graphql, /swagger return 403 (not 200) — only /api/v1/ leaks Allow header; WAF rule is version-sensitive.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses — WAF configuration consistent across subdomains (api, www).
+- 2026-09-05 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+- 2026-09-05 NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.
+- 2026-09-05 ACCEPTED AUTH @ staging.rainbet.com: Access policy gap **reappeared** at 2026-09-04 17:48 and **persists at 20:00 and 22:17** (3 endpoints HTTP 200, 32KB) after 302 at 14:07 — intermittent enforcement confirmed across 6 probe rounds.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v2/, /graphql, /swagger return 403 (not 200) — only /api/v1/ leaks Allow header; WAF rule is version-sensitive.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses — WAF configuration consistent across subdomains (api, www).
+- 2026-09-05 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+- 2026-09-05 NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v1/ returns 200 with Allow: HEAD,GET,POST,OPTIONS but no CORS headers — preflight passthrough is CORS-neutral, not exploitable.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
+- 2026-09-05 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected (~09:00Z) — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
+- 2026-09-05 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption is now BLANKET-path (200 on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense) — widens each operator edit cycle; GET stays 403. Rule scope: everything but `/` and `/docs`(origin 400).
+- 2026-09-05 ACCEPTED AUTH @ staging-chat/alerts/socket/raffles.rainbet.com: engine.io v4 handshake issues anonymous sids unauthenticated on 4 hostnames of one DO app (app id 1ce4ff55) — socket plane exposed, no CF Access/challenge.
+- 2026-09-05 REJECTED AUTH @ staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows have only ever served the 32875B challenge shell.
+- 2026-09-05 REJECTED MISCONFIG @ staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not a takeoverable dangling host.
+- 2026-09-05 ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: Cloudflare R2 public-access bucket (28KB "Object not found" page); exposure limited to known keys.
+[0m
+I now have full context. Let me run a few read-only probes to verify the current state (delta) before outputting the structured analysis. Let me check the git log for the latest runs and do live cadence probes consistent with the prior lead.
+[93m[1m! [0mpermission requested: external_directory (/tmp/opencode/*, /tmp/*); auto-rejecting
+[0m✗ [0mcd /tmp/opencode 2>/dev/null || cd /tmp; 
+for u in "https://staging-raffles.rainbet.com/health" "https://staging-originals.rainbet.com/health" "https://staging.rainbet.com/api/v1/public/config"; do
+  echo "=== $u ==="
+  curl -sk -o /tmp/rb_body.txt -w "HTTP %{http_code} | len %{size_download} | ct %{content_type}\n" -H "Accept: application/json" "$u"
+  echo "--- headers ---"
+  curl -sk -I "$u" 2>/dev/null | grep -iE "cf-mitigated|x-do-|server|location|content-type" | head -5
+  echo "--- body head ---"
+  head -c 200 /tmp/rb_body.txt; echo
+  sleep 1
+done failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+Let me run the cadence probes from the previous [NEXT] directive to confirm current surface state (delta). I'll do these read-only probes at appropriate spacing.
