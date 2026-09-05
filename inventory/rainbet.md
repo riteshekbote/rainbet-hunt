@@ -159,3 +159,11 @@ www.rainbet.com
 - CHANGED api.rainbet.com: OPTIONS exemption now BLANKET-path (200 on `/api/v2/`, `/graphql`, `/swagger`, `/openapi.json`, `/nonsense`) — widens each operator edit cycle; GET stays 403 with cf-mitigated; rule s
 - CHANGED staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows only served 32KB challenge shell
 - CHANGED staging-blog.rainbet.com: 530/1016 confirmed CF origin-DNS error, not takeoverable dangling host
+
+## 2026-09-05 19:34:08 UTC
+- NEW staging-raffles.rainbet.com, staging-chat.rainbet.com, staging-alerts.rainbet.com, staging-socket.rainbet.com: 4 hostnames on DO app 1ce4ff55 serve real origin responses — `/health` returns JSON `{"co
+- NEW staging-cdn.rainbet.com: Cloudflare R2 public-access bucket (28KB "Object not found" page); exposure limited to known keys
+- NEW rainbet-com-rabbitmq: Internet-exposed RabbitMQ brokers (management 15672 + plaintext AMQP 5672) on direct DO origins bypassing Cloudflare
+- CHANGED api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (200 + `x-do-orig-status:200` + `Allow: HEAD,GET,POST,OPTIONS` on /api/v1/, /graphql, /swagger, /openapi.json, /nonsense); `/docs` and `/` e
+- CHANGED staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows only served 32KB challenge shell
+- CHANGED staging-blog.rainbet.com: 530/1016 confirmed CF origin-DNS error, not takeoverable dangling host

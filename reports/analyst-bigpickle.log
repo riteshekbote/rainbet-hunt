@@ -7355,3 +7355,178 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] RainBet: **68** — Unchanged from 68: staging-namespace CF-policy gap remains confirmed exploitable in the pass/fail sense (real origin JSON /health + anonymous Socket.IO plane on 4 hostnames of DO app 1ce4ff55), and prod api OPTIONS pass-through confirmed stable blanket-path. No customer/employee/financial/auth data accessed (all probes read-only GET/HEAD/OPTIONS; socket sids issued by-design; no creds attempted; RabbitMQ /api untouched at 401). Mitigating: staging app holds no money surface (only bare /health + socket), socket namespace auth (middleware JWT) unverified and resilient to passive testing, all api content methods still closed (GET 5485B block + 110KB challenge), staging Access drift remains challenge-shell-only, staging-originals down. Risk drivers: next operator WAF content-method edit could open the api router contract; staging-app recovery (staging-originals 504) could expose a content-bearing contract; RabbitMQ default-creds check remains the single highest-potential AUTH_HELPED item.
+===== ANALYST bigpickle 2026-09-05 19:34:08 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "HEALTH %{http_code} %{size_download} time=%{time_total}\n" https://staging-raffles.rainbet.com/health
+HEALTH 200 75 time=0.252376
+[0m
+[0m$ [0mcurl -s -X OPTIONS -i https://api.rainbet.com/openapi.json 2>/dev/null | head -30
+HTTP/2 200 
+date: Sat, 05 Sep 2026 19:31:06 GMT
+content-type: application/json
+content-length: 0
+server: cloudflare
+allow: OPTIONS,HEAD,GET,POST
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=obl3GE5KQo9XWBArXXh88oZkTdwSG8MKVnCPeEgS5jc-1788636666.5927765-1.0.1.1-ETCdpKduobGsUKteTTJ.dErsALr7_YqNCE_yiDCUhyxjhJ.z2kf90LAV3wGKtI4j.45u1ebN9hsB32xOEHz5rEk4QPzTD.PVW8QLH2RmDo0KE6SAtwYDrmZ4khVSi7zX; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 20:01:06 GMT
+cf-ray: a367a6fe3ab9cc13-IAD
+alt-svc: h3=":443"; ma=86400
+[0m
+I'll execute the 8-step analysis based on my state, last leads, and the aggregated knowledge.
+
+Let me run passive read-only probes on the current priority targets per my [NEXT] action.
+[0m$ [0mcurl -s -o /dev/null -w "ORIGINALS /health %{http_code} %{size_download}\n" https://staging-originals.rainbet.com/health
+ORIGINALS /health 404 2
+[0m
+[0m$ [0mcurl -s -i https://staging-originals.rainbet.com/health 2>/dev/null | head -20
+HTTP/2 404 
+date: Sat, 05 Sep 2026 19:31:09 GMT
+content-type: application/json; charset=utf-8
+content-length: 2
+x-powered-by: Express
+vary: Origin
+access-control-allow-credentials: true
+etag: W/"2-vyGp6PvFo4RvsFtPoIWeCReyIC8"
+server: cloudflare
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 404
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=UjaCEZoo09yVJ276.AqngjfXwczaSdYVwWyaGbmIZt4-1788636669.1484966-1.0.1.1-phjUnrravWP.cQIRIqGJEiER.2r9basgXmo8zk6KCZAybJtXvLjkmcjOwR1YgAlShIR3f.P_rZeuEja50gOFjKBAuxuE0t28doeZM_imXMN_I2vjOyzGcHS.BMfed3vO; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 20:01:09 GMT
+cf-ray: a367a70e29e3d321-IAD
+alt-svc: h3=":443"; ma=86400
+
+{}
+[0m
+[0m$ [0mcurl -s -X OPTIONS -i https://api.rainbet.com/graphql 2>/dev/null | grep -iE "HTTP|x-do|allow" 
+HTTP/2 200 
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+set-cookie: __cf_bm=OXZyS8eT_avZu3JLfmFr06JtbDT.KKnG1pZDLQVq8_U-1788636669.738127-1.0.1.1-N7ETCMTiy.Y59OiMH84i17rjxF_IdAI2FX6G8YoLD.YCJeYmF.PAOHSqMq22GeXfGgSm22n2ontGCf5Bg97j7Zvwvt4_r9mpRLiyW5YDNM9dPgO1tzr1KGCi91spYnES; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 20:01:09 GMT
+[0m
+Let me look more carefully at what changed. I noticed the OPTIONS response now reveals `x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079` — a different DO app origin UUID than the staging-raffles app (1ce4ff55). Also staging-originals /health now returns 404 (not 504 — it changed from down to serving a different app).
+[0m$ [0mcurl -s -o /dev/null -w "RAFFLES ping %{http_code}\n" https://staging-raffles.rainbet.com/api/v1/public/ping; curl -s -o /dev/null -w "RAFFLES root %{http_code}\n" https://staging-raffles.rainbet.com/; curl -s -o /dev/null -w "RAFFLES hello %{http_code}\n" https://staging-raffles.rainbet.com/api/v1/public/config
+RAFFLES ping 404
+RAFFLES root 404
+RAFFLES hello 404
+[0m
+Interesting new data. Key findings this round:
+
+1. **staging-originals.rainbet.com has RECOVERED** — now returns 404 `{}` via **DO app 1ce4ff55** (same app as staging-raffles/chat/alerts/socket). It went from 504 (down) to 404 (serving the same Express app). This is the recovery I predicted — the slot-originals app is now live on app 1ce4ff55.
+
+2. **api.rainbet.com OPTIONS now exposes `x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079`** — a DIFFERENT DO app UUID than staging (1ce4ff55). This is new metadata — the prod API is on a distinct DO app. Also `x-do-orig-status: 200` on /graphql OPTIONS.
+
+3. staging-raffles /api/v1/public/ping, /, /api/v1/public/config all 404 (only /health serves).
+
+Let me confirm the staging-raffles health body and check the recovered staging-originals app more (which paths serve there).
+[0m$ [0mcurl -s -X OPTIONS -i https://api.rainbet.com/docs 2>/dev/null | grep -iE "HTTP|x-do|allow"; echo "--- GET openapi ---"; curl -s -o /dev/null -w "GET openapi %{http_code} %{size_download}\n" https://api.rainbet.com/openapi.json
+HTTP/2 400 
+set-cookie: __cf_bm=UhMwfhqER7L2hTmfdj3Fnss2tFhglTFwE2vgKCVAdWk-1788636678.6730776-1.0.1.1-FwMBNvyVr1KcbKGP16UHNHzFyDbBENKdNpiBNrZj8xv.Sc1cvNhPLoziq1.Hzo2m.7qJcTJjta1GldHCMHys.5dGrJQUccBiB9bZfhmDb8SCTM5vPssCx8aLDQSSBsY5; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 20:01:18 GMT
+--- GET openapi ---
+GET openapi 403 110355
+[0m
+[0m$ [0mcurl -s https://staging-raffles.rainbet.com/health; echo; echo "---originals wordlist---"; for p in /health /socket.io/ /api /api/v1/public/config /api/v1/health /version /api/v1/public/ping; do curl -s -o /dev/null -w "$p %{http_code} %{size_download}\n" "https://staging-originals.rainbet.com$p"; done
+{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}
+---originals wordlist---
+/health 404 2
+/socket.io/ 404 2
+/api 404 2
+/api/v1/public/config 404 2
+/api/v1/health 404 2
+/version 404 2
+/api/v1/public/ping 404 2
+[0m
+[0m$ [0mcurl -s -X OPTIONS -i https://api.rainbet.com/docs 2>/dev/null | grep -iE "^HTTP|x-do|allow"; echo "--- / ---"; curl -s -X OPTIONS -i https://api.rainbet.com/ 2>/dev/null | grep -iE "^HTTP|cf-mitigated|content-length"
+HTTP/2 400 
+--- / ---
+HTTP/2 403
+[0m
+Now I have a solid delta. Let me analyze:
+
+**staging-originals accurately recovered**: it's now on DO app **1ce4ff55** (same as staging-raffles) but every route returns 404 `{}` — even `/health` and `/socket.io/` which work on staging-raffles. So it's the same Express app binary but the slot-originals route-mapping resolves to 404. This is worth noting but has no content surface yet.
+
+**api.rainbet.com OPTIONS** on /graphql returns `x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079` with `x-do-orig-status: 200` — the prod API reveals its distinct DigitalOcean app origin UUID via OPTIONS. This is a [CHANGED]/[NEW] metadata disclosure not previously recorded (prior notes recorded the OPTIONS exemption but not the distinct DO app ID).
+
+Let me verify the /docs OPTIONS status is 400 (consistent with earlier "everything but / and /docs" rule) and note the app-origin leak.
+
+I have enough for the analysis. Let me compose the structured output.
+[0m$ [0msleep 1; curl -s -X OPTIONS -i https://api.rainbet.com/api/v1/public/ping 2>/dev/null | grep -iE "^HTTP|x-do|allow"
+HTTP/2 200 
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+[0m
+I have enough data. Let me compose the structured analysis.
+
+Key delta this round:
+- **NEW**: api.rainbet.com OPTIONS responses now expose `x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079` (prod API is on a distinct DO app, different from staging 1ce4ff55) with `x-do-orig-status: 200` proving direct origin reachability through CF on every non-`/`-non-`/docs` path.
+- **CHANGED**: staging-originals.rainbet.com recovered from 504 (down) → now serves DO app **1ce4ff55** (same as staging-raffles/chat/alerts/socket), but all routed paths return 404 `{}` — the slot-originals contract mounts nothing on this app yet.
+- staging-raffles /health unchanged (75B shell), no new content paths.
+
+STEP 1 — DELTA:
+- [NEW] api.rainbet.com OPTIONS → `x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079` + `x-do-orig-status:200` on all non-`/`-non-`/docs` paths — prod API sits on distinct DO app; origin reachability confirmed through CF on every OPTIONS path.
+- [CHANGED] staging-originals.rainbet.com recovered (504→) now serves DO app 1ce4ff55 returning 404 `{}` on all probes — slot-originals contract unmounted on same app as raffles/chat/alerts/socket.
+
+STEP 2 — PRIORITIZE:
+- [PRIO] api.rainbet.com,7.8,attack_surface=8|business_value=9|tech_exposure=7|gate_ease=4|cloud_surface=7|freshness=9 — DO app-origin UUID leak gives cloud-surface anchor; blanket OPTIONS origin-probe stays.
+- [PRIO] staging-raffles.rainbet.com,9.2,... — unchanged, still top.
+- [PRIO] staging-originals.rainbet.com,6.5,attack_surface=6|business_value=7|tech_exposure=6|gate_ease=9|cloud_surface=7|freshness=10 — recovered app, contract unmounted now but same DO app; watch for content mount.
+
+STEP 3 — HYPOTHESES (top 3, staged):
+
+[HYP] prod api DO-app origin reachable via OPTIONS to disclose router/openapi contract on method-rule widening
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197-6fd5-4e93-8a3b-b8177a4bd079)
+confidence: 55
+reasoning: OPTIONS returns 200 + x-do-orig-status:200 + x-do-app-origin:53f39197... on /graphql,/openapi.json,/api/v1/public/ping,/nonsense — direct origin reachable through CF on every non-/ non-/docs path; GET/HEAD/POST still 403 block/challenge.
+evidence_needed: any content method returning origin 2xx/4xx/5xx on a public path.
+verify_steps: OPTIONS+GET cadence on /openapi.json,/graphql,/swagger,/api/v1/public/ping each round; capture x-do-app-origin + status on first origin response. Passive.
+impact: origin router/openapi contract disclosure on prod money API → grounded IDOR/BOLA. Severity HIGH if a content method opens; latent now.
+testability: PASSIVE
+
+[HYP] slot-originals contract mounts on recovered staging-originals (DO app 1ce4ff55) exposing content beyond the 404 shell
+class: AUTH
+asset: staging-originals.rainbet.com (DO app 1ce4ff55)
+confidence: 45
+reasoning: recovered from 504 to live on the same Express app (1ce4ff55) as raffles/chat/alerts where /health and /socket.io/ are exposed unauth; currently all probes 404 {} — slot-originals routes not yet mounted.
+evidence_needed: any path returning 2xx JSON on staging-originals (wordlist currently all 404).
+verify_steps: cadence GET /health + /socket.io/?EIO=4&transport=polling on staging-originals; expand wordlist 40-route read-only per round; watch for live route mount. Passive.
+impact: staging content/chat/session telemetry on a money-adjacent originals app. Severity MEDIUM-HIGH.
+testability: PASSIVE
+
+[HYP] RabbitMQ default/weak credentials — direct DO origins bypassing CF
+class: MISCONFIG
+asset: rainbet-com-rabbitmq / 159.203.34.207 / 165.227.255.111 / 159.203.53.157
+confidence: 60
+reasoning: mgmt 15671/15672 + plaintext AMQP 5672 internet-exposed on direct DO IPs no CF; anonymous /api 401; default guest/guest unverified on real-money event bus.
+evidence_needed: credentialed login /api/overview; requires authorization.
+verify_steps: AUTH_HELPED single Basic GET /api/overview under authorization. 
+impact: message-bus compromise → payment/withdrawal event injection. CRITICAL if default creds.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE:
+- staging-originals hypothesis 45 — above floor, keep but it is genuinely 404-only today; retain as passive cadence. Keep.
+- staging-raffles socket/health 75 — retain (AUTH_HELPED for namespace connect).
+- RabbitMQ 60 — AUTH_HELPED only, retain.
+- api OPTIONS widening 55 — retain (passive cadence).
+- [FINAL] staging-raffles Socket.IO+health plane: 75
+- [FINAL] RabbitMQ default creds: 60
+- [FINAL] api OPTIONS blanket-path widening: 55
+- [FINAl] staging-originals recovered contract watch: 45
+
+STEP 5 — NEXT ACTION:
+[NEXT] PROBE: cadence GET staging-raffles.rainbet.com/health (body-hash vs `{"code":200,"db":"Running"...rc1}`) + GET staging-originals.rainbet.com/socket.io/?EIO=4&transport=polling + GET staging-originals.rainbet.com/health (recovered-app content-mount watch) + OPTIONS api.rainbet.com/openapi.json + GET api.rainbet.com/api/v1/public/ping (capture x-do-app-origin; method-rule widening) — all read-only ~0.5s spacing.
+
+STEP 6 — LEARNING:
+- [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS reveals `x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079` — prod API distinct DO app (vs staging 1ce4ff55); origin reachability through CF confirmed on every non-`/`-non-`/docs` path. NEW metadata, distinct from prior notes.
+- [LEARN] ACCEPTED AUTH @ staging-originals.rainbet.com: RECOVERED from 504 to live on DO app 1ce4ff55 (same Express app as raffles), 404 `{}` on all paths — slot-originals contract unmounted; earlier 504 status is invalid.
+- [LEARN] REJECTED AUTH @ staging-originals.rainbet.com: recovered app exposes NO content today — all 7 probes (health,socket.io,api,config,version,ping) return 404 `{}`; not yet a content-bearing surface.
+
+STEP 7 — RISK:
+[RISK] RainBet: **69** — Up 1 from 68: prod api OPTIONS now leaks its distinct DigitalOcean app-origin UUID (53f39197...) with x-do-orig-status:200 proving origin reachability through CF on every non-`/` path — strengthens the anchor for future method-widening exploitation; staging-originals recovered onto the shared DO app 1ce4ff55 (contract unmounted, 404 today). No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; socket sids by design; no creds; RabbitMQ untouched at 401). Mitigating: all prod api content methods still closed (GET 403 block 5485B + 110KB challenge), staging-originals has no mounted routes, staging Access drift is challenge-shell-only. Risk drivers: next operator WAF content-method edit could open api router contract; slot-originals app (now live on 1ce4ff55) could mount content; RabbitMQ default-creds remains highest-potential AUTH_HELPED item.
