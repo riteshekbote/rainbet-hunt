@@ -4880,3 +4880,1315 @@ testability: PASSIVE
 
 ## STEP 7 — RISK
 [RISK] RainBet: **63** — Surface expanded materially: 3 direct-digitalocean RabbitMQ brokers w/ internet-exposed management + plaintext AMQP (unproxied origins), a systemic CF-policy gap on the staging namespace (5 hosts, incl. 1 live unauthenticated socket.io), and path-agnostic OPTIONS origin passthrough on the prod API. No customer data accessed this round (all probes read-only, no creds attempted). Mitigating: staging apps mostly empty/404 shells, socket.io CORS deny, RabbitMQ /api still 401 (creds needed), CF protects prod content-methods. Risk: broker compromise if default/weak AMQP creds (AUTH_HELPED to confirm); staging application data exposure on recovery; method-rule widening.
+===== ANALYST bigpickle 2026-09-05 08:45:33 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && echo "---" && curl --version | head -1
+total 168
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:36 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 08:36 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 08:36 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 08:36 .github
+-rw-r--r--  1 runner runner  1696 Sep  5 08:36 README.md
+-rw-r--r--  1 runner runner    32 Sep  5 08:36 analyst-out.txt
+-rw-r--r--  1 runner runner 39651 Sep  5 08:36 analyst-prompt.txt
+-rw-r--r--  1 runner runner 35866 Sep  5 08:36 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 leads
+-rw-r--r--  1 runner runner  5745 Sep  5 08:36 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  5 08:36 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 triage
+---
+curl 8.5.0 (x86_64-pc-linux-gnu) libcurl/8.5.0 OpenSSL/3.0.13 zlib/1.3 brotli/1.1.0 zstd/1.5.5 libidn2/2.3.7 libpsl/0.21.2 (+libidn2/2.3.7) libssh/0.10.6/openssl/zlib nghttp2/1.59.0 librtmp/2.3 OpenLDAP/2.6.10
+[0m
+[0m✱ [0mGlob "art/**"[90m 0 matches[0m
+[0m
+[0m$ [0mls -la leads knowledge recon-notes reports scripts inventory triage 2>/dev/null
+inventory:
+total 20
+drwxr-xr-x  2 runner runner 4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 9984 Sep  5 08:36 rainbet.md
+
+knowledge:
+total 20
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 11143 Sep  5 08:36 index.md
+
+leads:
+total 180
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 77744 Sep  5 08:36 lead-bigpickle.md
+-rw-r--r--  1 runner runner   612 Sep  5 08:36 lead-laguna.md
+-rw-r--r--  1 runner runner   600 Sep  5 08:36 lead-ling3.md
+-rw-r--r--  1 runner runner   624 Sep  5 08:36 lead-longcat.md
+-rw-r--r--  1 runner runner    18 Sep  5 08:36 lead-mimo.md
+-rw-r--r--  1 runner runner 75981 Sep  5 08:36 lead-nemotron3.md
+-rw-r--r--  1 runner runner  3309 Sep  5 08:36 reposcan-rainbet.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner  817 Sep  5 08:36 DEDICATED-DEEP.md
+
+reports:
+total 644
+drwxr-xr-x  2 runner runner   4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 371218 Sep  5 08:36 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   2604 Sep  5 08:36 analyst-laguna.log
+-rw-r--r--  1 runner runner   2592 Sep  5 08:36 analyst-ling3.log
+-rw-r--r--  1 runner runner   2616 Sep  5 08:36 analyst-longcat.log
+-rw-r--r--  1 runner runner 207463 Sep  5 08:36 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   5376 Sep  5 08:36 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  5 08:36 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  5 08:36 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  5 08:36 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   4549 Sep  5 08:36 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  24269 Sep  5 08:36 hypotheses.md
+-rw-r--r--  1 runner runner     39 Sep  5 08:36 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 16987 Sep  5 08:36 sync-issues.py
+
+triage:
+total 88
+drwxr-xr-x  2 runner runner 4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner    0 Sep  5 08:36 .gitkeep
+-rw-r--r--  1 runner runner  184 Sep  5 08:36 run-2026-09-02-21-53.md
+-rw-r--r--  1 runner runner  146 Sep  5 08:36 run-2026-09-02-23-52.md
+-rw-r--r--  1 runner runner  171 Sep  5 08:36 run-2026-09-03-03-11.md
+-rw-r--r--  1 runner runner  317 Sep  5 08:36 run-2026-09-03-08-09.md
+-rw-r--r--  1 runner runner  213 Sep  5 08:36 run-2026-09-03-12-52.md
+-rw-r--r--  1 runner runner  519 Sep  5 08:36 run-2026-09-03-16-57.md
+-rw-r--r--  1 runner runner  169 Sep  5 08:36 run-2026-09-03-19-41.md
+-rw-r--r--  1 runner runner  219 Sep  5 08:36 run-2026-09-03-22-19.md
+-rw-r--r--  1 runner runner 4735 Sep  5 08:36 run-2026-09-04-00-14.md
+-rw-r--r--  1 runner runner  181 Sep  5 08:36 run-2026-09-04-04-42.md
+-rw-r--r--  1 runner runner  182 Sep  5 08:36 run-2026-09-04-09-20.md
+-rw-r--r--  1 runner runner  226 Sep  5 08:36 run-2026-09-04-13-45.md
+-rw-r--r--  1 runner runner  161 Sep  5 08:36 run-2026-09-04-17-23.md
+-rw-r--r--  1 runner runner  241 Sep  5 08:36 run-2026-09-04-19-50.md
+-rw-r--r--  1 runner runner  242 Sep  5 08:36 run-2026-09-04-22-09.md
+-rw-r--r--  1 runner runner  185 Sep  5 08:36 run-2026-09-05-00-10.md
+-rw-r--r--  1 runner runner 4310 Sep  5 08:36 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner  201 Sep  5 08:36 run-2026-09-05-08-35.md
+[0m
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead triage/run-2026-09-05-08-35.md
+[0m
+[0m$ [0mcat state_bigpickle.json analyst-out.txt; echo "---SCOPE---"; sed -n '1,60p' scope.yml
+{"phase": "POC", "target": "api"}[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && echo "---" && curl --version | head -1
+total 168
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:36 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 08:36 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 08:36 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 08:36 .github
+-rw-r--r--  1 runner runner  1696 Sep  5 08:36 README.md
+-rw-r--r--  1 runner runner    32 Sep  5 08:36 analyst-out.txt
+-rw-r--r--  1 runner runner 39651 Sep  5 08:36 analyst-prompt.txt
+-rw-r--r--  1 runner runner 35866 Sep  5 08:36 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 leads
+-rw-r--r--  1 runner runner  5745 Sep  5 08:36 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  5 08:36 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 08:36 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 triage
+---
+curl 8.5.0 (x86_64-pc-linux-gnu) libcurl/8.5.0 OpenSSL/3.0.13 zlib/1.3 brotli/1.1.0 zstd/1.5.5 libidn2/2.3.7 libpsl/0.21.2 (+libidn2/2.3.7) libssh/0.10.6/openssl/zlib nghttp2/1.59.0 librtmp/2.3 OpenLDAP/2.6.10
+[0m
+[0m✱ [0mGlob "art/**"[90m 0 matches[0m
+[0m
+[0m$ [0mls -la leads knowledge recon-notes reports scripts inventory triage 2>/dev/null
+inventory:
+total 20
+drwxr-xr-x  2 runner runner 4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 9984 Sep  5 08:36 rainbet.md
+
+knowledge:
+total 20
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 11143 Sep  5 08:36 index.md
+
+leads:
+total 180
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 77744 Sep  5 08:36 lead-bigpickle.md
+-rw-r--r--  1 runner runner   612 Sep  5 08:36 lead-laguna.md
+-rw-r--r--  1 runner runner   600 Sep  5 08:36 lead-ling3.md
+-rw-r--r--  1 runner runner   624 Sep  5 08:36 lead-longcat.md
+-rw-r--r--  1 runner runner    18 Sep  5 08:36 lead-mimo.md
+-rw-r--r--  1 runner runner 75981 Sep  5 08:36 lead-nemotron3.md
+-rw-r--r--  1 runner runner  3309 Sep  5 08:36 reposcan-rainbet.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner  817 Sep  5 08:36 DEDICATED-DEEP.md
+
+reports:
+total 644
+drwxr-xr-x  2 runner runner   4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 371218 Sep  5 08:36 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   2604 Sep  5 08:36 analyst-laguna.log
+-rw-r--r--  1 runner runner   2592 Sep  5 08:36 analyst-ling3.log
+-rw-r--r--  1 runner runner   2616 Sep  5 08:36 analyst-longcat.log
+-rw-r--r--  1 runner runner 207463 Sep  5 08:36 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   5376 Sep  5 08:36 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  5 08:36 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  5 08:36 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  5 08:36 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   4549 Sep  5 08:36 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  24269 Sep  5 08:36 hypotheses.md
+-rw-r--r--  1 runner runner     39 Sep  5 08:36 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner 16987 Sep  5 08:36 sync-issues.py
+
+triage:
+total 88
+drwxr-xr-x  2 runner runner 4096 Sep  5 08:36 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 08:36 ..
+-rw-r--r--  1 runner runner    0 Sep  5 08:36 .gitkeep
+-rw-r--r--  1 runner runner  184 Sep  5 08:36 run-2026-09-02-21-53.md
+-rw-r--r--  1 runner runner  146 Sep  5 08:36 run-2026-09-02-23-52.md
+-rw-r--r--  1 runner runner  171 Sep  5 08:36 run-2026-09-03-03-11.md
+-rw-r--r--  1 runner runner  317 Sep  5 08:36 run-2026-09-03-08-09.md
+-rw-r--r--  1 runner runner  213 Sep  5 08:36 run-2026-09-03-12-52.md
+-rw-r--r--  1 runner runner  519 Sep  5 08:36 run-2026-09-03-16-57.md
+-rw-r--r--  1 runner runner  169 Sep  5 08:36 run-2026-09-03-19-41.md
+-rw-r--r--  1 runner runner  219 Sep  5 08:36 run-2026-09-03-22-19.md
+-rw-r--r--  1 runner runner 4735 Sep  5 08:36 run-2026-09-04-00-14.md
+-rw-r--r--  1 runner runner  181 Sep  5 08:36 run-2026-09-04-04-42.md
+-rw-r--r--  1 runner runner  182 Sep  5 08:36 run-2026-09-04-09-20.md
+-rw-r--r--  1 runner runner  226 Sep  5 08:36 run-2026-09-04-13-45.md
+-rw-r--r--  1 runner runner  161 Sep  5 08:36 run-2026-09-04-17-23.md
+-rw-r--r--  1 runner runner  241 Sep  5 08:36 run-2026-09-04-19-50.md
+-rw-r--r--  1 runner runner  242 Sep  5 08:36 run-2026-09-04-22-09.md
+-rw-r--r--  1 runner runner  185 Sep  5 08:36 run-2026-09-05-00-10.md
+-rw-r--r--  1 runner runner 4310 Sep  5 08:36 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner  201 Sep  5 08:36 run-2026-09-05-08-35.md
+[0m
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead triage/run-2026-09-05-08-35.md
+---SCOPE---
+programs:
+  rainbet:
+    name: RainBet Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, gaming platforms, wallets, APIs, user systems, mobile/web applications, and domains operated by RainBet"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m→ [0mRead recon-notes/DEDICATED-DEEP.md
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m
+[0m← [0mWrite /tmp/opencode/scan.sh
+Wrote file successfully.
+[0m
+[0m$ [0mchmod +x /tmp/opencode/scan.sh && /tmp/opencode/scan.sh
+...output truncated...
+
+Full output saved to: /home/runner/.local/share/opencode/tool-output/tool_070b81350001FbV0dxzbx3pM1H
+
+|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=challenge|location=|cf-ray=a363eb29fc031ed2-SJC|content-type=text/html; charset=UTF-8|strict-transport-security=
+staging-alerts|000|0||0.000000<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /</pre>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a363eb30bbc98188',t:'MTc4ODU5NzUxNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+staging-alerts|404|1077|text/html; charset=utf-8|0.243752|server=cloudflare|x-do-orig-status=404|x-do-app-origin=1ce4ff55-e85f-4c30-8033-5129a1812504|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb30bbc98188-SJC|content-type=text/html; charset=utf-8|strict-transport-security=
+staging-blog|000|0||0.000000error code: 1016
+staging-blog|530|17|text/plain; charset=UTF-8|0.038183|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb38b9240065-SJC|content-type=text/plain; charset=UTF-8|strict-transport-security=
+staging-cdn|000|0||0.000000<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="https://www.cloudflare.com/favicon.ico" />
+    <title>Not Found</title>
+    <style>
+      body {
+        font-family: system-ui;
+        font-weight: 300;
+        font-size: 1.25rem;
+        color: #36393a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      main {
+        max-width: 1200px;
+        margin-top: 120px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+      }
+      #text {
+        max-width: 60%;
+        margin-left: 1rem;
+        margin-right: 1rem;
+      }
+      main > section > div {
+        margin-bottom: 3.25rem;
+      }
+      svg {
+        margin-left: 2rem;
+      }
+      @keyframes eye-1 {
+        0% {
+          transform: translateX(0);
+        }
+        10%,
+        50% {
+          transform: translateX(-5px);
+        }
+        60% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(0px);
+        }
+      }
+      @keyframes eye-2 {
+        0% {
+          transform: translateX(0);
+        }
+        10%,
+        50% {
+          transform: translateX(5px);
+        }
+        60% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(0px);
+        }
+      }
+      svg > .eye-1 {
+        animation: eye-1 3s infinite;
+      }
+      svg > .eye-2 {
+        animation: eye-2 3s 0.6s infinite;
+      }
+      h1 {
+        font-size: 3.75rem;
+        font-weight: 400;
+        margin-bottom: 0.5rem;
+      }
+      h3 {
+        font-size: 2rem;
+        font-weight: 400;
+        color: #92979b;
+        margin: 0;
+      }
+      a {
+        color: #0055dc;
+      }
+      p {
+        margin: 0;
+      }
+      #error-title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      #footer-title {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section id="text">
+        <div>
+          <h1>Error 404</h1>
+          <h3>Object not found</h3>
+        </div>
+
+        <div>
+          <p>
+            This object does not exist or is not publicly accessible at this
+            URL. Check the URL of the object that you're looking for or contact
+            the owner to enable Public access.
+          </p>
+        </div>
+
+        <div>
+          <p id="footer-title">Is this your bucket?</p>
+          <p>
+            Learn how to enable
+            <a
+              href="https://developers.cloudflare.com/r2/data-access/public-buckets/"
+              >Public Access</a
+            >
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <svg
+          width="414"
+          height="212"
+          viewBox="0 0 414 212"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <ellipse cx="208.5" cy="166.5" rx="174.5" ry="45.5" fill="#E2F5FA" />
+          <path
+            d="M205.516 80.2674H139.419L148.186 141.237H197.788L205.516 80.2674Z"
+            fill="#C5EBF5"
+          />
+          <path
+            d="M205.516 80.2674H139.419L148.186 141.237H197.788L205.516 80.2674Z"
+            stroke="#6ECCE5"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M205.516 80.2674H139.419L148.186 141.237H197.788L205.516 80.2674Z"
+            stroke="#6ECCE5"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <rect
+            x="137"
+            y="75"
+            width="70.9351"
+            height="9.39611"
+            rx="2.40792"
+            fill="#C5EBF5"
+            stroke="#6ECCE5"
+            stroke-width="2"
+          />
+          <path
+            d="M124.566 13.277C121.053 13.277 118.204 10.4288 118.204 6.91534C118.204 3.40191 121.053 0.553711 124.566 0.553711C128.08 0.553711 130.928 3.40191 130.928 6.91534C130.928 10.4288 128.08 13.277 124.566 13.277Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M122.692 10.2347H126.402V24.0345H122.692V10.2347Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M85.6775 57.6815H163.733V127.819H85.6775V57.6815Z"
+            fill="#C5EBF5"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <path
+            d="M183.719 96.4263H179.429C179.429 96.4263 178.132 78.2631 163.565 71.5752V65.4338C169.87 67.9703 182.283 75.5798 183.719 96.4263Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M193.146 105.43L188.253 106.931C188.253 106.931 186.752 98.3591 181.394 99.6477C176.035 100.936 177.96 108.22 177.96 108.22H173.678C173.678 108.22 170.889 95.9857 180.537 94.0691C190.186 92.1524 193.146 105.43 193.146 105.43Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M65.5132 96.4345H69.795C69.795 96.4345 71.0999 78.2712 85.6583 71.5752V65.4338C79.3537 67.9377 66.916 75.5472 65.5132 96.4345Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M56.0777 105.406L60.9712 106.906C60.9712 106.906 62.472 98.3345 67.8304 99.6149C73.1888 100.895 71.2559 108.195 71.2559 108.195H75.5459C75.5459 108.195 78.3353 95.9611 68.6868 94.0445C59.0384 92.1278 56.0777 105.406 56.0777 105.406Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M136.176 111.953C136.176 113.281 136.704 114.555 137.643 115.494C138.582 116.433 139.856 116.961 141.184 116.961C141.842 116.962 142.494 116.833 143.103 116.582C143.711 116.331 144.264 115.962 144.73 115.497C145.196 115.032 145.565 114.48 145.818 113.872C146.07 113.264 146.2 112.612 146.2 111.953C146.2 111.295 146.07 110.642 145.818 110.034C145.566 109.425 145.196 108.872 144.73 108.407C144.265 107.941 143.712 107.571 143.103 107.319C142.495 107.067 141.842 106.937 141.184 106.937C139.855 106.94 138.581 107.469 137.642 108.409C136.703 109.35 136.176 110.624 136.176 111.953V111.953Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M119.701 111.953C119.701 112.612 119.831 113.264 120.083 113.872C120.335 114.48 120.705 115.032 121.171 115.497C121.637 115.962 122.19 116.331 122.798 116.582C123.407 116.833 124.059 116.962 124.717 116.961C126.045 116.961 127.319 116.433 128.258 115.494C129.197 114.555 129.725 113.281 129.725 111.953C129.725 110.624 129.198 109.35 128.259 108.409C127.32 107.469 126.046 106.94 124.717 106.937C124.058 106.937 123.406 107.067 122.798 107.319C122.189 107.571 121.636 107.941 121.17 108.407C120.704 108.872 120.335 109.425 120.083 110.034C119.831 110.642 119.701 111.295 119.701 111.953V111.953Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M103.384 111.953C103.384 112.612 103.513 113.264 103.766 113.872C104.018 114.48 104.387 115.032 104.853 115.497C105.319 115.962 105.872 116.331 106.481 116.582C107.089 116.833 107.741 116.962 108.399 116.961C109.728 116.961 111.001 116.433 111.94 115.494C112.88 114.555 113.407 113.281 113.407 111.953C113.407 110.624 112.88 109.35 111.941 108.409C111.002 107.469 109.728 106.94 108.399 106.937C107.069 106.937 105.793 107.466 104.853 108.407C103.912 109.347 103.384 110.623 103.384 111.953V111.953Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M163.419 57.6273H85.5901C85.5901 57.6273 86.8707 20.01 124.5 20.01C162.13 20.01 163.419 57.6273 163.419 57.6273Z"
+            fill="#C5EBF5"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <path
+            d="M153.931 60.0436H159.587V126.787H153.931V60.0436Z"
+            fill="white"
+          />
+          <path
+            d="M159.528 55.6816H153.703L149.151 32.3329C149.151 32.3329 158.005 44.3703 159.528 55.6816Z"
+            fill="white"
+          />
+          <path
+            d="M139.792 48.9516C134.995 48.9516 131.106 45.0627 131.106 40.2656C131.106 35.4684 134.995 31.5795 139.792 31.5795C144.589 31.5795 148.478 35.4684 148.478 40.2656C148.478 45.0627 144.589 48.9516 139.792 48.9516Z"
+            fill="white"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-miterlimit="10"
+          />
+          <path
+            d="M108.821 48.9516C104.024 48.9516 100.135 45.0627 100.135 40.2655C100.135 35.4684 104.024 31.5795 108.821 31.5795C113.618 31.5795 117.507 35.4684 117.507 40.2655C117.507 45.0627 113.618 48.9516 108.821 48.9516Z"
+            fill="white"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-miterlimit="10"
+          />
+          <path
+            class="eye-1"
+            d="M138.373 40.3055C138.373 41.4216 138.817 42.4921 139.606 43.2813C140.395 44.0706 141.466 44.5139 142.582 44.5139C143.697 44.5118 144.765 44.0674 145.552 43.2784C146.34 42.4894 146.782 41.4202 146.782 40.3055C146.78 39.1921 146.337 38.125 145.549 37.3378C144.762 36.5506 143.695 36.1073 142.582 36.1052C141.467 36.1052 140.398 36.5474 139.609 37.3349C138.82 38.1224 138.375 39.1907 138.373 40.3055V40.3055Z"
+            fill="#6ECCE5"
+          />
+          <path
+            class="eye-1"
+            d="M107.271 40.3055C107.271 41.4202 107.714 42.4894 108.501 43.2784C109.289 44.0674 110.357 44.5118 111.472 44.5139C112.588 44.5139 113.658 44.0706 114.447 43.2813C115.237 42.4921 115.68 41.4216 115.68 40.3055C115.678 39.1907 115.234 38.1224 114.445 37.3349C113.656 36.5474 112.586 36.1052 111.472 36.1052C110.358 36.1073 109.291 36.5506 108.504 37.3378C107.717 38.125 107.274 39.1921 107.271 40.3055V40.3055Z"
+            fill="#6ECCE5"
+          />
+          <path
+            d="M84.8918 127.581H164.967C173.345 127.581 180.137 134.371 180.137 142.747C180.137 151.123 173.345 157.913 164.967 157.913H84.8918C76.5136 157.913 69.7218 151.123 69.7218 142.747C69.7218 134.371 76.5136 127.581 84.8918 127.581Z"
+            fill="#C5EBF5"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <g style="mix-blend-mode: multiply">
+            <path
+              d="M152.026 142.831C151.99 145.395 152.973 147.869 154.76 149.709C156.547 151.549 158.992 152.603 161.556 152.641C164.12 152.603 166.565 151.549 168.352 149.709C170.139 147.869 171.122 145.395 171.086 142.831C171.122 140.266 170.139 137.792 168.352 135.953C166.565 134.113 164.12 133.058 161.556 133.02C158.992 133.058 156.547 134.113 154.76 135.953C152.973 137.792 151.99 140.266 152.026 142.831Z"
+              fill="#C5EBF5"
+            />
+          </g>
+          <g style="mix-blend-mode: multiply">
+            <path
+              d="M137.081 152.641C131.818 152.641 127.552 148.249 127.552 142.831C127.552 137.412 131.818 133.02 137.081 133.02C142.344 133.02 146.611 137.412 146.611 142.831C146.611 148.249 142.344 152.641 137.081 152.641Z"
+              fill="#C5EBF5"
+            />
+          </g>
+          <g style="mix-blend-mode: multiply">
+            <path
+              d="M103.074 142.831C103.038 145.395 104.021 147.869 105.808 149.709C107.595 151.549 110.039 152.603 112.604 152.641C115.168 152.603 117.613 151.549 119.4 149.709C121.187 147.869 122.17 145.395 122.134 142.831C122.17 140.266 121.187 137.792 119.4 135.953C117.613 134.113 115.168 133.058 112.604 133.02C110.039 133.058 107.595 134.113 105.808 135.953C104.021 137.792 103.038 140.266 103.074 142.831Z"
+              fill="#C5EBF5"
+            />
+          </g>
+          <g style="mix-blend-mode: multiply">
+            <path
+              d="M78.598 142.831C78.5614 145.395 79.5447 147.869 81.3317 149.709C83.1186 151.549 85.5631 152.603 88.1276 152.641C90.692 152.603 93.1364 151.549 94.9234 149.709C96.7103 147.869 97.6936 145.395 97.6571 142.831C97.6936 140.266 96.7103 137.792 94.9234 135.953C93.1364 134.113 90.692 133.058 88.1276 133.02C85.5631 133.058 83.1186 134.113 81.3317 135.953C79.5447 137.792 78.5614 140.266 78.598 142.831Z"
+              fill="#C5EBF5"
+            />
+          </g>
+          <path
+            d="M103.252 71.1929H146.765V95.2437H103.252V71.1929Z"
+            fill="#6ECCE5"
+          />
+          <path
+            d="M137.087 75.635H142.177V79.7379H137.087V75.635Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M129.852 75.635H134.934V79.7379H129.852V75.635Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M137.087 87.0141H142.177V91.1089H137.087V87.0141Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M129.852 87.0141H134.934V91.1089H129.852V87.0141Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M137.087 81.1718H142.177V85.2666H137.087V81.1718Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M129.852 81.1718H134.934V85.2666H129.852V81.1718Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M108.366 75.635H127.238V91.1078H108.366V75.635Z"
+            fill="white"
+          />
+          <path
+            d="M119.345 49.2718C120.041 48.5443 120.865 47.9697 121.768 47.5786C122.671 47.1875 123.637 46.9869 124.612 46.9869C125.587 46.9869 126.553 47.1875 127.456 47.5786C128.359 47.9697 129.183 48.5443 129.879 49.2718"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <path
+            d="M274.751 12.7232C271.238 12.7232 268.39 9.87505 268.39 6.36162C268.39 2.8482 271.238 0 274.751 0C278.265 0 281.113 2.8482 281.113 6.36162C281.113 9.87505 278.265 12.7232 274.751 12.7232Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M272.877 9.68185H276.588V23.4817H272.877V9.68185Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M235.863 57.1286H313.919V127.266H235.863V57.1286Z"
+            fill="#C5EBF5"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <path
+            d="M333.248 57.7026H328.958C328.958 57.7026 327.662 75.8658 313.095 82.5537V88.6951C319.4 86.1586 331.813 78.5491 333.248 57.7026Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M342.676 48.6986L337.782 47.1979C337.782 47.1979 336.282 55.7698 330.923 54.4812C325.565 53.1925 327.49 45.9093 327.49 45.9093H323.208C323.208 45.9093 320.419 58.1432 330.067 60.0598C339.715 61.9765 342.676 48.6986 342.676 48.6986Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M215.043 57.6946H219.325C219.325 57.6946 220.63 75.8578 235.188 82.5538V88.6953C228.884 86.1914 216.446 78.5819 215.043 57.6946Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M205.608 48.7232L210.501 47.2226C210.501 47.2226 212.002 55.7944 217.36 54.514C222.719 53.2335 220.786 45.9339 220.786 45.9339H225.076C225.076 45.9339 227.865 58.1678 218.217 60.0844C208.568 62.0011 205.608 48.7232 205.608 48.7232Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M286.361 111.401C286.361 112.729 286.889 114.003 287.828 114.942C288.767 115.881 290.041 116.409 291.369 116.409C292.028 116.41 292.68 116.281 293.288 116.03C293.897 115.779 294.45 115.41 294.915 114.945C295.381 114.48 295.751 113.927 296.003 113.319C296.255 112.711 296.385 112.059 296.385 111.401C296.385 110.742 296.255 110.09 296.003 109.482C295.751 108.873 295.382 108.32 294.916 107.854C294.45 107.389 293.897 107.019 293.289 106.767C292.68 106.515 292.028 106.385 291.369 106.385C290.04 106.387 288.767 106.917 287.828 107.857C286.889 108.798 286.361 110.072 286.361 111.401V111.401Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M269.887 111.401C269.887 112.059 270.017 112.711 270.269 113.319C270.521 113.927 270.891 114.48 271.357 114.945C271.823 115.41 272.376 115.779 272.984 116.03C273.593 116.281 274.245 116.41 274.903 116.409C276.231 116.409 277.505 115.881 278.444 114.942C279.383 114.003 279.911 112.729 279.911 111.401C279.911 110.072 279.383 108.798 278.445 107.857C277.506 106.917 276.232 106.387 274.903 106.385C274.244 106.385 273.592 106.515 272.984 106.767C272.375 107.019 271.822 107.389 271.356 107.854C270.89 108.32 270.521 108.873 270.269 109.482C270.017 110.09 269.887 110.742 269.887 111.401V111.401Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M253.569 111.401C253.569 112.059 253.699 112.711 253.951 113.319C254.204 113.927 254.573 114.48 255.039 114.945C255.505 115.41 256.058 115.779 256.666 116.03C257.275 116.281 257.927 116.41 258.585 116.409C259.914 116.409 261.187 115.881 262.126 114.942C263.066 114.003 263.593 112.729 263.593 111.401C263.593 110.072 263.066 108.798 262.127 107.857C261.188 106.917 259.914 106.387 258.585 106.385C257.255 106.385 255.979 106.914 255.039 107.854C254.098 108.795 253.569 110.071 253.569 111.401V111.401Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M313.604 57.0745H235.775C235.775 57.0745 237.056 19.4572 274.686 19.4572C312.315 19.4572 313.604 57.0745 313.604 57.0745Z"
+            fill="#C5EBF5"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <path
+            d="M304.116 59.4908H309.773V126.234H304.116V59.4908Z"
+            fill="white"
+          />
+          <path
+            d="M309.713 55.1288H303.889L299.336 31.7801C299.336 31.7801 308.19 43.8175 309.713 55.1288Z"
+            fill="white"
+          />
+          <path
+            d="M259.006 48.4013C263.804 48.4013 267.692 44.5124 267.692 39.7152C267.692 34.918 263.804 31.0292 259.006 31.0292C254.209 31.0292 250.32 34.918 250.32 39.7152C250.32 44.5124 254.209 48.4013 259.006 48.4013Z"
+            fill="white"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-miterlimit="10"
+          />
+          <path
+            d="M289.977 48.4013C294.774 48.4013 298.663 44.5124 298.663 39.7152C298.663 34.918 294.774 31.0292 289.977 31.0292C285.18 31.0292 281.291 34.918 281.291 39.7152C281.291 44.5124 285.18 48.4013 289.977 48.4013Z"
+            fill="white"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-miterlimit="10"
+          />
+          <path
+            class="eye-2"
+            d="M260.425 39.7552C260.425 40.8713 259.981 41.9418 259.192 42.731C258.403 43.5202 257.333 43.9636 256.216 43.9636C255.102 43.9615 254.033 43.5171 253.246 42.7281C252.458 41.9391 252.016 40.8699 252.016 39.7552C252.018 38.6418 252.461 37.5747 253.249 36.7875C254.036 36.0002 255.103 35.557 256.216 35.5549C257.331 35.5549 258.4 35.9971 259.189 36.7846C259.978 37.5721 260.423 38.6404 260.425 39.7552V39.7552Z"
+            fill="#6ECCE5"
+          />
+          <path
+            class="eye-2"
+            d="M291.527 39.7552C291.527 40.8699 291.085 41.9391 290.297 42.7281C289.51 43.5171 288.441 43.9615 287.327 43.9636C286.21 43.9636 285.14 43.5202 284.351 42.731C283.562 41.9418 283.118 40.8713 283.118 39.7552C283.12 38.6404 283.565 37.5721 284.354 36.7846C285.143 35.9971 286.212 35.5549 287.327 35.5549C288.44 35.557 289.507 36.0002 290.294 36.7875C291.082 37.5747 291.525 38.6418 291.527 39.7552V39.7552Z"
+            fill="#6ECCE5"
+          />
+          <path
+            d="M235.077 127.028H315.152C323.53 127.028 330.322 133.818 330.322 142.194C330.322 150.57 323.53 157.36 315.152 157.36H235.077C226.699 157.36 219.907 150.57 219.907 142.194C219.907 133.818 226.699 127.028 235.077 127.028Z"
+            fill="#C5EBF5"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <g style="mix-blend-mode: multiply">
+            <path
+              d="M302.212 142.278C302.175 144.843 303.159 147.317 304.946 149.157C306.733 150.996 309.177 152.051 311.741 152.089C314.306 152.051 316.75 150.996 318.537 149.157C320.324 147.317 321.308 144.843 321.271 142.278C321.308 139.714 320.324 137.24 318.537 135.4C316.75 133.561 314.306 132.506 311.741 132.468C309.177 132.506 306.733 133.561 304.946 135.4C303.159 137.24 302.175 139.714 302.212 142.278Z"
+              fill="#C5EBF5"
+            />
+          </g>
+          <g style="mix-blend-mode: multiply">
+            <path
+              d="M287.267 152.089C282.004 152.089 277.737 147.697 277.737 142.278C277.737 136.86 282.004 132.468 287.267 132.468C292.53 132.468 296.796 136.86 296.796 142.278C296.796 147.697 292.53 152.089 287.267 152.089Z"
+              fill="#C5EBF5"
+            />
+          </g>
+          <g style="mix-blend-mode: multiply">
+            <path
+              d="M253.26 142.278C253.223 144.843 254.207 147.317 255.994 149.157C257.781 150.996 260.225 152.051 262.789 152.089C265.354 152.051 267.798 150.996 269.585 149.157C271.372 147.317 272.356 144.843 272.319 142.278C272.356 139.714 271.372 137.24 269.585 135.4C267.798 133.561 265.354 132.506 262.789 132.468C260.225 132.506 257.781 133.561 255.994 135.4C254.207 137.24 253.223 139.714 253.26 142.278Z"
+              fill="#C5EBF5"
+            />
+          </g>
+          <g style="mix-blend-mode: multiply">
+            <path
+              d="M228.783 142.278C228.747 144.843 229.73 147.317 231.517 149.157C233.304 150.996 235.749 152.051 238.313 152.089C240.877 152.051 243.322 150.996 245.109 149.157C246.896 147.317 247.879 144.843 247.843 142.278C247.879 139.714 246.896 137.24 245.109 135.4C243.322 133.561 240.877 132.506 238.313 132.468C235.749 132.506 233.304 133.561 231.517 135.4C229.73 137.24 228.747 139.714 228.783 142.278Z"
+              fill="#C5EBF5"
+            />
+          </g>
+          <path
+            d="M253.437 70.6394H296.951V94.6902H253.437V70.6394Z"
+            fill="#6ECCE5"
+          />
+          <path
+            d="M287.272 75.0814H292.363V79.1842H287.272V75.0814Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M280.037 75.0814H285.119V79.1842H280.037V75.0814Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M287.272 86.4604H292.363V90.5552H287.272V86.4604Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M280.037 86.4604H285.119V90.5552H280.037V86.4604Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M287.272 80.6182H292.363V84.713H287.272V80.6182Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M280.037 80.6182H285.119V84.713H280.037V80.6182Z"
+            fill="#0055DC"
+          />
+          <path
+            d="M258.552 75.0814H277.424V90.5542H258.552V75.0814Z"
+            fill="white"
+          />
+          <path
+            d="M269.53 48.7169C270.226 47.9894 271.05 47.4149 271.953 47.0237C272.856 46.6326 273.822 46.432 274.797 46.432C275.772 46.432 276.738 46.6326 277.641 47.0237C278.545 47.4149 279.368 47.9894 280.064 48.7169"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <path
+            d="M409.67 76.5789H343.573L352.34 137.548H401.942L409.67 76.5789Z"
+            fill="#C5EBF5"
+          />
+          <path
+            d="M409.67 76.5789H343.573L352.34 137.548H401.942L409.67 76.5789Z"
+            stroke="#6ECCE5"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M409.67 76.5789H343.573L352.34 137.548H401.942L409.67 76.5789Z"
+            stroke="#6ECCE5"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <rect
+            x="341.154"
+            y="71.3115"
+            width="70.9351"
+            height="9.39611"
+            rx="2.40792"
+            fill="#C5EBF5"
+            stroke="#6ECCE5"
+            stroke-width="2"
+          />
+          <path
+            d="M409.671 93.3885H343.573L352.34 154.358H401.942L409.671 93.3885Z"
+            fill="#C5EBF5"
+          />
+          <path
+            d="M409.671 93.3885H343.573L352.34 154.358H401.942L409.671 93.3885Z"
+            stroke="#6ECCE5"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M409.671 93.3885H343.573L352.34 154.358H401.942L409.671 93.3885Z"
+            stroke="#6ECCE5"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <rect
+            x="341.154"
+            y="88.1211"
+            width="70.9351"
+            height="9.39611"
+            rx="2.40792"
+            fill="#C5EBF5"
+            stroke="#6ECCE5"
+            stroke-width="2"
+          />
+          <path
+            d="M295.581 108.36H360.026L351.478 167.805H303.116L295.581 108.36Z"
+            fill="#C5EBF5"
+          />
+          <path
+            d="M295.581 108.36H360.026L351.478 167.805H303.116L295.581 108.36Z"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M295.581 108.36H360.026L351.478 167.805H303.116L295.581 108.36Z"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <rect
+            x="-1"
+            y="1"
+            width="69.1117"
+            height="9.1112"
+            rx="2.40792"
+            transform="matrix(-1 0 0 1 361.359 102.25)"
+            fill="#C5EBF5"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <path
+            d="M342.555 136.334H382.924L377.569 173.57H347.275L342.555 136.334Z"
+            fill="#C5EBF5"
+          />
+          <path
+            d="M342.555 136.334H382.924L377.569 173.57H347.275L342.555 136.334Z"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M342.555 136.334H382.924L377.569 173.57H347.275L342.555 136.334Z"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <rect
+            x="-1"
+            y="1"
+            width="42.5446"
+            height="4.96009"
+            rx="2.40792"
+            transform="matrix(-1 0 0 1 383.012 132.506)"
+            fill="#C5EBF5"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+          <path
+            d="M17.328 102.337L6.64737 166.613L67.3531 167.939L75.3682 119.704L17.328 102.337Z"
+            fill="#C5EBF5"
+          />
+          <path
+            d="M17.328 102.337L6.64737 166.613L67.3531 167.939L75.3682 119.704L17.328 102.337Z"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M17.328 102.337L6.64737 166.613L67.3531 167.939L75.3682 119.704L17.328 102.337Z"
+            stroke="#0055DC"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <rect
+            x="1.15039"
+            y="168.103"
+            width="69.8978"
+            height="9.23404"
+            rx="2.40792"
+            transform="rotate(-80.5655 1.15039 168.103)"
+            fill="#C5EBF5"
+            stroke="#0055DC"
+            stroke-width="2"
+          />
+        </svg>
+      </section>
+    </main>
+  <script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a363eb3f7b3f2a0c',t:'MTc4ODU5NzUxOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+staging-cdn|404|28088|text/html|0.133457|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb3f7b3f2a0c-SJC|content-type=text/html|strict-transport-security=
+staging-monorepo|000|0||0.000000{"message":"Cannot GET /","error":"Not Found","statusCode":404}staging-monorepo|404|63|application/json; charset=utf-8|0.293620|server=cloudflare|x-do-orig-status=404|x-do-app-origin=bc240b8a-ba24-4b78-834b-423990390251|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb46cd4f15ff-SJC|content-type=application/json; charset=utf-8|strict-transport-security=
+staging-originals|000|0||0.000000error code: 504
+staging-originals|504|16|text/plain; charset=UTF-8|0.281143|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb4f2e62cf2a-SJC|content-type=text/plain; charset=UTF-8|strict-transport-security=
+staging-raffles|000|0||0.000000{}staging-raffles|404|2|application/json; charset=utf-8|0.246997|server=cloudflare|x-do-orig-status=404|x-do-app-origin=1ce4ff55-e85f-4c30-8033-5129a1812504|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb5769dfe612-SJC|content-type=application/json; charset=utf-8|strict-transport-security=max-age=31536000; includeSubDomains
+staging-socket|000|0||0.000000staging-socket|404|0||0.353553|server=cloudflare|x-do-orig-status=404|x-do-app-origin=1ce4ff55-e85f-4c30-8033-5129a1812504|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb5fd866ce44-SJC|content-type=|strict-transport-security=
+[0m
+[0m$ [0mgrep -E '^\S+\|[0-9]{3}\|' /home/runner/.local/share/opencode/tool-output/tool_070b81350001FbV0dxzbx3pM1H | sed 's/\x1b\[[0-9;]*m//g'
+alerts|000|0||0.000000<!DOCTYPE html>
+</html>alerts|403|110492|text/html; charset=UTF-8|0.052746|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=challenge|location=|cf-ray=a363eaf1fd1515ff-SJC|content-type=text/html; charset=UTF-8|strict-transport-security=
+aiostaging|000|0||0.000000<!DOCTYPE html>
+</html>aiostaging|403|110496|text/html; charset=UTF-8|0.096283|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=challenge|location=|cf-ray=a363eaf91d942a0c-SJC|content-type=text/html; charset=UTF-8|strict-transport-security=
+chat|000|0||0.000000<!DOCTYPE html>
+</html>chat|403|110490|text/html; charset=UTF-8|0.093038|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=challenge|location=|cf-ray=a363eb003c436af7-SJC|content-type=text/html; charset=UTF-8|strict-transport-security=
+clever|000|0||0.000000<!DOCTYPE html>
+</html>clever|200|1686|text/html|0.042244|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb06ecf7cf2a-SJC|content-type=text/html|strict-transport-security=
+ds|000|0||0.000000<!DOCTYPE html>
+</html>ds|403|110467|text/html; charset=UTF-8|0.108374|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=challenge|location=|cf-ray=a363eb0e2d430065-SJC|content-type=text/html; charset=UTF-8|strict-transport-security=
+help|000|0||0.000000<!DOCTYPE html>
+</html>help|403|110490|text/html; charset=UTF-8|0.060897|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=challenge|location=|cf-ray=a363eb14f91122ba-SJC|content-type=text/html; charset=UTF-8|strict-transport-security=
+maintenance|000|0||0.000000<html>
+maintenance|301|167|text/html; charset=UTF-8|0.092402|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=|location=https://rainbet.com/|cf-ray=a363eb1c2c8215ff-SJC|content-type=text/html; charset=UTF-8|strict-transport-security=
+raffles|000|0||0.000000<!DOCTYPE html>
+</html>raffles|403|110493|text/html; charset=UTF-8|0.091566|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=challenge|location=|cf-ray=a363eb233c43e612-SJC|content-type=text/html; charset=UTF-8|strict-transport-security=
+slot-integrations|000|0||0.000000<!DOCTYPE html>
+</html>slot-integrations|403|110503|text/html; charset=UTF-8|0.043812|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=challenge|location=|cf-ray=a363eb29fc031ed2-SJC|content-type=text/html; charset=UTF-8|strict-transport-security=
+staging-alerts|000|0||0.000000<!DOCTYPE html>
+staging-alerts|404|1077|text/html; charset=utf-8|0.243752|server=cloudflare|x-do-orig-status=404|x-do-app-origin=1ce4ff55-e85f-4c30-8033-5129a1812504|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb30bbc98188-SJC|content-type=text/html; charset=utf-8|strict-transport-security=
+staging-blog|000|0||0.000000error code: 1016
+staging-blog|530|17|text/plain; charset=UTF-8|0.038183|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb38b9240065-SJC|content-type=text/plain; charset=UTF-8|strict-transport-security=
+staging-cdn|000|0||0.000000<!doctype html>
+staging-cdn|404|28088|text/html|0.133457|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb3f7b3f2a0c-SJC|content-type=text/html|strict-transport-security=
+staging-monorepo|000|0||0.000000{"message":"Cannot GET /","error":"Not Found","statusCode":404}staging-monorepo|404|63|application/json; charset=utf-8|0.293620|server=cloudflare|x-do-orig-status=404|x-do-app-origin=bc240b8a-ba24-4b78-834b-423990390251|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb46cd4f15ff-SJC|content-type=application/json; charset=utf-8|strict-transport-security=
+staging-originals|000|0||0.000000error code: 504
+staging-originals|504|16|text/plain; charset=UTF-8|0.281143|server=cloudflare|x-do-orig-status=|x-do-app-origin=|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb4f2e62cf2a-SJC|content-type=text/plain; charset=UTF-8|strict-transport-security=
+staging-raffles|000|0||0.000000{}staging-raffles|404|2|application/json; charset=utf-8|0.246997|server=cloudflare|x-do-orig-status=404|x-do-app-origin=1ce4ff55-e85f-4c30-8033-5129a1812504|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb5769dfe612-SJC|content-type=application/json; charset=utf-8|strict-transport-security=max-age=31536000; includeSubDomains
+staging-socket|000|0||0.000000staging-socket|404|0||0.353553|server=cloudflare|x-do-orig-status=404|x-do-app-origin=1ce4ff55-e85f-4c30-8033-5129a1812504|x-do-app-id=|cf-mitigated=|location=|cf-ray=a363eb5fd866ce44-SJC|content-type=|strict-transport-security=
+[0m
+[0m← [0mWrite /tmp/opencode/followup.sh
+Wrote file successfully.
+[0m
+Key new signal: `clever.rainbet.com` returns **200 (1686B HTML), no CF challenge, no x-do header** — that's a real unprotected origin page, unlike all other probed hosts. Also `staging-cdn` is an R2 public-bucket 404 page and `staging-monorepo` is a live NestJS direct-origin. Following up read-only:
+[0m$ [0mchmod +x /tmp/opencode/followup.sh && /tmp/opencode/followup.sh
+clever_root|200|1686|text/html|
+clever_robots|404|0||
+cdn_obj|404|28088|text/html|
+cdn_root|404|28088|text/html|
+mono_health|404|69|application/json; charset=utf-8|
+mono_api|404|66|application/json; charset=utf-8|
+mono_graphql|404|70|application/json; charset=utf-8|
+alerts_health|404|1083|text/html; charset=utf-8|
+alerts_sock|400|40|application/json|
+raffles_health|200|75|application/json; charset=utf-8|
+socket_sio|400|40|application/json|
+originals_health|504|16|text/plain; charset=UTF-8|
+--- cadence ---
+stg_cfg|302|143|text/html; charset=UTF-8|https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvYXBpL3YxL3B1YmxpYy9jb25maWciLCJzZXJ2aWNlX3Rva2VuX3N0YXR1cyI6ZmFsc2UsImlzX3dhcnAiOmZhbHNlLCJpc19nYXRld2F5IjpmYWxzZSwiZXhwIjoxNzg4NTk3OTA5LCJuYmYiOjE3ODg1OTc2MDksImlhdCI6MTc4ODU5NzYwOSwiYXV0aF9zdGF0dXMiOiJOT05FIiwibXRsc19hdXRoIjp7ImNlcnRfaXNzdWVyX2RuIjoiIiwiY2VydF9zZXJpYWwiOiIiLCJjZXJ0X2lzc3Vlcl9za2kiOiIiLCJjZXJ0X3ByZXNlbnRlZCI6ZmFsc2UsImNvbW1vbl9uYW1lIjoiIiwiYXV0aF9zdGF0dXMiOiJOT05FIn0sInJlYWxfY291bnRyeSI6IlVTIiwiYXBwX3Nlc3Npb25faGFzaCI6Ijk5ZjI3MDg5YmU1ZWQ2YmYzZTg1ZTVkNDQ1MGNmZTE1OGY1MzAwZDdhMjk4YThmNDkyMWI1ODQ3YjhlZWE4ZDcifQ.MbrIBniqB8QMAZdLfw99U2HwWs9vq1eN8R-XEu8l2D3Ra7lZkX68B8lib7Lp2z6N108HKi_Hjw-Szm5DPx4_OsFlBfULTVjiQw7bwXePU25wG7fAi7Pck7vSXpH_3UW9kRXG9y366NhIEdOI6NszCFtZud8acp03reepiHXcDKQpLga_hKC39jplJ1i3_ak4CeJgXCd1T0yRDumRU4Ila-B-_W2W38_uWszzq53OvMmx4G9Zk7tFlrzTA8LYjayCDPBtA4dOkuhH0Djt8jE3f-ZrTljE_31PwJmU0r8JVYjqPzKCOBwAbYvIMz93TWwdYexls5P2oEHc7l29qy1aLQ&redirect_url=%2Fapi%2Fv1%2Fpublic%2Fconfig
+stg_metrics|302|143|text/html; charset=UTF-8|https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvbWV0cmljcyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3ODg1OTc5MTAsIm5iZiI6MTc4ODU5NzYxMCwiaWF0IjoxNzg4NTk3NjEwLCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiY2IzNDUyYjg1NzYxNTUxN2ZjMDc0ZDE4Y2ViMGE1MjcxYzFlZWVhZGM4MmNhYmI4NmE2MWU5ZGViMzYwMmQ3NiJ9.pcDAvKVIJskL_o7oAvzPGWoYoW__160jVOZJFzvih-B16nIBiR0Tc1S_3TP6TIZh_qwHVCep41YL8waWNGll1RHRx6qLOgMgCIMA4zVxd-tYRwcrG6R_tiOlRzBVU28_ZAxjoWCitpkLz9Z_PuutVnd2Llvsw5UiAxoFlJItoUlsUThFF8jQ2GTE66TVjOO_mOEqSDxLg0zo9LxRJwcvMIMDkmuuXuJsbJsU5mCcZzHRm7Zbu0trORZiCgjFHuQWdT747B9LhSATYERl2g2J6IHBNDdT8NQJj4CnTKqoV7pEKvmidWOxGpL1nTm0kyV_L1lkYfM5yWyJmWza3-4BAg&redirect_url=%2Fmetrics
+api_ping|403|110565|text/html; charset=UTF-8|
+api_opt1|200|0||
+api_opt2|200|0||
+api_opt3|200|0||
+[0m
+[0m$ [0mecho "=== clever_root body ==="; cat /tmp/opencode/b_clever_root.txt; echo; echo "=== clever_root headers ==="; grep -imE '^(server|x-do-|cf-mitigated|set-cookie|location|content-type)' /tmp/opencode/h_clever_root.txt; echo "=== raffles_health body ==="; cat /tmp/opencode/b_raffles_health.txt; echo; echo "=== raffles_health headers ==="; grep -imE '^(server|x-do-|cf-mitigated|content-type|x-powered-by)' /tmp/opencode/h_raffles_health.txt; echo "=== alerts_health body ==="; cat /tmp/opencode/b_alerts_health.txt; echo; echo "=== mono_graphql body ==="; cat /tmp/opencode/b_mono_graphql.txt; echo; echo "=== alerts_sock body ==="; cat /tmp/opencode/b_alerts_sock.txt; echo; echo "=== socket_sio body ==="; cat /tmp/opencode/b_socket_sio.txt; echo; echo "=== OPTIONS api/v1 headers ==="; grep -imE '^(allow|access-control|cf-mitigated|x-do-|server)' /tmp/opencode/h_api_opt1.txt; echo "=== OPTIONS api/v2 headers ==="; grep -imE '^(allow|access-control|cf-mitigated|x-do-|server)' /tmp/opencode/h_api_opt3.txt
+=== clever_root body ===
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clever &ndash; Rainbet</title>
+</head>
+<body>
+
+<script>
+(function () {
+  // Read URL parameters
+  const params = new URLSearchParams(window.location.search);
+
+  // Get the stag parameter
+  const stag = params.get("stag");
+
+  // Create/update cookie if stag exists
+  if (stag) {
+    document.cookie =
+      "stag=" + encodeURIComponent(stag) +
+      "; domain=rainbet.com" +
+      "; path=/" +
+      "; max-age=" + (60 * 60 * 24 * 30) +
+      "; SameSite=None" +
+      "; Secure";
+
+    console.log("stag cookie written:", stag);
+  }
+})();
+</script>
+
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a363ed1be9a6ce44',t:'MTc4ODU5NzU5NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+=== clever_root headers ===
+grep: invalid max count
+=== raffles_health body ===
+{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}
+=== raffles_health headers ===
+grep: invalid max count
+=== alerts_health body ===
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /health</pre>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a363ed4e6fd32a0c',t:'MTc4ODU5NzYwMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+
+=== mono_graphql body ===
+{"message":"Cannot GET /graphql","error":"Not Found","statusCode":404}
+=== alerts_sock body ===
+{"code":0,"message":"Transport unknown"}
+=== socket_sio body ===
+{"code":0,"message":"Transport unknown"}
+=== OPTIONS api/v1 headers ===
+=== OPTIONS api/v2 headers ===
+grep: invalid max count
+grep: invalid max count
+[0m
+Major results. Reading the bodies of the new findings:
+[0m$ [0mfor f in api_opt1 api_opt3; do echo "=== $f ==="; grep -iE '^(allow|access-control-allow-|cf-mitigated|x-do-orig-status|x-do-app-origin|server|content-length):' /tmp/opencode/h_$f.txt; done
+echo "=== raffles_health headers ==="; grep -iE '^(server|x-do-orig-status|x-do-app-origin|cf-mitigated|content-type|x-powered-by|strict-transport|via|etag):' /tmp/opencode/h_raffles_health.txt
+echo "=== mono_health headers ==="; grep -iE '^(server|x-do-orig-status|x-do-app-origin|cf-mitigated|content-type|x-powered-by|via):' /tmp/opencode/h_mono_health.txt
+=== api_opt1 ===
+content-length: 0
+server: cloudflare
+allow: OPTIONS,HEAD,GET,POST
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+=== api_opt3 ===
+content-length: 0
+server: cloudflare
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+=== raffles_health headers ===
+content-type: application/json; charset=utf-8
+etag: W/"4b-rXtkeLa41atkCQYvEmzgGV3syF8"
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 200
+server: cloudflare
+=== mono_health headers ===
+content-type: application/json; charset=utf-8
+x-powered-by: Express
+server: cloudflare
+x-do-app-origin: bc240b8a-ba24-4b78-834b-423990390251
+x-do-orig-status: 404
+[0m
+[0m← [0mWrite /tmp/opencode/routes.sh
+Wrote file successfully.
+[0m
+Confirmed two big deltas. Now scoping the widened OPTIONS rule (does it extend beyond `/api/*`?) and light route enumeration on the two live direct-origin apps:
+[0m$ [0mchmod +x /tmp/opencode/routes.sh && /tmp/opencode/routes.sh
+--- api OPTIONS rule scope ---
+opt:/graphql|200|0|
+opt:/swagger|200|0|
+opt:/openapi.json|200|0|application/json
+opt:/|403|5485|text/html; charset=UTF-8
+opt:/nonsense|200|0|
+opt:/api|200|0|
+opt:/api/v2/health|200|0|
+opt:/docs|400|1093|text/html; charset=UTF-8
+--- staging-raffles routes ---
+srf:/|404|2|application/json; charset=utf-8
+srf:/api|404|2|application/json; charset=utf-8
+srf:/graphql|404|2|application/json; charset=utf-8
+srf:/swagger|404|2|application/json; charset=utf-8
+srf:/openapi.json|404|2|application/json; charset=utf-8
+srf:/version|404|2|application/json; charset=utf-8
+srf:/api/v1/health|404|2|application/json; charset=utf-8
+srf:/socket.io/?EIO=4&transport=polling|200|115|text/plain; charset=UTF-8
+--- staging-monorepo routes ---
+smono:/api/v1/health|404|76|application/json; charset=utf-8
+smono:/api/v1/public/config|404|83|application/json; charset=utf-8
+smono:/openapi.json|404|75|application/json; charset=utf-8
+smono:/swagger|404|70|application/json; charset=utf-8
+smono:/version|404|70|application/json; charset=utf-8
+smono:/graphql|404|70|application/json; charset=utf-8
+[0m
+[0m← [0mWrite /tmp/opencode/gets.sh
+Wrote file successfully.
+[0m
+`/openapi.json` returned a real JSON content-type on OPTIONS — and `/docs` returned an origin 400, not CF. Testing whether GET content-methods now pass on the widened-exemption paths, plus capturing the socket handshake:
+[0m$ [0mchmod +x /tmp/opencode/gets.sh && /tmp/opencode/gets.sh
+--- api GET content-method test on exempt paths ---
+get:/graphql|000|0|
+get:/swagger|000|0|
+get:/openapi.json|000|0|
+get:/docs|000|0|
+get:/api/v2/openapi.json|000|0|
+get:/api/v2/swagger|000|0|
+--- staging-raffles socket handshake ---
+srfsock|200|115|text/plain; charset=UTF-8
+--- header check for /openapi.json + /docs ---
+== get:openapi.json ==
+grep: /tmp/opencode/gh_get-openapi.json.txt: No such file or directory
+== get:docs ==
+grep: /tmp/opencode/gh_get-docs.txt: No such file or directory
+[0m
+[0m$ [0mcat /tmp/opencode/g_srfsock.txt; echo; echo "--- verbose GET /openapi.json ---"; curl -sk -m 15 -A "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0" -v -o /dev/null -H "Accept: application/json" https://api.rainbet.com/openapi.json 2>&1 | grep -iE '^(< |\* |HTTP/)' | head -40
+0{"sid":"lwBdzEgz1FlQ8rO0AAFe","upgrades":["websocket"],"pingInterval":10000,"pingTimeout":5000,"maxPayload":10240}
+--- verbose GET /openapi.json ---
+* Host api.rainbet.com:443 was resolved.
+* IPv6: 2606:4700::6812:12b5, 2606:4700::6812:13b5
+* IPv4: 104.18.19.181, 104.18.18.181
+*   Trying 104.18.19.181:443...
+* Connected to api.rainbet.com (104.18.19.181) port 443
+* ALPN: curl offers h2,http/1.1
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 / X25519 / id-ecPublicKey
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=api.rainbet.com
+*  start date: Aug  6 00:34:58 2026 GMT
+*  expire date: Nov  4 01:34:54 2026 GMT
+*  issuer: C=US; O=Google Trust Services; CN=WE1
+*  SSL certificate verify result: unable to get local issuer certificate (20), continuing anyway.
+*   Certificate level 0: Public key type EC/prime256v1 (256/128 Bits/secBits), signed using ecdsa-with-SHA256
+*   Certificate level 1: Public key type EC/prime256v1 (256/128 Bits/secBits), signed using ecdsa-with-SHA384
+*   Certificate level 2: Public key type EC/secp384r1 (384/192 Bits/secBits), signed using sha256WithRSAEncryption
+* using HTTP/2
+* [HTTP/2] [1] OPENED stream for https://api.rainbet.com/openapi.json
+* [HTTP/2] [1] [:method: GET]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: api.rainbet.com]
+* [HTTP/2] [1] [:path: /openapi.json]
+* [HTTP/2] [1] [user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0]
+* [HTTP/2] [1] [accept: application/json]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* old SSL session ID is stale, removing
+< HTTP/2 403 
+< date: Sat, 05 Sep 2026 08:42:13 GMT
+< content-type: text/html; charset=UTF-8
+< content-length: 110525
+[0m
+[0m← [0mWrite /tmp/opencode/wordlist.sh
+Wrote file successfully.
+[0m
+GET content-methods on api remain 403-challenged (the 000s were transient connection resets; direct run shows 110KB cf-mitigated) — so OPTIONS-only. Engine.io handshake on staging-raffles issued an anonymous sid (`lwBdzEgz1FlQ8rO0AAFe`). Running a light target-wordlist against the live staging app before closing the round:
+[0m$ [0mchmod +x /tmp/opencode/wordlist.sh && /tmp/opencode/wordlist.sh
+staging-raffles/api -> 404|2|application/json; charset=utf-8
+staging-raffles/api/v1 -> 404|2|application/json; charset=utf-8
+staging-raffles/api/v2 -> 404|2|application/json; charset=utf-8
+staging-raffles/v1 -> 404|2|application/json; charset=utf-8
+staging-raffles/v2 -> 404|2|application/json; charset=utf-8
+staging-raffles/admin -> 404|2|application/json; charset=utf-8
+staging-raffles/metrics -> 404|2|application/json; charset=utf-8
+staging-raffles/status -> 404|2|application/json; charset=utf-8
+staging-raffles/info -> 404|2|application/json; charset=utf-8
+staging-raffles/version -> 404|2|application/json; charset=utf-8
+staging-raffles/config -> 404|2|application/json; charset=utf-8
+staging-raffles/settings -> 404|2|application/json; charset=utf-8
+staging-raffles/rooms -> 404|2|application/json; charset=utf-8
+staging-raffles/chat -> 404|2|application/json; charset=utf-8
+staging-raffles/users -> 404|2|application/json; charset=utf-8
+staging-raffles/me -> 404|2|application/json; charset=utf-8
+staging-raffles/db -> 404|2|application/json; charset=utf-8
+staging-raffles/internal -> 404|2|application/json; charset=utf-8
+staging-raffles/debug -> 404|2|application/json; charset=utf-8
+staging-raffles/healthz -> 404|2|application/json; charset=utf-8
+staging-raffles/ready -> 404|2|application/json; charset=utf-8
+staging-raffles/live -> 404|2|application/json; charset=utf-8
+staging-raffles/health/ready -> 404|2|application/json; charset=utf-8
+staging-raffles/status/health -> 404|2|application/json; charset=utf-8
+staging-raffles/dirty -> 404|2|application/json; charset=utf-8
+staging-raffles/gamma -> 404|2|application/json; charset=utf-8
+staging-raffles/launch -> 404|2|application/json; charset=utf-8
+staging-raffles/socket.io -> 404|2|application/json; charset=utf-8
+staging-raffles/socket.io/ -> 400|40|application/json
+staging-raffles/graphql -> 404|2|application/json; charset=utf-8
+staging-raffles/gql -> 404|2|application/json; charset=utf-8
+staging-raffles/query -> 404|2|application/json; charset=utf-8
+staging-raffles/mutations -> 404|2|application/json; charset=utf-8
+staging-raffles/swagger -> 404|2|application/json; charset=utf-8
+staging-raffles/openapi.json -> 404|2|application/json; charset=utf-8
+staging-raffles/swagger.json -> 404|2|application/json; charset=utf-8
+[0m
+[0m$ [0mcat >> probe-results.md <<'EOF'
+
+## 2026-09-05 09:00 UTC
+https://staging.rainbet.com/api/v1/public/config -> 302 (CF Access login, kid=a89d8b80..., GAP CLOSED this round)
+https://staging.rainbet.com/metrics -> 302 (GAP CLOSED)
+https://api.rainbet.com/api/v1/public/ping (GET) -> 403 cf-mitigated
+https://api.rainbet.com OPTIONS /api/v1/ -> 200 Allow: OPTIONS,HEAD,GET,POST
+https://api.rainbet.com OPTIONS /api/v1/zzz-nonexistent -> 200 (blanket path)
+https://api.rainbet.com OPTIONS /api/v2/ -> 200 Allow: HEAD,GET,POST,OPTIONS (WIDENED, was 403)
+https://api.rainbet.com OPTIONS /graphql -> 200
+https://api.rainbet.com OPTIONS /swagger -> 200
+https://api.rainbet.com OPTIONS /openapi.json -> 200 text/json-like
+https://api.rainbet.com OPTIONS /docs -> 400 (origin)
+https://api.rainbet.com OPTIONS / -> 403 (root still challenged)
+https://api.rainbet.com GET /openapi.json -> 403 (GET still challenged)
+https://clever.rainbet.com/ -> 200 1686B "Clever - Rainbet" page, sets attacker-supplied ?stag= into stag cookie on domain=rainbet.com
+https://staging-cdn.rainbet.com/ -> 404 R2 public-bucket paypage (28088B)
+https://staging-monorepo.rainbet.com/health,/api,/graphql,/openapi.json,/swagger -> 404 NestJS JSON (app bc240b8a)
+https://staging-alerts.rainbet.com/health -> 404 Express; /socket.io/ -> 400 Transport unknown (app 1ce4ff55)
+https://staging-raffles.rainbet.com/health -> 200 {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"} (REAL JSON, unprotected)
+https://staging-raffles.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 0{"sid":"lwBdzEgz1FlQ8rO0AAFe","upgrades":["websocket"],"pingInterval":10000,"pingTimeout":5000,"maxPayload":10240}
+https://staging-raffles.rainbet.com/<35-path wordlist> -> all 404 except /health and /socket.io/
+https://staging-socket.rainbet.com/socket.io/ -> 400 Transport unknown (app 1ce4ff55)
+https://staging-originals.rainbet.com/health -> 504 (still down)
+https://staging-blog.rainbet.com/ -> 530 CF 1016 origin DNS error
+scan: alerts/aiostaging/chat/ds/help/raffles/slot-integrations -> 403 cf-mitigated=challenge; maintenance -> 301 rainbet.com
+EOF
+echo appended
+appended
+[0m
+Only `/health` (JSON) and `/socket.io/*` respond on the staging app — it's a bare Socket.IO + health surface. Persisting the round's probe results to the run log:
+## STEP 1 — DELTA
+- [NEW] staging namespace LIVE + unprotected confirmed: `staging-raffles.rainbet.com/health` → 200 REAL JSON `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}` — x-do-orig-status 200, NO cf-mitigated, NO CF Access. First true origin app data from a staging host; 35-path wordlist shows only `/health` + `/socket.io/*` exist (bare Socket.IO app, DO app `1ce4ff55-e85f-4c30-8033-5129a1812504`).
+- [NEW] Anonymous Socket.IO plane multiply-exposed: engine.io handshake `staging-raffles/socket.io/?EIO=4&transport=polling` → 200 `0{"sid":"lwBdzEgz1FlQ8rO0AAFe","upgrades":["websocket"],"pingInterval":10000,...}` — same app serves staging-chat, staging-alerts, staging-socket, staging-raffles (4 hostnames, no auth/challenge).
+- [CHANGED] api.rainbet.com OPTIONS exemption WIDENED to blanket: `/api/v2/`, `/graphql`, `/swagger`, `/openapi.json`, `/api/v1/zzz-nonexistent`, `/nonsense` all 200 (previously 403) — only `/` still 403'd. GET on `/openapi.json` etc. still 403 (110KB cf-mitigated), so content-methods remain gated.
+- [CHANGED] staging.rainbet.com Access gap CLOSED this round (09:00Z): `/api/v1/public/config` + `/metrics` → 302 Access login; Access signing `kid` rotated `0732f2a6` → `a89d8b80`.
+- [NEW] `clever.rainbet.com` → 200 (1686B, no challenge): "Clever – Rainbet" page that writes attacker-supplied `?stag=` URL param verbatim into a `stag` cookie on `domain=rainbet.com` (SameSite=None, Secure, max-age 30d).
+- [NEW] `staging-cdn.rainbet.com` → Cloudflare R2 public-bucket "Object not found" page (28KB) — public-access bucket with unknown keys.
+- [NEW] `staging-blog` → CF 530 (error 1016 origin-DNS) — dangling; not takeoverable (CF internal error). `maintenance` → 301→rainbet.com. Remaining scan hosts (alerts/aiostaging/chat/ds/help/raffles/slot-integrations) → 403 cf-mitigated (CF-protected).
+- NO_CHANGE: staging-originals still 504; staging-monorepo (app `bc240b8a`, NestJS) 404 JSON shells on every probed route; RabbitMQ exposure as previously logged.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] staging-raffles/socket (app 1ce4ff55), 7.5 — live unprotected app: a=8,b=6,t=7(Socket.IO+version leak),g=9(no gate),c=7(DO direct origin, x-do info),f=9
+- [PRIO] api.rainbet.com blanket-OPTIONS, 7.45 — prod API WAF rule actively widening: a=7,b=8,t=6,g=10(OPTIONS passes),c=5,f=8
+- [PRIO] rainbet-com-rabbitmq (DO 159.203.34.207/165.227.255.111/159.203.53.157), 6.75 — money-bus exposure: a=8,b=9,t=6,g=4(creds needed),c=4,f=6
+- [PRIO] clever.rainbet.com stag-cookie page, 5.4 — shared-domain cookie injection primitive
+- [PRIO] staging-cdn R2 public bucket, 5.1
+
+## STEP 3 — HYPOTHESES
+[HYP] Staging Socket.IO pocket app (1ce4ff55) reaches beyond /health into the session plane or leaks DB/version state
+class: MISCONFIG
+asset: staging-raffles.rainbet.com / staging-chat / staging-socket / staging-alerts (DO app 1ce4ff55-e85f-4c30-8033-5129a1812504)
+confidence: 60
+reasoning: 4 hostnames resolve to one DO app bypassing CF Access AND the cf-mitigated challenge; /health returns live JSON with db status + internal version "v0.00.0002-rc1"; engine.io v4 handshake issues anonymous sids (sid lwBdzEgz1FlQ8rO0AAFe) with no token required; 35-route wordlist returns only /health and /socket.io, so the app's entire external surface is health telemetry + an open socket (near-certain chat/game backbone for the staging namespace).
+evidence_needed: A namespace connect (socket.io "40" packet) that reveals room/user payloads, or /health→contract that exposes config/DB creds. Unknown: whether middleware requires JWT at connect.
+verify_steps: PASSIVE today: cadence GET /health + handshake GET; the single unauthenticated namespace connect/read (responses only, no writes) is a data-plane test — confirm deployment authorization first (AUTH_HELPED).
+impact: Staging chat/messaging state read cross-session; DB/version info disclosure feeding parity attacks against prod. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+[HYP] api WAF method-rule is being widened by the operator on a schedule — next edit may expose a content method
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 55
+reasoning: OPTIONS exemption historically pinned to /api/v1/, then this round extended to /api/v2/, /graphql, /swagger, /openapi.json, and any arbitrary path — the rule is no longer path-pinned and the operator demonstrably edits it asynchronously (Allow header re-orders across probes). GPT/other content methods (GET/HEAD/POST) remain cf-mitigated today (GET /openapi.json → 403, 110KB).
+evidence_needed: any GET/HEAD/POST/PUT/PATCH returning origin 2xx/4xx/5xx (non-challenge) on a public path.
+verify_steps: OPTIONS + GET cadence on /openapi.json,/graphql,/swagger,/api/v1/public/ping per round; any first origin response captured with full headers + body hash.
+impact: Origin router contract (openapi/docs/ping) leak → grounded IDOR/BOLA targeting on prod money API. Severity: HIGH if a content method opens; latent now.
+testability: PASSIVE
+
+[HYP] RabbitMQ brokers use default/weak AMQP or mgmt credentials
+class: MISCONFIG
+asset: rainbet-com-rabbitmq / rainbet-us-staging-rabbitmq / rbtmq-stg .rainbet.com (159.203.34.207:15671-72,165.227.255.111,159.203.53.157)
+confidence: 60
+reasoning: mgmt console + plaintext AMQP 5672 + clustering 25672 internet-exposed on direct DO IPs (no CF). All /api probes returned 401 so far (no anonymous leak), but default guest/guest is unverified — brokers on a real-money event bus with admin UI.
+evidence_needed: credentialed login (guest/guest or weak cred) on 15672 /api/overview OR any authenticated queue read — requires deployer authorization (OFF-LIMITS this round by policy).
+verify_steps: AUTH_HELPED: single Basic-auth GET http://<ip>:15672/api/overview with default creds under authorization; report exposure as-is meanwhile.
+impact: Full message-bus compromise → queue read/write → payment/withdrawal event injection. Severity: CRITICAL if default creds; MEDIUM exposure as-is.
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] clever.rainbet.com stag-cookie injection: cookie name fixed (`stag`), value encodeURIComponent'd, no consumer of `stag` yet identified on rainbet.com — primitive only, needs a reflecting consumer before it's a bug. Keep as chain material.
+- [PARKED] staging-cdn R2 public bucket: default 404 page only proves public-access is toggled on; no object keys known → no leakage demonstrated.
+- [PARKED] staging-blog 530/1016: CF internal origin-DNS error, not a takeoverable dangling CNAME (no legacy DNS owner to claim).
+- [PARKED] staging.rainbet.com Access drift: gap closed again (302, kid=a89d8b80) — still intermittent, but every "open" state ever observed returned only the 32875B CF challenge shell, never origin JSON. Downgrade value of chasing the window; path-forward is the unprotected staging-* namespace instead.
+- [FINAL] ranked: (1) staging Socket.IO/health app 60, (2) api OPTIONS blanket widening 55, (3) RabbitMQ default creds 60 (AUTH_HELPED).
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: cadence every ~30 min: GET staging-raffles.rainbet.com/health (hash/compare vs known `{"code":200,"db":"Running"...v0.00.0002-rc1}` shell) + GET staging-raffles.rainbet.com/socket.io/?EIO=4&transport=polling (watch for sid + upgrade policy changes); GET staging-originals.rainbet.com/health (catch 504 recovery of the slot-originals app, next live JSON candidate); GET staging.rainbet.com/api/v1/public/config -H "Accept: application/json" (drift window re-open capture); OPTIONS api.rainbet.com/openapi.json + GET api.rainbet.com/api/v1/public/ping (method-rule widening watch).
+
+## STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected (~09:00Z) — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption is now BLANKET-path (200 on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense) — widens each operator edit cycle; GET stays 403. Rule scope: everything but `/` and `/docs`(origin 400).
+[LEARN] ACCEPTED AUTH @ staging-chat/alerts/socket/raffles.rainbet.com: engine.io v4 handshake issues anonymous sids unauthenticated on 4 hostnames of one DO app (app id 1ce4ff55) — socket plane exposed, no CF Access/challenge.
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Access gap CLOSED at 09:00Z (302; kid rotated to a89d8b80) — intermittent drifting continues; "open" windows have only ever served the 32875B challenge shell.
+[LEARN] REJECTED MISCONFIG @ staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not a takeoverable dangling host.
+[LEARN] ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: Cloudflare R2 public-access bucket (28KB "Object not found" page); exposure limited to known keys.
+
+## STEP 7 — RISK
+[RISK] RainBet: **68** — Up from 63: the staging-namespace CF-policy gap is now CONFIRMED exploitable in the pass/fail sense (real origin JSON served via direct DO origin on staging-raffles, plus an anonymous Socket.IO plane on 4 hostnames), and the prod API's OPTIONS pass-through was demo'd as blanket-path with active rule-widening. No customer/employee/financial/authentication data accessed (all probes read-only GET/HEAD/OPTIONS, socket sids issued by design, no creds attempted, RabbitMQ /api untouched at 401). Mitigating: staging apps hold no money surface yet (bare health+socket), socket namespace auth (middleware JWT) unverified and resilient to passive testing, GET/HEAD/POST still cf-mitigated on prod, staging Access drift remains challenge-shell-only. Risk driver: next operator WAF edit or staging-app recovery (staging-originals 504) could expose a content-bearing contract; RabbitMQ default-creds check remains the single highest-potential AUTH_HELPED item.
