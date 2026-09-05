@@ -112,3 +112,13 @@ https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
 https://staging.rainbet.com/metrics -> 200 len=32838
 https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
 https://api.rainbet.com/graphql -> HTTP 403
+
+## 2026-09-05 00:16:06 UTC
+https://staging.rainbet.com/api/v1/public/config -> 200 len=32875
+https://staging.rainbet.com/metrics -> 200 len=32838
+https://staging.rainbet.com/.well-know[0m -> ERR URL can't contain control characters. '/.well-know
+https://api.rainbet.com/graphql -> HTTP 403
+https://staging.rainbet.com/.well-known/jwks.json -> 200 len=32873
+https://api.rainbet.com/api/v1/ -> HTTP 403
+https://api.rainbet.com/api/v2/ -> HTTP 403
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403

@@ -115,3 +115,9 @@ www.rainbet.com
 ## 2026-09-04 20:00:51 UTC
 
 ## 2026-09-04 22:17:39 UTC
+
+## 2026-09-05 00:15:57 UTC
+- NEW files.rainbet.com, media.rainbet.com — live hosts discovered 2026-09-04 17:48, both resolve and return 403 on /api/v1/public/ping and /robots.txt
+- CHANGED staging.rainbet.com — Access policy gap persists at 22:17 UTC (3 endpoints: /api/v1/public/config, /metrics, /.well-known/jwks.json return HTTP 200 32KB HTML); was 302 at 14:07, gap reappeared 17:48
+- CHANGED api.rainbet.com — only /graphql probed at 22:17 (403); OPTIONS /api/v1/ Allow header leak confirmed persistent; cf-mitigated header present on all 403
+- NEW 5 live hosts confirmed: api, www, staging, files, media (15 dead/no-HTTP)

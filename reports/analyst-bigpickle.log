@@ -3401,3 +3401,354 @@ probe "https://staging.rainbet.com/api/v1/public/config"
 sleep 1
 printf "location/inspect: "; curl -s -o /dev/null -w "%{http_code} size=%{size_download} redirect=%{redirect_url}\n" -A "Mozilla/5.0" --max-time 15 "https://staging.rainbet.com/api/v1/public/config" failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-05 00:15:57 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && echo "---" && ls -la art/ 2>/dev/null; ls -la inventory/ 2>/dev/null
+total 160
+drwxr-xr-x 12 runner runner  4096 Sep  5 00:11 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 00:11 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 00:11 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 00:11 .github
+-rw-r--r--  1 runner runner  1696 Sep  5 00:11 README.md
+-rw-r--r--  1 runner runner    32 Sep  5 00:11 analyst-out.txt
+-rw-r--r--  1 runner runner 33236 Sep  5 00:11 analyst-prompt.txt
+-rw-r--r--  1 runner runner 29451 Sep  5 00:11 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:11 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:11 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:11 leads
+-rw-r--r--  1 runner runner  4740 Sep  5 00:11 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:11 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:11 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:11 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  5 00:11 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:11 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 00:11 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:11 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:11 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:11 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:11 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:11 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:11 triage
+---
+total 20
+drwxr-xr-x  2 runner runner 4096 Sep  5 00:11 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 00:11 ..
+-rw-r--r--  1 runner runner 9320 Sep  5 00:11 rainbet.md
+[0m
+[0m✱ [0mGlob "**/*.md"[90m 30 matches[0m
+[0m→ [0mRead triage/run-2026-09-05-00-10.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead state_bigpickle.json
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead reports/hypotheses.md
+[0m
+[0m$ [0mtail -80 leads/lead-nemotron3.md 2>/dev/null; echo "===LEAD-LING3==="; tail -40 leads/lead-ling3.md 2>/dev/null; echo "===LEAD-LAGUNA==="; tail -40 leads/lead-laguna.md 2>/dev/null
+asset: staging.rainbet.com  
+confidence: 55  
+reasoning: Six endpoints (/health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json) returned HTTP 200 (32KB HTML) at 00:32, 05:12, 09:48, 17:48 UTC but 302→login at 14:07 UTC. Identical response sizes (32836-32875 bytes) indicate CF challenge page served directly without auth redirect. Pattern suggests policy cache TTL, edge propagation delay, or config rollout race.  
+evidence_needed: Any 200 response containing actual application data (JSON config, Prometheus metrics, valid JWKS) vs static CF challenge HTML; correlation of gap windows with Access policy changes  
+verify_steps: GET https://staging.rainbet.com/api/v1/public/config (Accept: application/json), GET https://staging.rainbet.com/metrics (Accept: text/plain), GET https://staging.rainbet.com/.well-known/jwks.json (Accept: application/json) — repeat at 30-min intervals; capture full bodies + headers + Content-Type  
+impact: If intermittent gaps expose real data (not just challenge HTML), staging API/config/metrics/keys leak during window. Severity: MEDIUM (intermittent, staging only)  
+testability: PASSIVE  
+[HYP] api.rainbet.com DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN  
+class: MISCONFIG  
+asset: api.rainbet.com  
+confidence: 50  
+reasoning: OPTIONS /api/v1/ returns 200 with `x-do-app-origin` header revealing 6 distinct DO App UUIDs. DO App Platform assigns default unproxied FQDN `<app>.<region>.ondigitalocean.app` that bypasses Cloudflare WAF. If any UUID maps to resolvable unproxied FQDN, full API origin becomes reachable without CF challenge.  
+evidence_needed: A resolvable `*.ondigitalocean.app` FQDN serving API content without `cf-mitigated` header (origin JSON 200/401/404 instead of 110KB CF challenge)  
+verify_steps: RAG: OSINT-hunt the 6 DO App UUIDs/slugs from x-do-app-origin headers for `*.ondigitalocean.app` FQDNs; then single read-only GET https://<candidate>/api/v1/public/ping — expect origin JSON response without cf-mitigated  
+impact: Complete WAF bypass → unchallenged origin access → full API contract enumeration → IDOR/BOLA on wallet/betting endpoints. Severity: HIGH  
+testability: AUTH_HELPED  
+[HYP] api.rainbet.com OPTIONS /api/v1/ preflight leaks API contract (allowed methods) for endpoint enumeration  
+class: MISCONFIG  
+asset: api.rainbet.com/api/v1/  
+confidence: 55  
+reasoning: OPTIONS /api/v1/ returns HTTP 200 with `Allow: OPTIONS,HEAD,GET,POST` but no Access-Control-* headers even with evil Origin. Only `/api/v1/` leaks this; `/api/v2/`, `/graphql`, `/swagger` return 403. Reveals versioned API contract (v1 supports POST, v2+/graphql/swagger blocked at WAF) enabling targeted endpoint mapping for subsequent auth-bypass/IDOR probes.  
+evidence_needed: Confirm OPTIONS on `/api/v1/` consistently returns Allow header; verify no endpoint returns Access-Control-Allow-Origin reflection or wildcard  
+verify_steps: OPTIONS https://api.rainbet.com/api/v1/ -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" (record Allow + CORS headers), OPTIONS https://api.rainbet.com/api/v2/ -H "Origin: https://evil.com", OPTIONS https://api.rainbet.com/graphql -H "Origin: https://evil.com"  
+impact: API contract disclosure → faster endpoint enumeration for IDOR/BOLA on wallet/betting endpoints. Severity: LOW-MEDIUM (info leak only, no direct exploit)  
+testability: PASSIVE  
+[PARKED] Staging intermittent Cloudflare Access policy enforcement → race condition: confidence 55 but all 200 responses to date are 32KB CF challenge HTML (no real app data confirmed); impact contingent on unproven data leak  
+[PARKED] api.rainbet.com DO direct-origin bypass: confidence 50 but zero UUID-to-FQDN mappings discovered yet; purely speculative until OSINT resolves a candidate  
+[FINAL] 1. api.rainbet.com OPTIONS /api/v1/ preflight leaks API contract → API contract enumeration (confidence 55)  
+[NEXT] PROBE: OPTIONS https://api.rainbet.com/api/v1/ -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" (confirm Allow header consistency + CORS neutrality), then GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json" (check for real JSON config vs CF challenge HTML in current gap window)
+[LEARN] REJECTED AUTH @ staging.rainbet.com: Cloudflare Access policy gap (HTTP 200 on 6 endpoints) was **transient/fixed** — latest probes (2026-09-04 14:07 UTC) show all 6 endpoints return 302→Access login. Policy now enforces default-deny.  
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge (110KB HTML). No method-based WAF bypass.  
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v1/ returns 200 with Allow: OPTIONS,HEAD,GET,POST but **no CORS headers** — preflight passthrough is CORS-neutral, not exploitable.  
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses — WAF configuration consistent across subdomains (api, www).  
+[LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.  
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v2/, /graphql, /swagger return 403 (not 200) — only /api/v1/ leaks Allow header; WAF rule is version-sensitive.  
+[LEARN] ACCEPTED AUTH @ staging.rainbet.com: Access policy gap **reappeared** at 2026-09-04 17:48 (6 endpoints HTTP 200, 32KB) after 302 at 14:07 — intermittent enforcement confirmed.  
+[LEARN] NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.  
+[RISK] RainBet: **50** — Staging Access gap intermittent (reappeared 17:48); API hardened (only OPTIONS /api/v1/ info leak); 2 new live hosts (files, media) behind CF challenge; DO direct-origin bypass theoretical (0/6 UUIDs resolved). Residual risk: Staging intermittent data leak (MEDIUM), API contract enumeration via OPTIONS (LOW), DO origin bypass if FQDN discovered (HIGH but unproven). 5/20 hosts live with significant protections.
+## 2026-09-04 22:16:49 UTC [target] (model nemotron3)
+[PRIO] staging.rainbet.com,8.2,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=9,freshness=10  
+[PRIO] api.rainbet.com,6.4,attack_surface=7,business_value=9,tech_exposure=7,gate_ease=3,cloud_surface=8,freshness=9  
+[PRIO] files.rainbet.com,5.1,attack_surface=5,business_value=7,tech_exposure=5,gate_ease=2,cloud_surface=7,freshness=9  
+[PRIO] media.rainbet.com,4.8,attack_surface=4,business_value=6,tech_exposure=5,gate_ease=2,cloud_surface=7,freshness=9  
+[HYP] Staging intermittent Cloudflare Access policy enforcement → race condition on policy evaluation  
+class: AUTH  
+asset: staging.rainbet.com  
+confidence: 65  
+reasoning: Six endpoints (/health, /metrics, /api/health, /api/v1/health, /api/v1/public/config, /.well-known/jwks.json) returned HTTP 200 (32KB HTML) at 00:32, 05:12, 09:48, 17:48, 20:00 UTC but 302→login at 14:07 UTC. Identical response sizes (32836-32875 bytes) indicate CF challenge page served directly without auth redirect. Pattern suggests policy cache TTL, edge propagation delay, or config rollout race.  
+evidence_needed: Any 200 response containing actual application data (JSON config from /api/v1/public/config, Prometheus metrics from /metrics, valid JWKS from /.well-known/jwks.json) vs static CF challenge HTML; correlation of gap windows with Access policy changes  
+verify_steps: GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json", GET https://staging.rainbet.com/metrics -H "Accept: text/plain", GET https://staging.rainbet.com/.well-known/jwks.json -H "Accept: application/json" — repeat at 30-min intervals; capture full bodies + headers + Content-Type  
+impact: If intermittent gaps expose real data (not just challenge HTML), staging API/config/metrics/keys leak during window. Severity: MEDIUM (intermittent, staging only)  
+testability: PASSIVE  
+[HYP] api.rainbet.com DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN  
+class: MISCONFIG  
+asset: api.rainbet.com  
+confidence: 55  
+reasoning: OPTIONS /api/v1/ returns 200 with `x-do-app-origin` header revealing 6 distinct DO App UUIDs. DO App Platform assigns default unproxied FQDN `<app>.<region>.ondigitalocean.app` that bypasses Cloudflare WAF. If any UUID maps to resolvable unproxied FQDN, full API origin becomes reachable without CF challenge.  
+evidence_needed: A resolvable `*.ondigitalocean.app` FQDN serving API content without `cf-mitigated` header (origin JSON 200/401/404 instead of 110KB CF challenge)  
+verify_steps: RAG: OSINT-hunt the 6 DO App UUIDs/slugs from x-do-app-origin headers for `*.ondigitalocean.app` FQDNs; then single read-only GET https://<candidate>/api/v1/public/ping — expect origin JSON response without cf-mitigated  
+impact: Complete WAF bypass → unchallenged origin access → full API contract enumeration → IDOR/BOLA on wallet/betting endpoints. Severity: HIGH  
+testability: AUTH_HELPED  
+[HYP] api.rainbet.com GraphQL introspection behind WAF → schema disclosure if bypass found  
+class: MISCONFIG  
+asset: api.rainbet.com/graphql  
+confidence: 35  
+reasoning: /graphql returns 403 cf-mitigated challenge. If any WAF bypass exists (double-encoding, header smuggling, method override X-HTTP-Method-Override, or HTTP/2 stream manipulation), GraphQL introspection could expose full schema including wallet/betting mutations. No evidence of bypass currently.  
+evidence_needed: Any non-403 response from /graphql with Accept: application/json or POST query={__schema{types{name}}}  
+verify_steps: GET https://api.rainbet.com/graphql -H "Accept: application/json", POST https://api.rainbet.com/graphql -H "Content-Type: application/json" -d '{"query":"{__schema{types{name}}}"}' — both expect 403 challenge. Test encoding variants: /%67%72%61%70%68%71%6c, //graphql, /graphql/.  
+impact: Full API schema disclosure → wallet mutations, betting logic, user PII fields. Severity: CRITICAL if bypassed.  
+testability: PASSIVE  
+[PARKED] api.rainbet.com GraphQL introspection behind WAF: confidence 35 < 40; no evidence of WAF bypass; purely speculative.
+[FINAL] 1. Staging intermittent Cloudflare Access policy enforcement → race condition on policy evaluation (confidence 65)  
+[FINAL] 2. api.rainbet.com DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN (confidence 55)
+[NEXT] PROBE: GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json" (check for real JSON config vs CF challenge HTML in current gap window at 20:00 UTC), then GET https://staging.rainbet.com/metrics -H "Accept: text/plain", then GET https://staging.rainbet.com/.well-known/jwks.json -H "Accept: application/json" — confirm if intermittent gap exposes real app data or only CF challenge HTML.
+[LEARN] ACCEPTED AUTH @ staging.rainbet.com: Access policy gap **reappeared** at 2026-09-04 17:48 and **persists at 20:00** (3 endpoints HTTP 200, 32KB) after 302 at 14:07 — intermittent enforcement confirmed across 5 probe rounds.  
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /api/v2/, /graphql, /swagger return 403 (not 200) — only /api/v1/ leaks Allow header; WAF rule is version-sensitive.  
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header now present on all 403 responses — WAF configuration consistent across subdomains (api, www).  
+[LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.  
+[LEARN] NEW LIVE HOSTS @ files.rainbet.com, media.rainbet.com: Both resolve and return 403 on probed paths (/api/v1/public/ping, /robots.txt) — attack surface expanded to 5 live hosts.
+[RISK] RainBet: **55** — Staging Access gap intermittent (persists at 20:00 UTC across 3 endpoints); API hardened (only OPTIONS /api/v1/ info leak); 2 new live hosts (files, media) behind CF challenge; DO direct-origin bypass theoretical (0/6 UUIDs resolved). Residual risk: Staging intermittent data leak (MEDIUM if real data exposed), API contract enumeration via OPTIONS (LOW), DO origin bypass if FQDN discovered (HIGH but unproven). 5/20 hosts live with significant protections.
+===LEAD-LING3===
+## 2026-09-03 17:12:59 UTC [target] (model ling3)
+## 2026-09-03 19:56:29 UTC [target] (model ling3)
+## 2026-09-03 22:29:22 UTC [target] (model ling3)
+## 2026-09-04 00:25:44 UTC [target] (model ling3)
+## 2026-09-04 05:06:53 UTC [target] (model ling3)
+## 2026-09-04 09:47:07 UTC [target] (model ling3)
+## 2026-09-04 14:06:04 UTC [target] (model ling3)
+## 2026-09-04 17:41:48 UTC [target] (model ling3)
+## 2026-09-04 19:56:30 UTC [target] (model ling3)
+## 2026-09-04 22:15:06 UTC [target] (model ling3)
+===LEAD-LAGUNA===
+## 2026-09-03 17:12:44 UTC [target] (model laguna)
+## 2026-09-03 19:56:34 UTC [target] (model laguna)
+## 2026-09-03 22:29:20 UTC [target] (model laguna)
+## 2026-09-04 00:24:00 UTC [target] (model laguna)
+## 2026-09-04 05:06:32 UTC [target] (model laguna)
+## 2026-09-04 09:47:32 UTC [target] (model laguna)
+## 2026-09-04 14:06:03 UTC [target] (model laguna)
+## 2026-09-04 17:41:27 UTC [target] (model laguna)
+## 2026-09-04 19:54:42 UTC [target] (model laguna)
+## 2026-09-04 22:15:02 UTC [target] (model laguna)
+[0m
+[0m→ [0mRead README.md
+[0m→ [0mRead scope.yml
+Running live probes to check the fleet state this round (scoped, ≤1 rps).
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "STAGING config -> %{http_code} len=%{size_download} ct=%{content_type}\n" -m 20 -H "Accept: application/json" "https://staging.rainbet.com/api/v1/public/config" 2>&1 | tail -1
+STAGING config -> 302 len=143 ct=text/html; charset=UTF-8
+[0m
+[0m$ [0mcurl -sS -I -m 20 "https://staging.rainbet.com/api/v1/public/config" 2>&1 | tr -d '\r' | sed -n '1,12p'
+HTTP/2 302 
+date: Sat, 05 Sep 2026 00:12:03 GMT
+content-type: text/html; charset=UTF-8
+content-length: 143
+location: https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvYXBpL3YxL3B1YmxpYy9jb25maWciLCJzZXJ2aWNlX3Rva2VuX3N0YXR1cyI6ZmFsc2UsImlzX3dhcnAiOmZhbHNlLCJpc19nYXRld2F5IjpmYWxzZSwiZXhwIjoxNzg4NTY3NDIzLCJuYmYiOjE3ODg1NjcxMjMsImlhdCI6MTc4ODU2NzEyMywiYXV0aF9zdGF0dXMiOiJOT05FIiwibXRsc19hdXRoIjp7ImNlcnRfaXNzdWVyX2RuIjoiIiwiY2VydF9zZXJpYWwiOiIiLCJjZXJ0X2lzc3Vlcl9za2kiOiIiLCJjZXJ0X3ByZXNlbnRlZCI6ZmFsc2UsImNvbW1vbl9uYW1lIjoiIiwiYXV0aF9zdGF0dXMiOiJOT05FIn0sInJlYWxfY291bnRyeSI6IlVTIiwiYXBwX3Nlc3Npb25faGFzaCI6ImFmNWI3YTE5NzE5NDRmNzdjMzA2MTJiNTE2MGZjOTZlYWI1OWZhNWI5NjM3ODI1M2Y3MTAyN2UxMDAyYzIyNDkifQ.SpqwYhc2GS1mW8TcgRJJnzz0od0VzzXMGCW8WMkJ9RxMZDW5iWRVnRyAklpzFu9zumUEQ8a53XVEXPZ2-xRb53_N6oQcwxvRaSv_SBEANY9GJCwmqCJ_iDWZQYX0ABmFe0FdK47p1ksI6Ojy0fzILH-d4AVcLlAutZpKJWHMTmamPxiSxNynn8dtsvMI9AAAg4fNTtrCcSfglt76cz9TVzTmArr_WYU_mhIPS3gzOT-2g7HrOk5E5g5PYZ0-ZF155GTdvkvkeb_XJTnV392qSmLFlohJIoyZXxbvIxlrOATTJlsHyFyVJIyCt-ulgPcYRg7xRcsWc-gtALszSEsXoQ&redirect_url=%2Fapi%2Fv1%2Fpublic%2Fconfig
+access-control-allow-credentials: true
+www-authenticate: Cloudflare-Access resource_metadata="https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/api/v1/public/config"
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+set-cookie: CF_AppSession=01c17e796d8b5c15; Expires=Sun, 06 Sep 2026 00:12:03 GMT; Path=/; Secure; HttpOnly
+set-cookie: __cf_bm=kjXq7Er47DvYqIM1jw6w7_w8Cjur.D6_f55KVjlzmf4-1788567123.4245195-1.0.1.1-qKGLl8yNcaTJEiPnGSzv66Xv264nG4OjsrMZ4wwhv0KXQ5AwEy_pMN1tUrhspm_GWnUb58HrNVMwICI0QDurpwyrOsVFLhcUSInS2dM55.3Frs_RTQuvp59r9z.7EEzo; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 00:42:03 GMT
+server: cloudflare
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "API OPTIONS /api/v1/ -> %{http_code} len=%{size_download}\n" -m 20 -X OPTIONS "https://api.rainbet.com/api/v1/" -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" 2>&1 | tail -1; sleep 1; curl -sS -o /dev/null -w "API GET /api/v1/public/ping -> %{http_code} len=%{size_download}\n" -m 20 "https://api.rainbet.com/api/v1/public/ping" 2>&1 | tail -1; sleep 1; curl -sS -o /dev/null -w "API OPTIONS /graphql -> %{http_code} len=%{size_download}\n" -m 20 -X OPTIONS "https://api.rainbet.com/graphql" -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" 2>&1 | tail -1
+API OPTIONS /api/v1/ -> 200 len=0
+API GET /api/v1/public/ping -> 403 len=110394
+API OPTIONS /graphql -> 200 len=0
+[0m
+[0m$ [0mcurl -sS -D - -o /dev/null -m 20 -X OPTIONS "https://api.rainbet.com/graphql" -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" 2>&1 | tr -d '\r'; echo "=== SWAGGER ==="; curl -sS -D - -o /dev/null -m 20 -X OPTIONS "https://api.rainbet.com/swagger" -H "Origin: https://evil.com" -H "Access-Control-Request-Method: POST" 2>&1 | tr -d '\r'
+HTTP/2 200 
+date: Sat, 05 Sep 2026 00:12:14 GMT
+content-length: 0
+server: cloudflare
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=uuS43RW9J4wDDu6F4ja845y__3RmZoFEua7BJCnmzv8-1788567134.0942283-1.0.1.1-7lRU745qeSs6WdmEKoRksA1XUcUxdZtn9KHY12lah19mPKKqCjsNKkMtdTkFJ7WDmv6.NVFa310jTCmOBD9dOnLS1jFFPqD_4iNh9fyZ434HOAkaSGrdIxO8Smk9CQad; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 00:42:14 GMT
+cf-ray: a361056c1e4eb8c9-ORD
+alt-svc: h3=":443"; ma=86400
+
+=== SWAGGER ===
+HTTP/2 200 
+date: Sat, 05 Sep 2026 00:12:14 GMT
+content-length: 0
+server: cloudflare
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=vUKiEmfn4pf5.AqNjd3fDUn43xo4b4P.IsJklynoz7I-1788567134.1674588-1.0.1.1-AK5kCELZ76vFDnRnfSJ1_5EUQ9qoTsBp6SdJedOSV9yyK7er8gEEr1BI9CywpdJxZfH52HEI0UwwBcwURL7.k_9T1683kGjMwWHq8k3NJ4WUxUljBtZesFeNJ3tU1F26; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 00:42:14 GMT
+cf-ray: a361056c8cc28a1f-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -sS -D - -o /dev/null -m 20 -X OPTIONS "https://api.rainbet.com/nonexistent-route-zzz123" -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" 2>&1 | tr -d '\r'; echo "=== v2 ==="; curl -sS -D - -o /dev/null -m 20 -X OPTIONS "https://api.rainbet.com/api/v2/" -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" 2>&1 | tr -d '\r'
+HTTP/2 200 
+date: Sat, 05 Sep 2026 00:12:20 GMT
+content-length: 0
+server: cloudflare
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=q9uY0i.MMgOWjYwdSuHKrU1R7xBMoMzPPM5FTRuiaDc-1788567140.8438962-1.0.1.1-DMnkeY6fnjmzRDCRxh5zUuSDilQJCooa3xxBPOviwWOUG4mF5bVDK3kjV8hmoKHjaTHH_ySN5JWDhfEnjmO763kDI7vxMr_6Q4Zlr1azTfPnDEMdddki41TBmpqwv6_3; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 00:42:20 GMT
+cf-ray: a3610596489475e4-ORD
+alt-svc: h3=":443"; ma=86400
+
+=== v2 ===
+HTTP/2 200 
+date: Sat, 05 Sep 2026 00:12:20 GMT
+content-length: 0
+server: cloudflare
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=rBbnaTvebOox6whOXdjzHSxz5BAa9pvx8GuLJtJF0Z0-1788567140.9098592-1.0.1.1-Fk_rVcDbI_0DffRZjn1w.pSn9kZrbkAqpKUe9JG.nMrGA84occHp7t4eM7AqfGWlyw7WRN6640nuP78.4dtYx2TcaqU5rVSQRgtaw4Tyrp6WQkNdPfJO9FaIMEcpWgBH; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 00:42:20 GMT
+cf-ray: a3610596ac4fa7ae-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+Fleet probes done. Now the queued RAG: mine for RainBet client bundles / API docs with real route contracts.
+[0m◈ [0mExa Web Search ""api.rainbet.com" endpoint OR path OR api OR github"
+[0m◈ [0mExa Web Search "rainbet.com APK android app RBGAMING casino client download"
+RAG hit: a public writeup of a real RainBet vault race bug. Fetching full details for route/auth grounding.
+[0m✗ [0mWebFetch https://blog.z.org/the-day-the-house-lost/ failed
+[91m[1mError: [0mTransport error (GET https://blog.z.org/the-day-the-house-lost/)
+[0m◈ [0mExa Web Search "Rainbet "vault/deposit" "vault/withdraw" race condition api.rainbet.com blog.z.org"
+[0m◈ [0mExa Web Search "rainbet "api/v1" OR "api/v2" endpoint "bearer" JWT wallet deposit withdraw documentation"
+One more probe to scope the OPTIONS passthrough change across the fleet.
+[0m
+[0m$ [0mfor h in www.rainbet.com files.rainbet.com media.rainbet.com; do curl -sS -D - -o /dev/null -m 20 -X OPTIONS "https://$h/api/v1/public/ping" -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" 2>&1 | tr -d '\r' | sed -n '1p;/allow:/I p;/x-do-orig/I p' | paste -sd' ' -; sleep 1; done
+HTTP/2 308  x-do-orig-status: 308
+HTTP/2 204 
+HTTP/2 404
+[0m
+[0m$ [0mecho "=== www ==="; curl -sS -D - -o /dev/null -m 20 -X OPTIONS "https://www.rainbet.com/api/v1/public/ping" -H "Origin: https://evil.com" 2>&1 | tr -d '\r'; echo "=== files ==="; curl -sS -D - -o /dev/null -m 20 -X OPTIONS "https://files.rainbet.com/api/v1/public/ping" -H "Origin: https://evil.com" 2>&1 | tr -d '\r'; echo "=== media ==="; curl -sS -D - -o /dev/null -m 20 -X OPTIONS "https://media.rainbet.com/api/v1/public/ping" -H "Origin: https://evil.com" 2>&1 | tr -d '\r'
+=== www ===
+HTTP/2 308 
+date: Sat, 05 Sep 2026 00:13:53 GMT
+location: https://rainbet.com/api/v1/public/ping
+refresh: 0;url=https://rainbet.com/api/v1/public/ping
+server: cloudflare
+x-do-app-origin: e774c1ff-5620-465e-af36-30e437d54e3a
+cache-control: private
+x-do-orig-status: 308
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=zDbjQi053kifS52SqOBcQy5SUB7lW5G4wKb6b6mPr7U-1788567233.7959528-1.0.1.1-ssQbXGCD_3ci8g7OLpn7BdRfBSao98df2u73MonLr1G8YiJCT5rsPq8wNlfhHXHKvAOGYysHMP9gq1JepeilHi4L1WpIVQQRBwIcrTZjSYnpRLQvCF6xBAochiXDXQUW; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 00:43:53 GMT
+cf-ray: a36107db3ededd6d-ORD
+alt-svc: h3=":443"; ma=86400
+
+=== files ===
+HTTP/2 204 
+date: Sat, 05 Sep 2026 00:13:53 GMT
+vary: Origin
+access-control-allow-methods: GET
+access-control-allow-origin: *
+server: cloudflare
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=888bo7tzkLjm4KEajLvtdOkY8evJGHPEDlrZZYg_Tzc-1788567233.8678265-1.0.1.1-aPpdLy1907JMcL4BhIWvBoDmiUg47Z9LfkBcPh324p793Z1e.VfsKNIhry_DZmIpsF6pbVpfFGVOVvY.C8SA1B3PHm2Gd1gIDeal1ZIpe2RcfYI.15Io_jS_6zJfEEdU; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 00:43:53 GMT
+cf-ray: a36107dba83a1122-ORD
+
+=== media ===
+HTTP/2 404 
+date: Sat, 05 Sep 2026 00:13:53 GMT
+content-length: 0
+vary: accept-encoding
+set-cookie: __cf_bm=yLvsTKbKdgJvg5NemXeMb91GbNyoDXB9mKP.2SXBtLI-1788567233.9469829-1.0.1.1-g92FNS8PO1vEBbSXon0E74XG80EJV9iQWxPOSFhlESmIGg_3ixu2ACuyLqDOxiXenYpoJg4X6t_xrS2Khuai2hIoh251c89AiR7JKgAWA5D4NIomZacFcr3FhejoURAt; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 05 Sep 2026 00:43:53 GMT
+server: cloudflare
+cf-ray: a36107dc2b926077-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mfor p in "/robots.txt" "/" "/test-zzz-123.jpg"; do curl -sS -D - -o /dev/null -m 20 "https://files.rainbet.com$p" 2>&1 | tr -d '\r' | sed -n '1p;/cf-mitigated/I p;/server:/I p;/x-do-orig/I p' | paste -sd' ' -; sleep 1; done
+HTTP/2 403  cf-mitigated: challenge server: cloudflare
+HTTP/2 403  cf-mitigated: challenge server: cloudflare
+HTTP/2 403  cf-mitigated: challenge server: cloudflare
+[0m
+STAGING drift flip + fleet WAF change documented; RAG surfaced a public writeup with the real vault contract. Analysis below.
+
+STEP 1 — DELTA
+- [NEW] api.rainbet.com contract disclosed by public writeup (blog.z.org "The Day the House Lost...Rainbet"): `POST /vault/deposit` and `POST /vault/withdraw` on `Host: api.rainbet.com`, auth=`Authorization: Bearer <JWT>`, bodies `{"amount":"20","language":"en","currency":"USD"}` and `{"amount":"35.47","language":"en","code":"2FA","currency":"USD"}`; race-condition find on vault already publicized (treat as disclosed, not re-report).
+- [NEW] api.rainbet.com OPTIONS now 200 on **all** paths incl. `/api/v2/`, `/graphql`, `/swagger`, and random `/nonexistent-route-zzz123` (Allow: HEAD,GET,POST,OPTIONS, x-do-orig-status:200, x-do-app-origin 53f39197-…) — prior "only /api/v1/ leaks Allow, version-sensitive WAF" CONTRADICTED; WAF rule was broadened between 09-04 and 09-05.
+- [NEW] files.rainbet.com OPTIONS → 204 with `Access-Control-Allow-Origin: *`, `Access-Control-Allow-Methods: GET` (fleet's only CORS-wildcard edge); GET content on files remains 403 cf-mitigated challenge.
+- [NEW] www.rainbet.com OPTIONS → 308 canonical `location: https://rainbet.com/...` via distinct DO app origin `e774c1ff-5620-465e-af36-30e437d54e3a` — proves OPTIONS passthrough is fleet-wide and www ≠ api app.
+- [CHANGED] staging Access drift **closed** at 00:12 UTC (302→challenge-5te-pages login, new `www-authenticate: Cloudflare-Access resource_metadata=…/.well-known/cloudflare-access-protected-resource/api/v1/public/config` header + CF_AppSession cookie) after open 200 len=32875 at 22:17 UTC — flip-flop continues (17:48/20:00/22:17 open → 00:12 closed).
+- [NO_DELTA] GET/HEAD/POST content-bearing methods remain uniformly cf-mitigated 403 on api/www/files/media; no origin data leak observed in any staging 200 window to date.
+
+STEP 2 — PRIORITIZE
+- [PRIO] staging.rainbet.com,7.6,attack_surface=8,business_value=8,tech_exposure=6,gate_ease=9,cloud_surface=6,freshness=7
+- [PRIO] api.rainbet.com,6.4,attack_surface=6,business_value=9,tech_exposure=7,gate_ease=1,cloud_surface=6,freshness=8
+- [PRIO] files.rainbet.com,5.1,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=2,cloud_surface=5,freshness=8
+
+STEP 3 — HYPOTHESES
+[HYP] WAF method-exemption broadened fleet-wide → next over-broad relaxation exposes origin router
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 55
+reasoning: Between 09-04 and 09-05 OPTIONS went from 403 (v2/graphql/swagger) to blanket 200 on ANY path incl. nonexistent, with origin status (x-do-orig-status:200) proving origin reachability through CF. Operator is actively editing WAF method rules; identical earlier edit (OPTIONS) suggests other-method rules may also be relaxing. Origin is a real DO app (53f39197-…) whose router is reachable once any content method passes.
+evidence_needed: Any PUT/PATCH (or POST) to a public namespace returning non-403 origin response (405/404/JSON) instead of 110KB cf-mitigated challenge.
+verify_steps: PUT https://api.rainbet.com/api/v1/public/ping and PUT https://api.rainbet.com/graphql with Content-Type: application/json, body {} — record status + cf-mitigated + origin headers. NOTE: beyond passive OPTIONS mandate — requires triage authorization.
+impact: origin router/contract disclosure → grounded IDOR/BOLA targeting on documented /vault/* routes. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] staging Access drift window recurs and eventually serves origin JSON behind 200
+class: AUTH
+asset: staging.rainbet.com
+confidence: 45
+reasoning: 6 endpoints flipped 200/32KB ↔ 302/login across 17:48(open),20:00(open),22:17(open),00:12(closed) — enforcement flip-flops persist; redirect now adds www-authenticate resource_metadata, evidence of active policy edits. All 200 responses so far are CF challenge shell only; no origin data yet observed.
+evidence_needed: A 200 response whose body signature/content-type differs from the 32KB CF challenge HTML (real health/metrics/config JSON).
+verify_steps: GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json" every ~30 min, hash + content-type against known 32875B shell; same for /metrics Accept: text/plain. Passive, no auth.
+impact: Real staging config/telemetry leak during windows → prod-parity cred reuse if JSON keys surface. Severity: MEDIUM.
+testability: PASSIVE
+[HYP] BOLA/IDOR on per-user vault resource (grounded by public writeup contract)
+class: IDOR
+asset: api.rainbet.com/vault
+confidence: 50
+reasoning: Public writeup confirms vault = per-user funds "safe spot" with POST /vault/deposit and /vault/withdraw (JWT Bearer, body {amount,currency,language[,code]}); no cross-user id in body shown → vault state is keyed server-side, classic BOLA needle is a vault read/list endpoint returning accountKey/userID modifiable to another user. History: HIGH-severity money-logic bug (multi-endpoint race) already publicized on this surface.
+evidence_needed: A credentialed vault request readable with an accountID/currency/userID parameter swapped to another user's identifier returning foreign vault state.
+verify_steps: HUMAN with credentialed browser (solve CF) + account: derive real vault routes from PWA bundle at www.rainbet.com; GET /vault, /vault/balance, /vault/transactions; vary id params. Mutating endpoints off-limits.
+impact: Cross-user vault balance/transaction disclosure or tampering on a money surface. Severity: HIGH.
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] files.rainbet.com ACAO:* credentialed cross-origin read: confidence 30 — GET content is cf-mitigated challenge-gated; wildcard is on a dead preflight, no data cross-origin reachable.
+- [PARKED] DO `*.ondigitalocean.app` default-FQDN bypass: confidence 38 — UUIDs still unresolved; OSINT dead again this round; not falsifiable.
+- [PARKED] Re-testing vault race-condition: already publicly disclosed + requires money-mutating concurrent POSTs → REJECTED-class (no data modification), resubmission risk.
+- [FINAL] Method-broadening WAF relaxation (api, 55, AUTH_HELPED) — ranked 1 (config-change witnessed in-session).
+- [FINAL] staging drift recur + origin-JSON (45, PASSIVE) — ranked 2 (recurring, only data-leak-capable passive surface).
+- [FINAL] vault BOLA/IDOR (50, HUMAN_ONLY) — ranked 3 (grounded default).
+- [FINAL] survivor cut: only 3 kept; everything else ≤ previous KB coverage.
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: cadence GET https://staging.rainbet.com/api/v1/public/config -H "Accept: application/json" every ~30 min (state 302→login at 00:12Z; on 200 capture length/content-type/body-hash to separate origin JSON from the known 32875B CF challenge shell), plus keep one OPTIONS to a random api path per round to detect further WAF method-rule edits.
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED MISCONFIG @ api.rainbet.com: "OPTIONS /api/v2/, /graphql, /swagger return 403 (version-sensitive Allow leak)" contradicted — all api paths now return 200 on OPTIONS incl. nonexistent; WAF OPTIONS-exemption broadened between 09-04 and 09-05.
+- [LEARN] ACCEPTED OTHER @ api.rainbet.com: public writeup (blog.z.org) grounds real contract — POST /vault/deposit, POST /vault/withdraw, JWT Bearer, {amount,currency,language[,2FA code]}; vault race already publicized → use strictly as authz/BOLA grounding, never re-report.
+- [LEARN] ACCEPTED MISCONFIG @ files.rainbet.com: OPTIONS → 204 with ACAO:* / Allow-Methods: GET — only CORS-wildcard edge in fleet; GET content still cf-mitigated 403 → not currently exploitable.
+- [LEARN] ACCEPTED AUTH @ staging.rainbet.com: drift window closed 00:12Z (302→login, www-authenticate resource_metadata header present, CF_AppSession set) after open at 22:17Z — enforcement flip-flop persists, not fixed.
+- [LEARN] ACCEPTED MISCONFIG @ www.rainbet.com: OPTIONS → 308 canonical redirect to rainbet.com via distinct DO app origin e774c1ff-… — canonicalization only; confirms OPTIONS passthrough is fleet-wide, www origin is a separate DO app from api (53f39197-…).
+
+STEP 7 — RISK
+[RISK] RainBet: 47 — Operator actively editing WAF method-rules (OPTIONS exemption widened to blanket fleet-wide this round) raises probability of a future over-broad method/path exemption; recently publicized HIGH business-logic bug (vault deposit/withdraw race) proves money-flow logic was vulnerable and makes BOLA/IDOR on the same vault plausible behind credentials; staging Access drift still recurs (open 17:48→closed 00:12). Mitigating: every content-bearing method still cf-mitigated on all live hosts, no origin data has ever leaked during drift windows, DO default-FQDN remains unresolvable, and no passive path to the credentialed surface exists.
