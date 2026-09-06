@@ -181,3 +181,11 @@ www.rainbet.com
 - NEW staging-raffles.rainbet.com/api/v1/public/config -> HTTP 404 (was unprobed at depth; /health returns real JSON)
 - NEW staging-raffles.rainbet.com/api/v1/health -> HTTP 404
 - CHANGED staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 len=116 PERSISTS (engine.io handshake issuing anonymous sids)
+
+## 2026-09-06 01:27:23 UTC
+- NEW staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling → HTTP 400 (was 200 len=116 at 19:34)
+- NEW staging-raffles.rainbet.com/api/v1/public/config → HTTP 404 (was unprobed at depth)
+- NEW staging-raffles.rainbet.com/api/v1/health → HTTP 404 (was unprobed at depth)
+- CHANGED staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling → 200 len=116 PERSISTS (engine.io handshake issuing anonymous sids)
+- CHANGED staging-raffles.rainbet.com/health → 200 len=75 JSON `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}` CONFIRMED real origin, x-do-orig-status:200, no cf-mitigated, no CF A
+- CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE (200 + Allow + x-do-orig-status on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense); `/docs` + `/` excluded → rule scope "everything b

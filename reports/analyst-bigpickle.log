@@ -7816,3 +7816,102 @@ If you want, I can instead:
 - **Authorized targets** — help you structure a hunt against a program whose scope I can verify (e.g., a public HackerOne/Bugcrowd listing).
 
 Want me to start with verification?
+===== ANALYST bigpickle 2026-09-06 01:27:23 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "raffles/health | %{http_code} | %{size_download}B | %header{x-do-orig-status} | app=%header{x-do-app-origin}\n" --max-time 15 https://staging-raffles.rainbet.com/health; sleep 1; curl -sS -o /dev/null -w "chat/socket.io | %{http_code} | %{size_download}B\n" --max-time 15 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"; sleep 1; curl -sS -o /dev/null -w "originals/health | %{http_code} | %{size_download}B\n" --max-time 15 https://staging-originals.rainbet.com/health
+raffles/health | 200 | 75B | 200 | app=1ce4ff55-e85f-4c30-8033-5129a1812504
+chat/socket.io | 200 | 116B
+originals/health | 404 | 2B
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "api OPTIONS /openapi.json | %{http_code} | %{size_download}B | orig=%header{x-do-orig-status} | app=%header{x-do-app-origin} | allow=%header{allow}\n" --max-time 15 -X OPTIONS https://api.rainbet.com/openapi.json; sleep 1; curl -sS -o /dev/null -w "api GET /api/v1/public/ping | %{http_code} | %{size_download}B | orig=%header{x-do-orig-status} | cf-mitigated=%header{cf-mitigated}\n" --max-time 15 https://api.rainbet.com/api/v1/public/ping; sleep 1; curl -sS -o /dev/null -w "api OPTIONS /api/v2/graphql | %{http_code} | %{size_download}B | orig=%header{x-do-orig-status}\n" --max-time 15 -X OPTIONS https://api.rainbet.com/api/v2/graphql
+api OPTIONS /openapi.json | 200 | 0B | orig=200 | app=53f39197-6fd5-4e93-8a3b-b8177a4bd079 | allow=HEAD,GET,POST,OPTIONS
+api GET /api/v1/public/ping | 403 | 110415B | orig= | cf-mitigated=challenge
+api OPTIONS /api/v2/graphql | 200 | 0B | orig=200
+[0m
+[0m$ [0mcurl -sS --max-time 15 https://staging-raffles.rainbet.com/health; echo; sleep 1; curl -sS -o /dev/null -w "raffles /api/v1/public/config | %{http_code} | %{size_download}B\n" --max-time 15 "https://staging-raffles.rainbet.com/api/v1/public/config"; sleep 1; curl -sS --max-time 15 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"; echo
+{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}
+raffles /api/v1/public/config | 404 | 2B
+0{"sid":"91-Y9ZHzYexwVIROAABp","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+[0m
+[0m$ [0mfor h in alerts socket raffles; do curl -sS --max-time 15 "https://staging-$h.rainbet.com/socket.io/?EIO=4&transport=polling" | head -c 120; echo "  <- $h"; sleep 1; done
+0{"sid":"4BpOf4-biafWWctzADi6","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":20480}  <- alerts
+{"code":0,"message":"Transport unknown"}  <- socket
+0{"sid":"N9Kti9TWtNJMe25CAAFl","upgrades":["websocket"],"pingInterval":10000,"pingTimeout":5000,"maxPayload":10240}  <- raffles
+[0m
+[0m$ [0mfor p in api/v1/health api/v2/health health2 metrics api/v1/ping robots.txt docs api; do code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 "https://staging-raffles.rainbet.com/$p"); echo "$code  /$p"; sleep 1; done
+404  /api/v1/health
+404  /api/v2/health
+404  /health2
+404  /metrics
+404  /api/v1/ping
+404  /robots.txt
+403  /docs
+404  /api
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "OPTIONS / | %{http_code} | %{size_download}B\n" --max-time 12 -X OPTIONS https://api.rainbet.com/; sleep 1; curl -sS -o /dev/null -w "OPTIONS /docs | %{http_code} | %{size_download}B | orig=%header{x-do-orig-status}\n" --max-time 12 -X OPTIONS https://api.rainbet.com/docs
+OPTIONS / | 403 | 5483B
+OPTIONS /docs | 400 | 1093B | orig=
+[0m
+**STEP 1 — DELTA**
+- CHANGED staging-raffles.rainbet.com/socket.io: now issues fresh anonymous sid `N9Kti...` with distinct engine.io profile (pingInterval 10000 vs 25000 on chat/alerts) — 3rd live-sid hostname on app `1ce4ff55`; staging-socket stays "Transport unknown" (no sid).
+- NEW staging-raffles.rainbet.com route map: only `/health` (75B JSON) + `/socket.io` live; `/api/v1/health`, `/api/v2/health`, `/metrics`, `/api/v1/ping`, `/robots.txt`, `/api`, `/health2` all 404 `{}`; `/docs` 403.
+- NO_DELTA api.rainbet.com: OPTIONS blanket exemption stable (`/openapi.json`, `/api/v2/graphql` → 200, `x-do-orig-status:200`, app `53f39197`); `/` → 403 (5483B), `/docs` → 400 origin (no orig header) — scope rule "everything but `/` and `/docs`" holds; GET `/api/v1/public/ping` still 403 `cf-mitigated:challenge`.
+- NO_DELTA staging-chat/staging-alerts fresh-sid issuance; raffles `/health` body unchanged `{"code":200,"db":"Running",...,"version":"v0.00.0002-rc1"}`.
+
+**STEP 2 — PRIORITIZE**
+- [PRIO] api.rainbet.com, 6.7, cloud_surface+gate_ease (distinct DO app `53f39197` origin reachable via OPTIONS; content methods latent)
+- [PRIO] staging-raffles.rainbet.com (app `1ce4ff55`), 6.4, gate_ease+tech_exposure (unauthenticated /health JSON + socket plane)
+- [PRIO] rainbet-com-rabbitmq direct DO origins, 6.25, cloud_surface+business_value (internet mgmt/AMQP; creds required)
+
+**STEP 3 — HYPOTHESES**
+```
+[HYP] Prod api OPTIONS pass-through discloses origin contract on method-widening
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197-6fd5-4e93-8a3b-b8177a4bd079)
+confidence: 58
+reasoning: OPTIONS returns 200 + x-do-orig-status:200 + app UUID on /openapi.json, /api/v2/graphql, /graphql, /swagger, /nonsense; scope excludes exactly / (403 5483B) and /docs (400 origin); GET/HEAD/POST content still 403 challenge. Stable across 2 rounds incl versioned /api/v2.
+evidence_needed: any content method returning origin 2xx/4xx/5xx on a public path.
+verify_steps: cadence OPTIONS /openapi.json + /api/v2/graphql + GET /api/v1/public/ping each round; capture x-do-app-origin + status on first origin response. Passive.
+impact: origin router/openapi contract on prod money API → grounded IDOR/BOLA. HIGH if content opens; latent.
+testability: PASSIVE
+```
+```
+[HYP] RabbitMQ default/weak credentials on direct DO origins
+class: MISCONFIG
+asset: rainbet-com-rabbitmq / 159.203.34.207 / 165.227.255.111 / 159.203.53.157
+confidence: 60
+reasoning: mgmt 15671/15672 + AMQP 5672 internet-exposed without CF; anonymous /api 401; guest/guest unverified on real-money event bus (payment/withdrawal events).
+evidence_needed: credentialed /api/overview under authorization.
+verify_steps: AUTH_HELPED single Basic GET /api/overview.
+impact: event-bus injection → payment/withdrawal manipulation. CRITICAL if default creds.
+testability: AUTH_HELPED
+```
+```
+[HYP] Anonymous engine.io sid plane reaches JWT-gated namespaces on app 1ce4ff55
+class: AUTH
+asset: staging-chat/alerts/raffles.rainbet.com /socket.io/
+confidence: 85
+reasoning: 3 hostnames issue fresh anonymous sids with 3 distinct engine.io profiles (chat/alerts pingInterval 25000, raffles 10000); no CF Access/challenge; upstream /health origin JSON plain.
+evidence_needed: authenticated namespace/event returning data without valid user JWT.
+verify_steps: passive sid-freshness+upgrade cadence; namespace probing AUTH_HELPED beyond handshake.
+impact: unauthenticated realtime read/emit → chat/raffle cross-user session/PII. HIGH if middleware weak.
+testability: AUTH_HELPED
+```
+
+**STEP 4 — SELF-CRITIQUE**
+- [PARKED] staging-originals slot-originals contract mount (47): app recovered but nothing mounted across multiple deep-probe rounds — no evidence delta.
+- [PARKED] [95] ranked/staging-raffles "full API contract exposed": 8-route probe this round shows app mounts only `/health` + `/socket.io` — claim overstated; real surface is socket plane + health JSON (RVs 85/58/60 survive).
+- [FINAL] socket-plane AUTH (85), RabbitMQ creds (60), api method-widening (58).
+
+**STEP 5 — NEXT ACTION**
+- [NEXT] PROBE: cadence GET /health + /socket.io/?EIO=4&transport=polling on staging-raffles + staging-chat (fresh-sid & upgrade-policy watch) + OPTIONS api.rainbet.com/openapi.json + /api/v2/graphql + GET /api/v1/public/ping (method-widening, x-do-app-origin capture) ~0.5-1s spacing, read-only.
+
+**STEP 6 — LEARNING**
+- [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket-exemption scope excludes exactly `/` (403 5483B) and `/docs` (400 origin, no orig header); everything else incl `/api/v2/graphql` returns 200+x-do-orig-status; content methods still closed.
+- [LEARN] REJECTED AUTH @ staging-raffles.rainbet.com: "full API contract exposed" overstated — deep probe shows only `/health` (75B JSON) + engine.io mounted; all other tested routes 404.
+- [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: engine.io v4 issues fresh anonymous sid with a 3rd distinct profile (pingInterval 10000) — anonymous-sid plane runs on ≥3 hostnames of app 1ce4ff55.
+
+**STEP 7 — RISK**
+- [RISK] RainBet: **69** — Unchanged from 69: api OPTIONS pass-through stable (scope `/`+`/docs` excluded, distinct app UUID 53f39197) but all content methods remain 403 challenge; socket/anonymous-sid plane persists on ≥3 1ce4ff55 hostnames but namespace auth JWT-gated and unverified; staging-raffles app proven thin (health+socket only); staging Access default-deny. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; sids by design; no creds; RabbitMQ 401 untouched). Drivers: next operator WAF content-method edit, RabbitMQ default-creds (AUTH_HELPED, highest potential), socket namespace middleware misconfig.

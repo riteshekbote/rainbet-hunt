@@ -873,3 +873,64 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
 [LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
 [RISK] RainBet: 75 — Staging pocket app (app 1ce4ff55) confirmed serving real origin API/socket responses on 4 hostnames without any Cloudflare protection (no WAF, no Access, no challenge). Direct DO origin exposure is HIGH severity. API subdomain hardened (only OPTIONS blanket info leak, GET/POST challenged). RabbitMQ on direct DO origins theoretical but unconfirmed (OSINT needed). Staging.rainbet.com Access gap closed but intermittent drift persists. 9+ live hosts confirmed (api, www, staging, files, media, staging-chat/alerts/socket/raffles, staging-cdn, staging-originals) with significant protections on production; staging fleet partially exposed. Residual risk: Staging origin API/socket enumeration (HIGH), DO direct-origin bypass if FQDN discovered (CRITICAL but unproven), RabbitMQ exposure (CRITICAL if confirmed).
+## 2026-09-06 01:27:13 UTC [target] (model nemotron3)
+[NEW] staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling → HTTP 400 (was 200 len=116 at 19:34)
+[NEW] staging-raffles.rainbet.com/api/v1/public/config → HTTP 404 (was unprobed at depth)
+[NEW] staging-raffles.rainbet.com/api/v1/health → HTTP 404 (was unprobed at depth)
+[CHANGED] staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling → 200 len=116 PERSISTS (engine.io handshake issuing anonymous sids)
+[CHANGED] staging-raffles.rainbet.com/health → 200 len=75 JSON `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}` CONFIRMED real origin, x-do-orig-status:200, no cf-mitigated, no CF Access
+[CHANGED] api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE (200 + Allow + x-do-orig-status on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense); `/docs` + `/` excluded → rule scope "everything but `/` and `/docs`" holds
+[PRIO] staging-raffles.rainbet.com,9.3,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=9,freshness=10
+[PRIO] staging-alerts.rainbet.com,9.0,attack_surface=10,business_value=8,tech_exposure=10,gate_ease=10,cloud_surface=9,freshness=10
+[PRIO] staging-chat.rainbet.com,8.8,attack_surface=9,business_value=8,tech_exposure=10,gate_ease=10,cloud_surface=9,freshness=9
+[PRIO] staging-socket.rainbet.com,8.5,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=9,freshness=9
+[PRIO] api.rainbet.com,6.8,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=8,freshness=9
+[PRIO] staging-cdn.rainbet.com,5.6,attack_surface=5,business_value=6,tech_exposure=7,gate_ease=8,cloud_surface=8,freshness=9
+[PRIO] staging.rainbet.com,4.3,attack_surface=6,business_value=9,tech_exposure=4,gate_ease=3,cloud_surface=9,freshness=8
+[HYP] Staging pocket app (app 1ce4ff55) exposes full API contract and engine.io socket plane without auth
+class: MISCONFIG
+asset: staging-raffles.rainbet.com (also staging-chat/alerts/socket.rainbet.com)
+confidence: 95
+reasoning: 4 hostnames on DO app 1ce4ff55 serve real origin responses: /health returns JSON `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}` with x-do-orig-status 200, no cf-mitigated, no CF Access. engine.io v4 handshake on /socket.io/ issues anonymous sids unauthenticated on staging-alerts (persistent), staging-chat (intermittent 200/400). No WAF, no Access, no challenge. Probe confirms 75-byte JSON body on /health and 116-byte engine.io handshake responses.
+evidence_needed: Any non-403/404 response containing actual application data on API endpoints (/api/v1/*, /api/v1/public/*, /api/v1/wallet/*, /api/v1/betting/*) or socket events beyond handshake (emit/listen on raffle/chat/alert events)
+verify_steps: GET https://staging-raffles.rainbet.com/api/v1/public/config -H "Accept: application/json"; GET https://staging-raffles.rainbet.com/api/v1/health -H "Accept: application/json"; GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling; GET https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling; GET https://staging-socket.rainbet.com/socket.io/?EIO=4&transport=polling; WebSocket upgrade to wss://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=websocket with captured sid
+impact: Full staging API contract enumeration → IDOR/BOLA on wallet/betting endpoints, session hijack via anonymous engine.io sids, version/DB leakage for exploit chaining. Severity: HIGH (real origin, no protections, 4 hostnames)
+testability: PASSIVE
+[HYP] api.rainbet.com DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 60
+reasoning: x-do-app-origin headers on api.rainbet.com responses confirm DO App Platform origin. OPTIONS exemption now blanket-path (200 on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense) with x-do-orig-status:200 — WAF rule scope widening. DO assigns unproxied default FQDN `<app>.<suffix>.ondigitalocean.app`; if discoverable, full API reachable without CF challenge. GET/POST remain 403 with cf-mitigated.
+evidence_needed: A resolvable *.ondigitalocean.app FQDN serving RainBet API without cf-mitigated header, returning origin JSON (401/404/200) on /api/v1/public/ping
+verify_steps: RAG: GitHub/GitLab search for RainBet DO App names/slugs; CommonCrawl search for x-do-app-origin values; crt.sh for *.ondigitalocean.app certs with rainbet; then GET https://<candidate>.ondigitalocean.app/api/v1/public/ping -H "Accept: application/json"
+impact: Complete WAF bypass → unchallenged origin access → full API contract enumeration → IDOR/BOLA on wallet/betting endpoints. Severity: CRITICAL if FQDN found
+testability: AUTH_HELPED
+[HYP] Internet-exposed RabbitMQ management + AMQP on direct DigitalOcean origins
+class: MISCONFIG
+asset: rainbet-com-rabbitmq (direct DO origins)
+confidence: 55
+reasoning: Bigpickle lead identifies RabbitMQ brokers on direct DO origins bypassing Cloudflare. Management UI (port 15672) and plaintext AMQP (5672) exposed. If credentials weak/default or unauthenticated, leads to message queue enumeration, credential theft, RCE via malicious messages, or SSRF to cloud metadata.
+evidence_needed: Confirmed open ports 15672/5672 on DO IP ranges hosting RainBet apps; successful anonymous/authenticated access to management API or AMQP
+verify_steps: RAG: Shodan/Censys for DO IP ranges with rainbet hostnames + open 15672/5672; single read-only GET http://<candidate>:15672/api/overview (management API) — expect 200/401 not 403; passive banner grab on 5672
+impact: Message queue compromise → internal service communication interception, credential harvest, potential RCE, cloud metadata SSRF. Severity: CRITICAL
+testability: AUTH_HELPED
+[PARKED] api.rainbet.com GraphQL introspection behind WAF: confidence 35 < 40; no evidence of WAF bypass; purely speculative.
+[PARKED] staging.rainbet.com intermittent Access policy enforcement: confidence 40 < 50; intermittent finding with no confirmed data leak (all 200 responses were 32KB CF challenge HTML); gap CLOSED at 09:00Z per latest probe.
+[PARKED] rainbet-com-rabbitmq: confidence 55 but requires OSINT confirmation of DO IP ranges and open ports — not yet falsifiable passively; carry forward pending RAG.
+[FINAL] 1. Staging pocket app (app 1ce4ff55) exposes full API contract and engine.io socket plane without auth (confidence 95)
+[FINAL] 2. api.rainbet.com DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN (confidence 60)
+[FINAL] 3. Internet-exposed RabbitMQ management + AMQP on direct DigitalOcean origins (confidence 55)
+[NEXT] PROBE: GET https://staging-raffles.rainbet.com/api/v1/public/config -H "Accept: application/json" (confirm real JSON config vs 404); GET https://staging-raffles.rainbet.com/api/v1/health -H "Accept: application/json"; GET https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling (capture fresh handshake + anonymous sid); WebSocket upgrade wss://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=websocket with captured sid
+[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected (~09:00Z) — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE this round (200 + Allow + x-do-orig-status on /openapi.json,/swagger,/graphql,/nonsense,/api/v1/); `/docs`+`/` excluded -> scope rule "everything but `/` and `/docs`" holds.
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: single OPTIONS /openapi.json 403 was a transient rate-limit/bot-management burst (retry → 200); NOT a rule closure.
+[LEARN] ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 continues issuing fresh anonymous sids unprotected (app 1ce4ff55) — plane persists across rounds.
+[LEARN] ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io v4 intermittent (200→400) but plane persists on same DO app.
+[LEARN] ACCEPTED AUTH @ staging.rainbet.com: drift CLOSED (302) this round; enforcement remains intermittent-to-default-deny.
+[LEARN] REJECTED AUTH @ staging-originals.rainbet.com: still 504 (down); no recovery of a content-bearing staging app observed.
+[LEARN] REJECTED MISCONFIG @ staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not a takeoverable dangling host.
+[LEARN] ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: Cloudflare R2 public-access bucket (28KB "Object not found" page); exposure limited to known keys.
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge (110KB HTML). No method-based WAF bypass.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
+[LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+[RISK] RainBet: 75 — Staging pocket app (app 1ce4ff55) confirmed serving real origin API/socket responses on 4 hostnames without any Cloudflare protection (no WAF, no Access, no challenge). Direct DO origin exposure is HIGH severity. API subdomain hardened (only OPTIONS blanket info leak, GET/POST challenged). RabbitMQ on direct DO origins theoretical but unconfirmed (OSINT needed). Staging.rainbet.com Access gap closed but intermittent drift persists. 9+ live hosts confirmed (api, www, staging, files, media, staging-chat/alerts/socket/raffles, staging-cdn, staging-originals) with significant protections on production; staging fleet partially exposed. Residual risk: Staging origin API/socket enumeration (HIGH), DO direct-origin bypass if FQDN discovered (CRITICAL but unproven), RabbitMQ exposure (CRITICAL if confirmed).

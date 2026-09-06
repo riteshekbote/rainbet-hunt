@@ -867,3 +867,31 @@ testability: PASSIVE
 [NEXT] PROBE: GET staging-raffles.rainbet.com/health (75B shell body-hash) + GET staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling (fresh sid) + GET staging-originals.rainbet.com/health (content-mount watch) + OPTIONS api.rainbet.com/openapi.json + GET api.rainbet.com/api/v1/public/ping (x-do-app-origin + method-widening) — read-only, ~0.5-1s spacing.
 [RISK] RainBet: **69** — Unchanged from 68→69 drift: 1ce4ff55 anonymous socket/health plane confirmed stable across rounds on 4+1 hostnames; prod api OPTIONS pass-through confirms direct DO origin reachability (distinct app UUID 53f39197) on every non-`/`,`/docs` path while content methods remain 403; staging Access closed/default-deny (no origin data in any past open window). No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; socket sids issued by design; no creds; RabbitMQ 401 untouched). Mitigating: all content methods still closed, socket namespace auth unverified and JWT-gated, staging-originals unmounted. Drivers: next operator WAF content-method edit, slot-originals mount, RabbitMQ default-creds (AUTH_HELPED, highest single-item potential).
 ## 2026-09-05 23:40:44 UTC [target] (model bigpickle)
+## 2026-09-06 01:23:20 UTC [target] (model bigpickle)
+[HYP] Prod api OPTIONS pass-through discloses origin contract on method-widening
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197-6fd5-4e93-8a3b-b8177a4bd079)
+confidence: 58
+reasoning: OPTIONS returns 200 + x-do-orig-status:200 + app UUID on /openapi.json, /api/v2/graphql, /graphql, /swagger, /nonsense; scope excludes exactly / (403 5483B) and /docs (400 origin); GET/HEAD/POST content still 403 challenge. Stable across 2 rounds incl versioned /api/v2.
+evidence_needed: any content method returning origin 2xx/4xx/5xx on a public path.
+verify_steps: cadence OPTIONS /openapi.json + /api/v2/graphql + GET /api/v1/public/ping each round; capture x-do-app-origin + status on first origin response. Passive.
+impact: origin router/openapi contract on prod money API → grounded IDOR/BOLA. HIGH if content opens; latent.
+testability: PASSIVE
+[HYP] RabbitMQ default/weak credentials on direct DO origins
+class: MISCONFIG
+asset: rainbet-com-rabbitmq / 159.203.34.207 / 165.227.255.111 / 159.203.53.157
+confidence: 60
+reasoning: mgmt 15671/15672 + AMQP 5672 internet-exposed without CF; anonymous /api 401; guest/guest unverified on real-money event bus (payment/withdrawal events).
+evidence_needed: credentialed /api/overview under authorization.
+verify_steps: AUTH_HELPED single Basic GET /api/overview.
+impact: event-bus injection → payment/withdrawal manipulation. CRITICAL if default creds.
+testability: AUTH_HELPED
+[HYP] Anonymous engine.io sid plane reaches JWT-gated namespaces on app 1ce4ff55
+class: AUTH
+asset: staging-chat/alerts/raffles.rainbet.com /socket.io/
+confidence: 85
+reasoning: 3 hostnames issue fresh anonymous sids with 3 distinct engine.io profiles (chat/alerts pingInterval 25000, raffles 10000); no CF Access/challenge; upstream /health origin JSON plain.
+evidence_needed: authenticated namespace/event returning data without valid user JWT.
+verify_steps: passive sid-freshness+upgrade cadence; namespace probing AUTH_HELPED beyond handshake.
+impact: unauthenticated realtime read/emit → chat/raffle cross-user session/PII. HIGH if middleware weak.
+testability: AUTH_HELPED
