@@ -1059,3 +1059,33 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
 [LEARN] ACCEPTED MISCONFIG @ staging-socket.rainbet.com: engine.io v4 handshake returns 400 (intermittent) but same DO app origin.
 [RISK] RainBet: 69 — Unchanged. 1ce4ff55 anonymous socket/health plane stable on 3+ hostnames; prod api OPTIONS pass-through confirms direct DO origin reachability (app UUID 53f39197) on every non-`/`,`/docs` path while content methods stay 403; staging Access default-deny. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; socket sids issued by design; no creds; RabbitMQ 401 untouched). Mitigating: all content methods closed, socket namespace auth JWT-gated and unverified, staging-originals unmounted. Drivers: next operator WAF content-method edit, slot-originals mount, RabbitMQ default-creds (AUTH_HELPED, highest potential).
+## 2026-09-06 21:45:28 UTC [target] (model bigpickle)
+[HYP] engine.io anonymous sid plane persists but namespace content stays JWT-gated
+class: AUTH
+asset: staging-alerts/chat.rainbet.com /socket.io/?EIO=4
+confidence: 85
+reasoning: alerts+chat return 200 len=116 fresh sids this round (chat sid DCmpRJtrBoi0K7doAAB6, pingInterval 25000, maxPayload 10240); raffles/socket absent (404 /400); cross-vhost sid reuse → 400 (independent per-hostname instances on 1ce4ff55); /health origin JSON plain on raffles, no cf-mitigated, no CF Access.
+evidence_needed: any socket.io namespace connect/event returning data without valid user JWT on a fresh sid.
+verify_steps: passive: cadence GET socket.io polling handshake per hostname; AUTH_HELPED: capture fresh sid, then POST connect packet to likely namespaces (/chat,/raffle,/notifications) with sid; read-only.
+impact: unauthenticated realtime read → cross-user chat/raffle data. HIGH if middleware weak.
+testability: AUTH_HELPED
+[HYP] staging pocket app (1ce4ff55) expands content mounts per-vhost without auth on next deploy
+class: MISCONFIG
+asset: staging-raffles.rainbet.com/app 1ce4ff55
+confidence: 70
+reasoning: /health mounts only on raffles vhost (others 404 1083–1089B — distinct per-vhost apps); /docs WAF-blocked (403 5483B), all other API/doc paths 404; real origin JSON unprotected; app serves 4+ hostnames, staging-originals was 504/unmounted (a prior mount).
+evidence_needed: a newly-mounted content-bearing vhost route (health/API/socket) serving real data without CF Access/challenge.
+verify_steps: cadence GET /health + /socket.io?EIO=4&transport=polling across the 4 known hostnames; watch for new hostnames resolving to 1ce4ff55 origin (x-do-app-origin header confirms).
+impact: full staging env recon on a money-adjacent pocket framework; HIGH only if secrets contract surfaces.
+testability: PASSIVE
+[HYP] api OPTIONS exemption widens to content methods on an operator WAF edit
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197-6fd5-4e93-8a3b-b8177a4bd079)
+confidence: 58
+reasoning: OPTIONS 200 + Allow + x-do-orig-status + app UUID on every non-`/` non-`/docs` path; content methods GET/HEAD/POST still 403 (WAF block / 110KB challenge); operator demonstrably re-edits WAF rules across rounds.
+evidence_needed: any content method returning origin 2xx/4xx/5xx on a public path.
+verify_steps: cadence OPTIONS /openapi.json + /api/v2/ + GET /api/v1/public/ping each round; capture x-do-app-origin/status; passive.
+impact: grounded prod money-API contract/openapi disclosure → IDOR/BOLA mapping. HIGH if content opens; latent.
+testability: PASSIVE
+[NEXT] PROBE: GET https://staging-raffles.rainbet.com/health + GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling + OPTIONS https://api.rainbet.com/openapi.json + GET https://api.rainbet.com/api/v1/public/ping — read-only GET/OPTIONS only, ~1s spacing, cadence.
+[RISK] RainBet: 62 — Down from 69 (RabbitMQ default-creds driver removed: broker ports closed, guest/guest 401). Staging engine.io plane persists but vhost-isolated, /health remains benign JSON, no content-bearing unprotected route; api OPTIONS pass-through latent-only with content methods WAF-closed and /docs explicitly blocked everywhere; Access default-deny on staging. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; sids issued by design; single 401 guest probe; refused-mgmt ports). Drivers: new content-bearing vhost mount on 1ce4ff55 or any WAF content-method edit on 53f39197.

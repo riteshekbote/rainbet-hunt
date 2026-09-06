@@ -228,3 +228,13 @@ www.rainbet.com
 - CHANGED staging-cdn.rainbet.com/ → HTTP 404 (no R2 bucket listing at root)
 - CHANGED files.rainbet.com/robots.txt → HTTP 403 cf-mitigated: challenge (110KB)
 - CHANGED media.rainbet.com/robots.txt → HTTP 403 cf-mitigated: challenge (110KB)
+
+## 2026-09-06 21:45:36 UTC
+- NEW staging-chat.rainbet.com engine.io v4 handshake REAPPEARED (HTTP 200, 116B, anonymous sid) after 400 in prior round — socket plane persists on DO app 1ce4ff55
+- CHANGED staging-raffles.rainbet.com /health CONFIRMED real origin JSON (75B) with x-do-orig-status:200, x-do-app-origin:1ce4ff55, no cf-mitigated, no CF Access
+- CHANGED staging-alerts.rainbet.com engine.io v4 handshake PERSISTS (HTTP 200, 116B, fresh anonymous sid per request)
+- CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE on /api/v2/, /graphql, /swagger, /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197) — different DO app vs staging 
+- CHANGED staging.rainbet.com Access gap CLOSED (302 to CF Access, kid=a89d8b80) — intermittent drift continues but currently enforced
+- CHANGED files.rainbet.com, media.rainbet.com — both return CF managed challenge (403, 110KB HTML) — no unchallenged surface
+- CHANGED staging-cdn.rainbet.com returns 404 (no R2 bucket listing at root)
+- CHANGED staging-raffles.rainbet.com /api/v1/health and /api/v1/public/config return 404 with x-do-orig-status:404 (real origin responses)
