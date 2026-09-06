@@ -97,3 +97,6 @@
 - 2026-09-06 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (200 + Allow + x-do-orig-status on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense, /api/v1/); `/docs` + `/` excluded → rule scope "everything but `/` and `/docs`" holds.
 - 2026-09-06 REJECTED MISCONFIG @ api.rainbet.com: single OPTIONS /openapi.json 403 was transient rate-limit/bot-management burst (retry → 200); NOT a rule closure.
 - 2026-09-06 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (200 + Allow + x-do-orig-status on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense, /api/v1/); `/docs` + `/` excluded -> rule scope "everything but `/` and `/docs`" holds.
+- 2026-09-06 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (200 + Allow + x-do-orig-status on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense); `/docs` + `/` excluded -> rule scope "everything but `/` and `/docs`" holds; DIFFERENT DO app (53f39197) vs staging fleet (1ce4ff55).
+- 2026-09-06 ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io v4 REAPPEARED (200 len=116) after 400 — plane persists on same DO app.
+- 2026-09-06 ACCEPTED MISCONFIG @ staging-socket.rainbet.com: engine.io v4 handshake returns 400 (intermittent) but same DO app origin.
