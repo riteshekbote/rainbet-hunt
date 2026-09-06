@@ -217,3 +217,14 @@ www.rainbet.com
 - CHANGED staging-cdn.rainbet.com/ → HTTP 404 (no R2 bucket listing at root)
 - CHANGED files.rainbet.com/robots.txt → HTTP 403 cf-mitigated: challenge (110KB)
 - CHANGED media.rainbet.com/robots.txt → HTTP 403 cf-mitigated: challenge (110KB)
+
+## 2026-09-06 19:41:52 UTC
+- NEW staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling → HTTP 200 len=116 (was 400) — engine.io handshake issuing anonymous sids REAPPEARED
+- NEW staging-socket.rainbet.com/socket.io/?EIO=4&transport=polling → HTTP 400 (was unprobed) — engine.io handshake fails with 400
+- CHANGED staging-raffles.rainbet.com/health → HTTP 200 len=75 JSON `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}` CONFIRMED real origin, x-do-orig-status:200, no cf-mitigated, no
+- CHANGED api.rainbet.com OPTIONS /api/v2/ → HTTP 200 Allow: HEAD,GET,POST,OPTIONS x-do-orig-status:200 x-do-app-origin:53f39197-6fd5-4e93-8a3b-b8177a4bd079 (DIFFERENT DO app vs staging fleet 1ce4ff55)
+- CHANGED staging-raffles.rainbet.com/api/v1/health → HTTP 404 x-do-orig-status:404 (real origin response)
+- CHANGED staging-raffles.rainbet.com/api/v1/public/config → HTTP 404 x-do-orig-status:404 (real origin response)
+- CHANGED staging-cdn.rainbet.com/ → HTTP 404 (no R2 bucket listing at root)
+- CHANGED files.rainbet.com/robots.txt → HTTP 403 cf-mitigated: challenge (110KB)
+- CHANGED media.rainbet.com/robots.txt → HTTP 403 cf-mitigated: challenge (110KB)
