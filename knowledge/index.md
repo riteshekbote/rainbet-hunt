@@ -89,3 +89,10 @@
 - 2026-09-06 REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge (110KB HTML). No method-based WAF bypass.
 - 2026-09-06 ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
 - 2026-09-06 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+- 2026-09-06 ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 issuing fresh anonymous sids unprotected persists (app 1ce4ff55); plane stable across rounds.
+- 2026-09-06 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption confirmed stable (+ x-do-orig-status + app UUID); scope "everything but / and /docs" holds.
+- 2026-09-06 REJECTED MISCONFIG @ staging-chat.rainbet.com: engine.io handshake intermittent (200→400); single-host transient, not a plane closure.
+- 2026-09-06 REJECTED AUTH @ staging-originals.rainbet.com: still 504/unmounted; no content-bearing recovery of shared DO app 1ce4ff55 observed.
+- 2026-09-06 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
+- 2026-09-06 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (200 + Allow + x-do-orig-status on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense, /api/v1/); `/docs` + `/` excluded → rule scope "everything but `/` and `/docs`" holds.
+- 2026-09-06 REJECTED MISCONFIG @ api.rainbet.com: single OPTIONS /openapi.json 403 was transient rate-limit/bot-management burst (retry → 200); NOT a rule closure.
