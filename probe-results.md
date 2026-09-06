@@ -211,3 +211,9 @@ https://staging-socket.rainbet.com/socket.io/?EIO=4&transport=polling -> HTTP 40
 https://staging-raffles.rainbet.com/health -> 200 len=75
 https://api.rainbet.com/openapi.json -> HTTP 403
 https://api.rainbet.com/api/v1/public/ping -> HTTP 403
+
+## 2026-09-06 14:43:40 UTC
+https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling -> HTTP 400
+https://staging-raffles.rainbet.com/health -> 200 len=75
+https://api.rainbet.com/openapi.json -> HTTP 403
+https://api.rainbet.com/api/v1/public/ping -> HTTP 403

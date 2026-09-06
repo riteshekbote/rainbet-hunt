@@ -974,3 +974,44 @@ impact: event-bus injection → payment/withdrawal manipulation. CRITICAL if def
 [LEARN] REJECTED MISCONFIG @ staging-chat.rainbet.com: engine.io handshake intermittent (200→400); single-host transient, not a plane closure.
 [LEARN] REJECTED AUTH @ staging-originals.rainbet.com: still 504/unmounted; no content-bearing recovery of shared DO app 1ce4ff55 observed.
 [RISK] RainBet: **69** — Unchanged. 1ce4ff55 anonymous socket/health plane stable on 3+ hostnames; prod api OPTIONS pass-through confirms direct DO origin reachability (app UUID 53f39197) on every non-`/`,`/docs` path while content methods stay 403; staging Access default-deny. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; socket sids issued by design; no creds; RabbitMQ 401 untouched). Mitigating: all content methods closed, socket namespace auth JWT-gated and unverified, staging-originals unmounted. Drivers: next operator WAF content-method edit, slot-originals mount, RabbitMQ default-creds (AUTH_HELPED, highest potential).
+## 2026-09-06 14:24:43 UTC [target] (model bigpickle)
+[PRIO] staging-raffles.rainbet.com (app 1ce4ff55), 7.9, a=5 b=7 t=7 g=10 c=7 f=7 — real origin JSON + anonymous engine.io sid plane unprotected; contract partially 404; plane stable across rounds
+[PRIO] api.rainbet.com (DO app 53f39197), 8.0, a=6 b=9 t=9 g=7 c=9 f=7 — OPTIONS blanket pass-through bleeds DO origin app UUID + x-do-orig-status; content methods latent-open on next WAF edit
+[PRIO] rainbet-com-rabbitmq (159.203.34.207), 7.2, a=5 b=10 t=8 g=10 c=8 f=6 — mgmt 15671/15672 + AMQP 5672 internet-exposed without CF; guest/guest unverified on money event bus
+[HYP] Anonymous engine.io sid plane reaches JWT-gated namespaces on app 1ce4ff55
+class: AUTH
+asset: staging-alerts/chat/raffles.rainbet.com /socket.io/
+confidence: 85
+reasoning: 3 hostnames issue fresh anonymous sids with distinct engine.io profiles (chat/alerts pingInterval 25000, raffles 10000); no CF Access/challenge; upstream /health origin JSON plain with x-do-orig-status:200. staging-chat.rainbet.com intermittent (200→400) but alerts plane persists across all rounds.
+evidence_needed: authenticated namespace/event returning data without valid user JWT, or SID-scoped emission
+verify_steps: passive sid-freshness+upgrade cadence on staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling; namespace probing AUTH_HELPED beyond handshake
+impact: unauthenticated realtime read/emit → cross-user chat/raffle PII/session telemetry. HIGH if middleware weak.
+testability: AUTH_HELPED
+[HYP] api OPTIONS pass-through widens to content on operator WAF edit
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197-6fd5-4e93-8a3b-b8177a4bd079)
+confidence: 58
+reasoning: OPTIONS returns 200 + x-do-orig-status:200 + app UUID on every non-`/` non-`/docs` path; Allow HEAD,GET,POST,OPTIONS; GET/HEAD/POST content still 403 (5485B WAF block / 110KB challenge). Operator demonstrably re-edits WAF rules across rounds.
+evidence_needed: any content method returning origin 2xx/4xx/5xx on a public path
+verify_steps: cadence OPTIONS /openapi.json + /api/v2/graphql + GET /api/v1/public/ping each round; capture x-do-app-origin + status on first origin response; passive
+impact: grounded origin router/openapi contract disclosure on prod money API → IDOR/BOLA mapping. HIGH if content opens; latent.
+testability: PASSIVE
+[HYP] RabbitMQ default/weak credentials on direct DO origins
+class: MISCONFIG
+asset: rainbet-com-rabbitmq / 159.203.34.207 / 165.227.255.111 / 159.203.53.157
+confidence: 60
+reasoning: mgmt 15671/15672 + AMQP 5672 internet-exposed without CF; anonymous /api 401; guest/guest unverified on real-money event bus (payment/withdrawal events).
+evidence_needed: credentialed /api/overview under authorization
+verify_steps: AUTH_HELPED single Basic GET /api/overview per origin
+impact: event-bus injection → payment/withdrawal manipulation. CRITICAL if default creds.
+testability: AUTH_HELPED
+[PARKED] api OPTIONS method-widening: still latent; no status change this round; confidence holds but no new evidence — keep as cadence watch only.
+[FINAL] staging engine.io anonymous sid plane (PASSIVE, 85) — actionable without auth
+[FINAL] api OPTIONS pass-through method-widening (PASSIVE, 58) — cadence watch
+[FINAL] RabbitMQ default-creds (AUTH_HELPED, 60) — highest single-item potential, blocked passive
+[NEXT] PROBE: GET https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling + GET https://staging-raffles.rainbet.com/health + OPTIONS https://api.rainbet.com/openapi.json + GET https://api.rainbet.com/api/v1/public/ping — read-only GET/OPTIONS only, ~1s spacing.
+[LEARN] ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 issuing fresh anonymous sids unprotected persists (app 1ce4ff55); plane stable across rounds.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption confirmed stable (+ x-do-orig-status + app UUID); scope "everything but / and /docs" holds.
+[LEARN] REJECTED MISCONFIG @ staging-chat.rainbet.com: engine.io handshake intermittent (200→400); single-host transient, not a plane closure.
+[LEARN] REJECTED AUTH @ staging-originals.rainbet.com: still 504/unmounted; no content-bearing recovery of shared DO app 1ce4ff55 observed.
+[RISK] RainBet: **69** — Unchanged. 1ce4ff55 anonymous socket/health plane stable on 3+ hostnames; prod api OPTIONS pass-through confirms direct DO origin reachability (app UUID 53f39197) on every non-`/`,`/docs` path while content methods stay 403; staging Access default-deny. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; socket sids issued by design; no creds; RabbitMQ 401 untouched). Mitigating: all content methods closed, socket namespace auth JWT-gated and unverified, staging-originals unmounted. Drivers: next operator WAF content-method edit, slot-originals mount, RabbitMQ default-creds (AUTH_HELPED, highest potential).

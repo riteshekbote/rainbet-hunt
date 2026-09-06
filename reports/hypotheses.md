@@ -363,3 +363,11 @@
 - LEARN: REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
 - LEARN: REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+
+## RANKED HYPOTHESES 2026-09-06 14:43:36 UTC
+- [85] staging-alerts/chat/raffles.rainbet.com: Anonymous engine.io sid plane reaches JWT-gated namespaces on app 1ce4ff55 (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling + GET https://staging-raffles.rainbet.com/health + OPTIONS https://api.rainbet.
+- LEARN: ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 issuing fresh anonymous sids unprotected persists (app 1ce4ff55); plane stable across rounds.
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption confirmed stable (+ x-do-orig-status + app UUID); scope "everything but / and /docs" holds.
+- LEARN: REJECTED MISCONFIG @ staging-chat.rainbet.com: engine.io handshake intermittent (200→400); single-host transient, not a plane closure.
+- LEARN: REJECTED AUTH @ staging-originals.rainbet.com: still 504/unmounted; no content-bearing recovery of shared DO app 1ce4ff55 observed.

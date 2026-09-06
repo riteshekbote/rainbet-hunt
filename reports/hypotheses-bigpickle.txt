@@ -1,5 +1,5 @@
-## 2026-09-06 11:21:08 UTC [target] (model bigpickle)
-[PRIO] staging-raffles/alerts/socket.rainbet.com (app 1ce4ff55), 7.9, a=5 b=7 t=7 g=10 c=7 f=7 — real origin JSON + anonymous engine.io sid plane unprotected; contract partially 404; plane stable across rounds
+## 2026-09-06 14:24:43 UTC [target] (model bigpickle)
+[PRIO] staging-raffles.rainbet.com (app 1ce4ff55), 7.9, a=5 b=7 t=7 g=10 c=7 f=7 — real origin JSON + anonymous engine.io sid plane unprotected; contract partially 404; plane stable across rounds
 [PRIO] api.rainbet.com (DO app 53f39197), 8.0, a=6 b=9 t=9 g=7 c=9 f=7 — OPTIONS blanket pass-through bleeds DO origin app UUID + x-do-orig-status; content methods latent-open on next WAF edit
 [PRIO] rainbet-com-rabbitmq (159.203.34.207), 7.2, a=5 b=10 t=8 g=10 c=8 f=6 — mgmt 15671/15672 + AMQP 5672 internet-exposed without CF; guest/guest unverified on money event bus
 [HYP] Anonymous engine.io sid plane reaches JWT-gated namespaces on app 1ce4ff55
@@ -10,6 +10,7 @@ reasoning: 3 hostnames issue fresh anonymous sids with distinct engine.io profil
 evidence_needed: authenticated namespace/event returning data without valid user JWT, or SID-scoped emission
 verify_steps: passive sid-freshness+upgrade cadence on staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling; namespace probing AUTH_HELPED beyond handshake
 impact: unauthenticated realtime read/emit → cross-user chat/raffle PII/session telemetry. HIGH if middleware weak.
+testability: AUTH_HELPED
 [HYP] api OPTIONS pass-through widens to content on operator WAF edit
 class: MISCONFIG
 asset: api.rainbet.com (DO app 53f39197-6fd5-4e93-8a3b-b8177a4bd079)
@@ -18,6 +19,7 @@ reasoning: OPTIONS returns 200 + x-do-orig-status:200 + app UUID on every non-`/
 evidence_needed: any content method returning origin 2xx/4xx/5xx on a public path
 verify_steps: cadence OPTIONS /openapi.json + /api/v2/graphql + GET /api/v1/public/ping each round; capture x-do-app-origin + status on first origin response; passive
 impact: grounded origin router/openapi contract disclosure on prod money API → IDOR/BOLA mapping. HIGH if content opens; latent.
+testability: PASSIVE
 [HYP] RabbitMQ default/weak credentials on direct DO origins
 class: MISCONFIG
 asset: rainbet-com-rabbitmq / 159.203.34.207 / 165.227.255.111 / 159.203.53.157
@@ -26,6 +28,7 @@ reasoning: mgmt 15671/15672 + AMQP 5672 internet-exposed without CF; anonymous /
 evidence_needed: credentialed /api/overview under authorization
 verify_steps: AUTH_HELPED single Basic GET /api/overview per origin
 impact: event-bus injection → payment/withdrawal manipulation. CRITICAL if default creds.
+testability: AUTH_HELPED
 [PARKED] api OPTIONS method-widening: still latent; no status change this round; confidence holds but no new evidence — keep as cadence watch only.
 [FINAL] staging engine.io anonymous sid plane (PASSIVE, 85) — actionable without auth
 [FINAL] api OPTIONS pass-through method-widening (PASSIVE, 58) — cadence watch

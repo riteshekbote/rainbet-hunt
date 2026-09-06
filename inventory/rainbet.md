@@ -204,3 +204,5 @@ www.rainbet.com
 - CHANGED staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling → 200 len=116 PERSISTS (engine.io handshake issuing anonymous sids)
 - CHANGED staging-raffles.rainbet.com/health → 200 len=75 JSON `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}` CONFIRMED real origin, x-do-orig-status:200, no cf-mitigated, no CF A
 - CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE (200 + Allow + x-do-orig-status on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense); `/docs` + `/` excluded → rule scope "everything b
+
+## 2026-09-06 14:43:36 UTC
