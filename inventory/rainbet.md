@@ -238,3 +238,18 @@ www.rainbet.com
 - CHANGED files.rainbet.com, media.rainbet.com — both return CF managed challenge (403, 110KB HTML) — no unchallenged surface
 - CHANGED staging-cdn.rainbet.com returns 404 (no R2 bucket listing at root)
 - CHANGED staging-raffles.rainbet.com /api/v1/health and /api/v1/public/config return 404 with x-do-orig-status:404 (real origin responses)
+
+## 2026-09-06 23:40:28 UTC
+- CHANGED staging-alerts.rainbet.com/socket.io: 400 (21:45) → 200 len=116 sid=oh95TnJA56TZ66eXAEKG pingInterval=25000 maxPayload=20480 — plane REAPPEARED
+- CHANGED staging-chat.rainbet.com/socket.io: 400 (21:45) → 200 len=116 sid=qYWJN8MrQlI7JVuSAAB8 pingInterval=25000 maxPayload=10240 — plane REAPPEARED
+- CHANGED staging-originals.rainbet.com/health: 504 (all prior) → 404 len=2 — origin decommissioned or route unmounted
+- CHANGED staging-cdn.rainbet.com: 404 len=28088 at root, 404 len=27150 at robots.txt — R2 bucket still returns "Object not found" page but now uniformly 404
+- NEW staging-chat.rainbet.com engine.io v4 handshake REAPPEARED (HTTP 200, 116B, anonymous sid) after 400 in prior round — socket plane persists on DO app 1ce4ff55
+- NEW staging-socket.rainbet.com/socket.io/?EIO=4&transport=polling → HTTP 400 (was unprobed) — engine.io handshake fails with 400
+- CHANGED staging.rainbet.com Access gap CLOSED (302 to CF Access, kid=a89d8b80) — intermittent drift continues but currently enforced
+- CHANGED files.rainbet.com, media.rainbet.com — both return CF managed challenge (403, 110KB HTML) — no unchallenged surface
+- CHANGED staging-cdn.rainbet.com returns 404 (no R2 bucket listing at root)
+- CHANGED staging-raffles.rainbet.com /api/v1/health and /api/v1/public/config return 404 with x-do-orig-status:404 (real origin responses)
+- CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE on /api/v2/, /graphql, /swagger, /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197) — different DO app vs staging 
+- CHANGED staging-raffles.rainbet.com /health CONFIRMED real origin JSON (75B) with x-do-orig-status:200, x-do-app-origin:1ce4ff55, no cf-mitigated, no CF Access
+- CHANGED staging-alerts.rainbet.com engine.io v4 handshake PERSISTS (HTTP 200, 116B, fresh anonymous sid per request)
