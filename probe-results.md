@@ -287,3 +287,10 @@ https://staging-raffles.rainbet.com/api/v1/health -> HTTP 404
 https://staging-services.rainbet.com/api/health -> HTTP 404
 https://staging-services.rainbet.com/metrics -> HTTP 404
 https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling&sid=FEmR9Lfoi__QAg1PAACi -> HTTP 400
+
+## 2026-09-07 23:48:39 UTC
+https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 len=116
+https://staging-raffles.rainbet.com/api/v1/public/config -> HTTP 404
+https://staging-raffles.rainbet.com/api/v1/health -> HTTP 404
+https://staging-services.rainbet.com/api/health -> HTTP 404
+https://staging-services.rainbet.com/metrics -> HTTP 404

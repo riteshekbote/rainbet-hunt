@@ -10058,3 +10058,30 @@ testability: PASSIVE
 
 ### STEP 7 — RISK
 [RISK] RainBet: 74 (was 72) — first CONFIRMED exploitable-pattern misconfig beyond the socket plane: staging-services reflects attacker Origin with allow-credentials on an origin-reachable, non-Access backend (app 1ce4ff55) touching the money-adjacent services stack; exploitable the moment any authenticated/IDOR-able route mounts. Socket plane persists (fresh sid). No customer/employee/financial/auth data accessed — all read-only, no namespace join performed; sids are server-issued by design. Drivers: any data route mounting on staging-services; namespace join on the live socket plane; WAF edit on api 53f39197.
+===== ANALYST bigpickle 2026-09-07 23:48:34 UTC =====
+[0m
+> build · big-pickle
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mrm -f /tmp/rb_hdr.txt /tmp/rb_out.bin
+UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
+run() {
+  name="$1"; url="$2"; shift 2
+  echo "=== $name ==="
+  curl -sk -A "$UA" "$@" -o /tmp/rb_out.bin -D /tmp/rb_hdr.txt "$url"
+  head -1 /tmp/rb_hdr.txt
+  grep -iE '^(cf-mitigated|access-control-allow|content-length|content-type|set-cookie|location|allow|x-do-)' /tmp/rb_hdr.txt | sed 's/^/  /'
+  printf '  body=%s bytes\n' "$(wc -c < /tmp/rb_out.bin)"
+  sleep 2
+}
+run "alerts socket.io" 'https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling'
+run "services OPTIONS /api/v1 evil-origin" 'https://staging-services.rainbet.com/api/v1' -X OPTIONS -H "Origin: https://attacker.example" -H "Access-Control-Request-Method: GET"
+run "services GET /health evil-origin" 'https://staging-services.rainbet.com/health' -H "Origin: https://attacker.example"
+run "services GET /metrics evil-origin" 'https://staging-services.rainbet.com/metrics' -H "Origin: https://attacker.example"
+run "services GET /docs" 'https://staging-services.rainbet.com/docs'
+run "api OPTIONS /openapi.json" 'https://api.rainbet.com/openapi.json' -X OPTIONS
+run "api GET /api/v1/public/ping" 'https://api.rainbet.com/api/v1/public/ping'
+run "raffles GET /health" 'https://staging-raffles.rainbet.com/health'
+run "monorepo GET /docs" 'https://staging-monorepo.rainbet.com/docs'
+echo "DONE" failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

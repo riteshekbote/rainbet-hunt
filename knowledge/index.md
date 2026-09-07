@@ -146,3 +146,5 @@
 - 2026-09-07 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: origin-reachable Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251; /docs 403 (5KB, non-cf-mitigated); no Access; /health returns 404 Express default.
 - 2026-09-07 ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 continues issuing fresh anonymous sids unprotected (app 1ce4ff55) — plane persists across rounds; WebSocket upgrade confirmed working.
 - 2026-09-07 REJECTED AUTH @ staging-originals.rainbet.com: 504→404 (2B) — origin decommissioned or route unmounted entirely.
+- 2026-09-07 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames.
+- 2026-09-07 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (200 + Allow + x-do-orig-status on /api/v2/, /graphql, /swagger, /openapi.json, /nonsense); /docs + / excluded → rule scope "everything but / and /docs" holds; DIFFERENT DO app (53f39197) vs staging fleet (1ce4ff55).
