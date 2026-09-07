@@ -1,56 +1,37 @@
-## 2026-09-07 06:18:29 UTC [target] (model bigpickle)
-[HYP] Staging pocket app origin leak enables full contract mapping on next WAF/route edit
-class: MISCONFIG
-asset: staging-raffles.rainbet.com/health (DO app 1ce4ff55)
-confidence: 72
-reasoning: /health returns real origin JSON {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"} with CSP headers (Helmet defaults), x-do-orig-status:200, no CF Access/challenge. App serves 4+ staging hostnames; /docs WAF-blocked (403), all API paths 404. Version v0.00.0002-rc1 confirms pre-release staging. staging-originals now 404 (unmounted), confirming hostnames mount/unmount per deploy on shared DO app.
-evidence_needed: any newly-mounted route on any of the 4 hostnames returning real content (not 404/400/403)
-verify_steps: cadence GET /health across raffles/alerts/chat/socket; watch for /docs, /api/v1/*, /swagger, /openapi.json returning 200 on any hostname; capture x-do-app-origin to confirm shared DO app
-impact: staging API contract exposure on money-adjacent app → IDOR/BOLA route mapping → target prod endpoints. HIGH if contract surfaces.
-testability: PASSIVE
+## 2026-09-07 12:47:41 UTC [target] (model bigpickle)
+[PRIO]
+[HYP] engine.io anonymous sid plane enables namespace-intended socket abuse via AUTH_HELPED probe on staging-alerts
+class: AUTH
+asset: staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling
+confidence: 80
+reasoning: Anonymous sids persist across 8+ probe rounds (200, 116B, fresh sid, maxPayload=20480); no CF Access/challenge; app 1ce4ff55 shared across 6 hostnames. engine.io v4 allows namespace connect after handshake; if any namespace exposes data (chat, raffle, notifications), sid holder reads real-time staging data without auth.
+evidence_needed: POST to socket.io endpoint with sid + namespace join packet returning 200 + namespace-specific payload
+verify_steps: AUTH_HELPED: POST https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling -d '42["namespace","/chat"]' with latest sid; parse for data; repeat /raffle,/notifications
+impact: Real-time staging data (chat, raffle, notifications) exfiltration; SESSION_HIJACK if session bound to sid; HIGH if any namespace carries user data
+testability: AUTH_HELPED
 [HYP] api OPTIONS blanket exemption widens to content on operator WAF edit
 class: MISCONFIG
-asset: api.rainbet.com (DO app 53f39197-6fd5-4e93-8a3b-b8177a4bd079)
-confidence: 55
-reasoning: OPTIONS 200 + Allow + x-do-orig-status + app UUID on every non-/ non-/docs path (confirmed /openapi.json and /api/v2/ this round); content methods GET/HEAD/POST still 403 (WAF block / 110KB challenge); operator demonstrably re-edits WAF rules across rounds.
-evidence_needed: any content method returning origin 2xx/4xx/5xx on a public path
-verify_steps: cadence OPTIONS /openapi.json + /api/v2/graphql + GET /api/v1/public/ping; capture x-do-app-origin/status; passive
-impact: grounded prod money-API contract/openapi disclosure → IDOR/BOLA mapping. HIGH if content opens; latent.
+asset: api.rainbet.com
+confidence: 62
+reasoning: OPTIONS 200 + Allow + x-do-orig-status on every non-/ non-/docs path (6+ paths confirmed this round); GET/HEAD/POST remain 403 (110KB cf-mitigated); operator demonstrably re-edits WAF rules across rounds; DO app 53f39197 identified via headers. If operator adds GET exemption or removes challenge rule, OpenAPI spec + full API contract exposed.
+evidence_needed: any content method (GET/HEAD/POST) returning origin 2xx/4xx/5xx on a public path
+verify_steps: cadence OPTIONS /openapi.json, /api/v2/graphql, GET /api/v1/public/ping; capture x-do-app-origin/status; passive
+impact: Prod API contract/openapi disclosure → IDOR/BOLA route mapping → customer/financial data access; HIGH if content opens; latent
 testability: PASSIVE
-[PARKED] api OPTIONS method-widening (55): confidence below 60 and entirely latent — no content-method bypass observed across 7+ rounds; lowest priority.
-[FINAL] engine.io anonymous sid plane (84): highest value, requires AUTH_HELPED namespace probe; persistent across rounds.
-[FINAL] staging pocket app origin leak (72): stable, /health consistently returns real origin JSON; PASSIVE cadence watch only.
-[FINAL] api OPTIONS method-widening (55): latent; cadence watch only; lowest priority.
-[NEXT] AUTH_HELPED: POST https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling with sid from latest handshake (oh95TnJA56TZ66eXAEKG) — attempt namespace connect to /chat,/raffle,/notifications; read-only; ~1s spacing.
-[LEARN] ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 REAPPEARED (200 len=116 sid=oh95TnJA56TZ66eXAEKG maxPayload=20480) after 400 at 21:45 — plane persists on same DO app.
-[LEARN] ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io v4 REAPPEARED (200 len=116 sid=qYWJN8MrQlI7JVuSAAB8 maxPayload=10240) after 400 at 21:45 — plane persists on same DO app.
-[LEARN] REJECTED AUTH @ staging-originals.rainbet.com: 504→404 (2B) — origin decommissioned or route unmounted entirely; no content-bearing recovery of shared DO app 1ce4ff55 observed.
-[LEARN] ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: R2 bucket uniformly 404 on root and robots.txt (28KB/27KB "Object not found" pages); no listing.
-[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: real origin JSON confirmed stable (200 len=75); CSP headers (Helmet) + HSTS + x-frame-options: DENY; no CF Access/challenge.
-[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (+ x-do-orig-status:200 + x-do-app-origin:53f39197 on /openapi.json, /api/v2/); scope "everything but / and /docs" holds.
-[LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403 (110KB cf-mitigated); no content-method bypass.
-[RISK] RainBet: 64 — Unchanged from 62. Staging engine.io plane persists (200↔400 intermittent) on alerts+chat; /health remains benign JSON on raffles; no content-bearing unprotected route discovered; api OPTIONS pass-through latent-only with content methods WAF-closed. staging-originals decommissioned (404), staging-cdn R2 bucket 404-only. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; sids issued by design). Drivers: AUTH_HELPED namespace probe on engine.io plane; next content-bearing vhost mount on 1ce4ff55 or WAF content-method edit on 53f39197.
-[HYP] staging namespace CF Access gap is SYSTEMIC across TWO unprotected DO apps (1ce4ff55 + NEW bc240b8a), 6+ hostnames origin-reachable
+[HYP] staging pocket app origin leak enables contract mapping on next route mount
 class: MISCONFIG
-asset: staging-services / staging-monorepo (NEW mounts this round)
-confidence: 80
-reasoning: round probes showed staging-services (x-do-app-origin 1ce4ff55, NestJS {"error":"er_resource_not_found"}) and staging-monorepo (x-do-app-origin bc240b8a-ba24-4b78-834b-423990390251, Express {"message":"Cannot GET ..."}) return real origin responses on every route EXCEPT /docs; /docs on staging-services -> 302 CF Access login (kid 31d4206e, CF_AppSession). path-partial policy: only /docs protected, app surface unprotected. Second DO app UUID bc240b8a is NEW (not in knowledge base).
-evidence_needed: any content-bearing route (200/JSON/data) on services or monorepo, or protected-resource polymorphism on a third host.
-impact: broader staging fleet exposure than scoped; money-adjacent services app + api monorepo reachable; HIGH if any data route surfaces.
+asset: staging-raffles.rainbet.com/health
+confidence: 72
+reasoning: /health returns real origin JSON {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"} with x-do-orig-status:200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 6 hostnames; /docs WAF-blocked (403), all /api/v1/* return 404; staging-originals now 404 confirms hostnames mount/unmount per deploy; next content-bearing mount exposes contract.
+evidence_needed: any newly-mounted route on any of the 6 hostnames returning real content (not 404/403)
+verify_steps: cadence GET /health, /api/v1, /docs, /swagger across raffles/alerts/chat/socket/services/monorepo; capture x-do-app-origin
+impact: Staging API contract exposure on money-adjacent app → IDOR/BOLA route mapping → target prod endpoints; HIGH if contract surfaces
 testability: PASSIVE
-[HYP] engine.io sid plane reaches JWT-gated namespaces on 1ce4ff55 (unchanged, cov 84) — needs AUTH_HELPED
-[PARKED] api OPTIONS widening (55) latent; [FINAL] staging Access gap (80) now strongest; [FINAL] engine.io namespace (84) still unresolved, never AUTH_HELPED.
-[NEXT] PROBE: stage common Nest routes /api/v1,/v2,/internal over staging-services + staging-monorepo; verify /docs 302 stable vs others 404.
-[NEXT] AUTH_HELPED: POST socket.io namespace connect on staging-alerts fresh sid -> /chat,/raffle,/notifications.
-[RISK] RainBet: 68 (raised from 64) — Access-gap fleet expanded to two DO apps; no data route surfaced yet.
-[HYP] staging namespace CF Access gap is systemic across BOTH DO apps (1ce4ff55 + new bc240b8a)
-[HYP] engine.io anon-sid plane reaches JWT-gated namespaces on app 1ce4ff55
-[HYP] api OPTIONS blanket exemption widens to content on WAF edit
-[NEXT] PROBE (PASSIVE, read-only): stage high-probability Nest/Express route names on staging-services + staging-monorepo (e.g. /api/v1, /v2, /internal, /swagger, /healthz, /actuator, /redis...) to catch a mounted data route; re-confirm services /docs 302 and monorepo /docs 403 stability.
-[NEXT] AUTH_HELPED: POST engine.io namespace connect on staging-alerts with fresh anonymous sid -> /chat, /raffle, /notifications (read-only) to finally test hypothesis 2.
-[NEXT] SEC/CT: extend subdomain monitoring to app bc240b8a's hostnames for future mounts.
-[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: origin-reachable NestJS app on app 1ce4ff55; /docs protected by Access (302, kid 31d4206e) while /health,/api/*,/metrics,/socket.io unprotected — path-partial Access.
-[LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: origin-reachable Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251; /docs 403 (5KB, non-cf-mitigated).
-[LEARN] ACCEPTED SCOPE-EXPANSION: staging Access gap spans 6 hostnames on app 1ce4ff55 (raffles/chat/alerts/socket/socket-services/originals-history) + app bc240b8a — previously scoped to 4 hostnames/one app.
-[LEARN] REJECTED @ maintenance/clever/staging-slot-integrations: non-content (301/404/no-resolve).
-[RISK] RainBet: 68 (up from 64). Raised on breadth of Access-gap (2nd DO app + 2 hostname mounts) and path-partial policy; not raised further because exposed surface is still 404/health-shell with zero data routes. Drivers: any content-bearing mount on bc240b8a or 1ce4ff55; the AUTH_HELPED namespace test on the live engine.io plane.
+[NEXT] AUTH_HELPED: POST https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling with sid=oh95TnJA56TZ66eXAEKG (latest captured) — send engine.io connect to /chat, /raffle, /notifications namespaces; parse responses; read-only; ~1s spacing; stop if any non-empty namespace payload returned
+[LEARN] ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists across 8+ rounds (200, 116B, fresh sid, maxPayload=20480) on app 1ce4ff55; unauthenticated socket plane confirmed stable
+[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: NestJS app on app 1ce4ff55 origin-reachable; path-partial Access (/docs 302, all else unprotected)
+[LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251 origin-reachable; /docs 403 non-cf-mitigated; no Access
+[LEARN] REJECTED AUTH @ staging-originals.rainbet.com: 504→404 — origin decommissioned or route unmounted
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption STABLE; scope "everything but / and /docs"; content methods WAF-closed
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403; no content-method bypass observed across 8+ rounds
+[RISK] RainBet: 72 (raised from 68) — staging Access gap now systemic across TWO DO apps (1ce4ff55 + bc240b8a), 6+ hostnames origin-reachable; engine.io plane persists; no customer/employee/financial/auth data accessed (read-only; sids issued by design). Drivers: AUTH_HELPED namespace test on live engine.io plane; any content-bearing mount on either DO app; WAF rule edit on api 53f39197.

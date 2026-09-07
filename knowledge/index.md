@@ -131,3 +131,9 @@
 - 2026-09-07 REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge (110KB HTML). No method-based WAF bypass.
 - 2026-09-07 ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
 - 2026-09-07 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+- 2026-09-07 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists across 8+ rounds (200, 116B, fresh sid, maxPayload=20480) on app 1ce4ff55; unauthenticated socket plane confirmed stable
+- 2026-09-07 ACCEPTED MISCONFIG @ staging-services.rainbet.com: NestJS app on app 1ce4ff55 origin-reachable; path-partial Access (/docs 302, all else unprotected)
+- 2026-09-07 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251 origin-reachable; /docs 403 non-cf-mitigated; no Access
+- 2026-09-07 REJECTED AUTH @ staging-originals.rainbet.com: 504→404 — origin decommissioned or route unmounted
+- 2026-09-07 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption STABLE; scope "everything but / and /docs"; content methods WAF-closed
+- 2026-09-07 REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403; no content-method bypass observed across 8+ rounds

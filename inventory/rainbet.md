@@ -266,3 +266,15 @@ www.rainbet.com
 - CHANGED staging-cdn.rainbet.com — R2 bucket uniformly 404 on root and robots.txt (28KB/27KB "Object not found" pages); no listing
 - CHANGED staging-originals.rainbet.com — 504→404 (2B) — origin decommissioned or route unmounted entirely
 - NEW No new live hosts discovered since 2026-09-04 (files.rainbet.com, media.rainbet.com)
+
+## 2026-09-07 12:49:56 UTC
+- NEW staging-services.rainbet.com: origin-reachable NestJS app on app 1ce4ff55; /docs protected by Access (302, kid 31d4206e) while /health,/api/*,/metrics,/socket.io unprotected — path-partial Access
+- NEW staging-monorepo.rainbet.com: origin-reachable Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251; /docs 403 (5KB, non-cf-mitigated)
+- CHANGED staging-alerts.rainbet.com engine.io v4 handshake PERSISTS (200 len=116, fresh anonymous sid) — plane stable on DO app 1ce4ff55
+- CHANGED staging-chat.rainbet.com engine.io v4 REAPPEARED (200 len=116) after 400 — plane persists on same DO app 1ce4ff55
+- CHANGED staging-raffles.rainbet.com /health CONFIRMED STABLE real origin JSON (75B, x-do-orig-status:200, x-do-app-origin:1ce4ff55, no cf-mitigated, no CF Access)
+- CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE on /api/v2/, /graphql, /swagger, /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197) — DIFFERENT DO app vs staging 
+- CHANGED staging.rainbet.com Access gap CLOSED (302 to CF Access, kid=a89d8b80) — intermittent drift continues but currently enforced
+- CHANGED staging-cdn.rainbet.com — R2 bucket uniformly 404 on root and robots.txt (28KB/27KB "Object not found" pages); no listing
+- CHANGED staging-originals.rainbet.com — 504→404 (2B) — origin decommissioned or route unmounted entirely
+- CHANGED SCOPE-EXPANSION: staging Access gap spans 6 hostnames on app 1ce4ff55 (raffles/chat/alerts/socket/socket-services/originals-history) + app bc240b8a — previously scoped to 4 hostnames/one app
