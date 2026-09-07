@@ -138,3 +138,11 @@
 - 2026-09-07 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption STABLE; scope "everything but / and /docs"; content methods WAF-closed
 - 2026-09-07 REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403; no content-method bypass observed across 8+ rounds
 - 2026-09-07 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: origin-reachable Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251; /docs 403 (5KB, non-cf-mitigated); no Access.
+- 2026-09-07 ACCEPTED MISCONFIG @ staging-services.rainbet.com: reflects arbitrary Origin in ACAO + sets allow-credentials:true on every response (GET /health,/metrics,/api/v1 and OPTIONS preflight, all 404) on app 1ce4ff55 — per-hostname CORS misconfig, not fleet-wide (raffles/monorepo don't reflect); impact latent until a data/authenticated route mounts.
+- 2026-09-07 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists across 9+ rounds (200, 116B, fresh sid, maxPayload=20480) — plane stable.
+- 2026-09-07 REJECTED MISCONFIG @ staging-monorepo.rainbet.com: /openapi.json, /api-docs, / all 404 Express (app bc240b8a); no contract exposure; CORS middleware sets allow-credentials but never reflects ACAO.
+- 2026-09-07 REJECTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption stable (200+Allow+x-do-orig-status on /openapi.json); GET /api/v1/public/ping still 403 cf-mitigated — no content-method bypass across 9+ rounds.
+- 2026-09-07 ACCEPTED MISCONFIG @ staging-services.rainbet.com: origin-reachable NestJS app on app 1ce4ff55; /docs protected by Access (302, kid 31d4206e) while /health,/api/*,/metrics,/socket.io return 404/403 — path-partial Access narrower than prior lead.
+- 2026-09-07 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: origin-reachable Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251; /docs 403 (5KB, non-cf-mitigated); no Access; /health returns 404 Express default.
+- 2026-09-07 ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 continues issuing fresh anonymous sids unprotected (app 1ce4ff55) — plane persists across rounds; WebSocket upgrade confirmed working.
+- 2026-09-07 REJECTED AUTH @ staging-originals.rainbet.com: 504→404 (2B) — origin decommissioned or route unmounted entirely.

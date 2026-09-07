@@ -548,3 +548,29 @@
 - LEARN: REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
 - LEARN: REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+
+## RANKED HYPOTHESES 2026-09-07 21:40:13 UTC
+- [95] staging-alerts.rainbet.com: Engine.io v4 anonymous sid enables socket plane session hijack and event abuse (from art/lead_nemotron3.txt)
+- [82] staging-services.rainbet.com/*: staging-services reflected-Origin credentialed CORS primes ATO/CORS-read once a data route mounts (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling&sid=FEmR9Lfoi__QAg1PAACi with body 40/chat then 42["0","/chat"]; if ack/200+pa
+- NEXT(hypotheses-nemotron3.txt): PROBE: WebSocket upgrade to wss://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=websocket with sid captured from GET https://staging-alerts.rainbet.com/
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: reflects arbitrary Origin in ACAO + sets allow-credentials:true on every response (GET /health,/metrics,/api/
+- LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists across 9+ rounds (200, 116B, fresh sid, maxPayload=20480) — plane stabl
+- LEARN: REJECTED MISCONFIG @ staging-monorepo.rainbet.com: /openapi.json, /api-docs, / all 404 Express (app bc240b8a); no contract exposure; CORS middleware sets allow-
+- LEARN: REJECTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption stable (200+Allow+x-do-orig-status on /openapi.json); GET /api/v1/public/ping still 403 cf-mitig
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: origin-reachable NestJS app on app 1ce4ff55; /docs protected by Access (302, kid 31d4206e) while /health,/api
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: origin-reachable Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251; /docs 403 (5KB, non-cf-mitigate
+- LEARN: ACCEPTED SCOPE-EXPANSION: staging Access gap spans 6 hostnames on app 1ce4ff55 (raffles/chat/alerts/socket/socket-services/originals-history) + app bc240b8a — p
+- LEARN: ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-
+- LEARN: ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 continues issuing fresh anonymous sids unprotected (app 1ce4ff55) — plane persists across rounds; 
+- LEARN: ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io v4 REAPPEARED (200 len=116) after 400 — plane persists on same DO app.
+- LEARN: ACCEPTED MISCONFIG @ staging-socket.rainbet.com: engine.io v4 handshake returns 400 (intermittent) but same DO app origin.
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (200 + Allow + x-do-orig-status on /api/v2/, /graphql, /swagger, /openapi.json,
+- LEARN: REJECTED MISCONFIG @ api.rainbet.com: single OPTIONS /openapi.json 403 was a transient rate-limit/bot-management burst (retry → 200); NOT a rule closure.
+- LEARN: ACCEPTED AUTH @ staging.rainbet.com: drift CLOSED (302) this round; enforcement remains intermittent-to-default-deny.
+- LEARN: REJECTED AUTH @ staging-originals.rainbet.com: 504→404 (2B) — origin decommissioned or route unmounted entirely.
+- LEARN: REJECTED MISCONFIG @ staging-blog.rainbet.com: 530/1016 is a CF origin-DNS error, not a takeoverable dangling host.
+- LEARN: ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: R2 bucket uniformly 404 on root and robots.txt (28KB/27KB "Object not found" pages); no listing.
+- LEARN: REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
+- LEARN: REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.

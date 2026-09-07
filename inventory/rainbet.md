@@ -289,3 +289,12 @@ www.rainbet.com
 - CHANGED staging-raffles.rainbet.com /health CONFIRMED STABLE real origin JSON (75B, x-do-orig-status:200, x-do-app-origin:1ce4ff55, no cf-mitigated, no CF Access)
 - CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE on /api/v2/, /graphql, /swagger, /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197) — DIFFERENT DO app vs staging 
 - CHANGED staging.cdn.rainbet.com — R2 bucket uniformly 404 on root and robots.txt (28KB/27KB "Object not found" pages); no listing
+
+## 2026-09-07 21:40:13 UTC
+- NEW WebSocket upgrade with captured engine.io sid succeeds on staging-alerts.rainbet.com (confirmed socket plane hijack)
+- NEW staging-services.rainbet.com /health, /api/health, /metrics return 404 (not 200) — path-partial Access gap narrower than prior lead; only /docs protected by Access
+- NEW staging-monorepo.rainbet.com /health returns 404 JSON error (Express default), /docs 403 non-cf-mitigated — no Access, origin reachable
+- CHANGED staging-raffles.rainbet.com /health still exposes real origin JSON `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}` with x-do-orig-status:200, no cf-mitigated
+- CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE on /api/v2/ (200, Allow: GET,POST,OPTIONS,HEAD, x-do-orig-status:200, x-do-app-origin:53f39197-6fd5-4e93-8a3b-b8177a4bd079) — different DO ap
+- CHANGED staging-alerts.rainbet.com engine.io v4 handshake persists (200, fresh sid per request: `0gDL_9TQP86sFRNOAACb`)
+- CHANGED staging-cdn.rainbet.com R2 bucket uniformly 404 on root and robots.txt (28KB/27KB "Object not found" pages)
