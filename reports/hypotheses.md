@@ -458,3 +458,14 @@
 - LEARN: REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
 - LEARN: REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+
+## RANKED HYPOTHESES 2026-09-07 01:21:46 UTC
+- [84] staging-alerts.rainbet.com: engine.io anonymous sid plane reaches JWT-gated namespaces on app 1ce4ff55 (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): AUTH_HELPED: POST https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling with sid from latest handshake (oh95TnJA56TZ66eXAEKG) — attempt namespac
+- LEARN: ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 REAPPEARED (200 len=116 sid=oh95TnJA56TZ66eXAEKG maxPayload=20480) after 400 at 21:45 — plane pers
+- LEARN: ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io v4 REAPPEARED (200 len=116 sid=qYWJN8MrQlI7JVuSAAB8 maxPayload=10240) after 400 at 21:45 — plane persis
+- LEARN: REJECTED AUTH @ staging-originals.rainbet.com: 504→404 (2B) — origin decommissioned or route unmounted entirely; no content-bearing recovery of shared DO app 1c
+- LEARN: ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: R2 bucket uniformly 404 on root and robots.txt (28KB/27KB "Object not found" pages); no listing.
+- LEARN: ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: real origin JSON confirmed stable (200 len=75); CSP headers (Helmet) + HSTS + x-frame-options: DENY; no CF Acc
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (+ x-do-orig-status:200 + x-do-app-origin:53f39197 on /openapi.json, /api/v2/);
+- LEARN: REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403 (110KB cf-mitigated); no content-method bypass.

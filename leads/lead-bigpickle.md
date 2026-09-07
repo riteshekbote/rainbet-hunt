@@ -1138,3 +1138,49 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (+ x-do-orig-status:200 + x-do-app-origin:53f39197 on /openapi.json, /api/v2/); scope "everything but / and /docs" holds.
 [LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403 (110KB cf-mitigated); no content-method bypass.
 [RISK] RainBet: 64 — Unchanged from 62. Staging engine.io plane persists (200↔400 intermittent) on alerts+chat; /health remains benign JSON on raffles; no content-bearing unprotected route discovered; api OPTIONS pass-through latent-only with content methods WAF-closed. staging-originals decommissioned (404), staging-cdn R2 bucket 404-only. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; sids issued by design). Drivers: next content-bearing vhost mount on 1ce4ff55 or WAF content-method edit on 53f39197; AUTH_HELPED namespace probe on engine.io plane.
+## 2026-09-07 01:19:26 UTC [target] (model bigpickle)
+[PRIO] staging-alerts.rainbet.com,8.2, attack=8 business=6 tech=7 gate=9 cloud=7 fresh=10
+[PRIO] staging-raffles.rainbet.com,8.0, attack=8 business=7 tech=8 gate=9 cloud=7 fresh=10
+[PRIO] api.rainbet.com,6.6, attack=6 business=8 tech=6 gate=3 cloud=7 fresh=10
+[PRIO] staging-chat.rainbet.com,7.8, attack=8 business=6 tech=7 gate=9 cloud=7 fresh=10
+[PRIO] staging-socket.rainbet.com,5.2, attack=5 business=5 tech=5 gate=9 cloud=7 fresh=10
+[HYP] engine.io anonymous sid plane reaches JWT-gated namespaces on app 1ce4ff55
+class: AUTH
+asset: staging-alerts.rainbet.com /socket.io/
+confidence: 84
+reasoning: Both alerts+chat returned 200 with fresh anonymous sids (oh95TnJA56TZ66eXAEKG / qYWJN8MrQlI7JVuSAAB8) at 23:40; different maxPayload (20480 vs 10240) confirms separate configs on same DO app; no CF Access/challenge; cross-vhost sid reuse produces 400 (independent instances). Socket plane intermittent (400↔200 toggle across rounds) but persists on this round.
+evidence_needed: any socket.io namespace connect/event returning data without valid user JWT on a fresh anonymous sid
+verify_steps: AUTH_HELPED: POST connect packet to /socket.io/?EIO=4&transport=polling on alerts.rainbet.com with captured sid, then POST to likely namespaces (/chat,/raffle,/notifications) with same sid; read-only
+impact: unauthenticated realtime read → cross-user chat/raffle data. HIGH if middleware weak.
+testability: AUTH_HELPED
+[HYP] Staging pocket app origin leak enables full contract mapping on next WAF/route edit
+class: MISCONFIG
+asset: staging-raffles.rainbet.com/health (DO app 1ce4ff55)
+confidence: 72
+reasoning: /health returns real origin JSON {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"} with CSP headers (Helmet defaults), x-do-orig-status:200, no CF Access/challenge. App serves 4+ staging hostnames; /docs WAF-blocked (403), all API paths 404. Version v0.00.0002-rc1 confirms pre-release staging. staging-originals now 404 (unmounted), confirming hostnames mount/unmount per deploy on shared DO app.
+evidence_needed: any newly-mounted route on any of the 4 hostnames returning real content (not 404/400/403)
+verify_steps: cadence GET /health across raffles/alerts/chat/socket; watch for /docs, /api/v1/*, /swagger, /openapi.json returning 200 on any hostname; capture x-do-app-origin to confirm shared DO app
+impact: staging API contract exposure on money-adjacent app → IDOR/BOLA route mapping → target prod endpoints. HIGH if contract surfaces.
+testability: PASSIVE
+[HYP] api OPTIONS blanket exemption widens to content on operator WAF edit
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197-6fd5-4e93-8a3b-b8177a4bd079)
+confidence: 55
+reasoning: OPTIONS 200 + Allow + x-do-orig-status + app UUID on every non-/ non-/docs path (confirmed /openapi.json and /api/v2/ this round); content methods GET/HEAD/POST still 403 (WAF block / 110KB challenge); operator demonstrably re-edits WAF rules across rounds.
+evidence_needed: any content method returning origin 2xx/4xx/5xx on a public path
+verify_steps: cadence OPTIONS /openapi.json + /api/v2/graphql + GET /api/v1/public/ping; capture x-do-app-origin/status; passive
+impact: grounded prod money-API contract/openapi disclosure → IDOR/BOLA mapping. HIGH if content opens; latent.
+testability: PASSIVE
+[PARKED] api OPTIONS method-widening (55): confidence below 60 and entirely latent — no content-method bypass observed across 7+ rounds; lowest priority.
+[FINAL] engine.io anonymous sid plane (84): highest value, requires AUTH_HELPED namespace probe; persistent across rounds.
+[FINAL] staging pocket app origin leak (72): stable, /health consistently returns real origin JSON; PASSIVE cadence watch only.
+[FINAL] api OPTIONS method-widening (55): latent; cadence watch only; lowest priority.
+[NEXT] AUTH_HELPED: POST https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling with sid from latest handshake (oh95TnJA56TZ66eXAEKG) — attempt namespace connect to /chat,/raffle,/notifications; read-only; ~1s spacing.
+[LEARN] ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 REAPPEARED (200 len=116 sid=oh95TnJA56TZ66eXAEKG maxPayload=20480) after 400 at 21:45 — plane persists on same DO app.
+[LEARN] ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io v4 REAPPEARED (200 len=116 sid=qYWJN8MrQlI7JVuSAAB8 maxPayload=10240) after 400 at 21:45 — plane persists on same DO app.
+[LEARN] REJECTED AUTH @ staging-originals.rainbet.com: 504→404 (2B) — origin decommissioned or route unmounted entirely; no content-bearing recovery of shared DO app 1ce4ff55 observed.
+[LEARN] ACCEPTED MISCONFIG @ staging-cdn.rainbet.com: R2 bucket uniformly 404 on root and robots.txt (28KB/27KB "Object not found" pages); no listing.
+[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: real origin JSON confirmed stable (200 len=75); CSP headers (Helmet) + HSTS + x-frame-options: DENY; no CF Access/challenge.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (+ x-do-orig-status:200 + x-do-app-origin:53f39197 on /openapi.json, /api/v2/); scope "everything but / and /docs" holds.
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403 (110KB cf-mitigated); no content-method bypass.
+[RISK] RainBet: 64 — Unchanged from 62. Staging engine.io plane persists (200↔400 intermittent) on alerts+chat; /health remains benign JSON on raffles; no content-bearing unprotected route discovered; api OPTIONS pass-through latent-only with content methods WAF-closed. staging-originals decommissioned (404), staging-cdn R2 bucket 404-only. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; sids issued by design). Drivers: AUTH_HELPED namespace probe on engine.io plane; next content-bearing vhost mount on 1ce4ff55 or WAF content-method edit on 53f39197.
