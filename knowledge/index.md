@@ -137,3 +137,4 @@
 - 2026-09-07 REJECTED AUTH @ staging-originals.rainbet.com: 504→404 — origin decommissioned or route unmounted
 - 2026-09-07 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption STABLE; scope "everything but / and /docs"; content methods WAF-closed
 - 2026-09-07 REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403; no content-method bypass observed across 8+ rounds
+- 2026-09-07 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: origin-reachable Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251; /docs 403 (5KB, non-cf-mitigated); no Access.

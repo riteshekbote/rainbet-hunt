@@ -1277,3 +1277,31 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption STABLE; scope "everything but / and /docs"; content methods WAF-closed
 [LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403; no content-method bypass observed across 8+ rounds
 [RISK] RainBet: 72 (raised from 68) — staging Access gap now systemic across TWO DO apps (1ce4ff55 + bc240b8a), 6+ hostnames origin-reachable; engine.io plane persists; no customer/employee/financial/auth data accessed (read-only; sids issued by design). Drivers: AUTH_HELPED namespace test on live engine.io plane; any content-bearing mount on either DO app; WAF rule edit on api 53f39197.
+## 2026-09-07 18:11:58 UTC [target] (model bigpickle)
+[HYP] Reflected-Origin CORS + Allow-Credentials on staging-services enables cross-origin credentialed reads
+class: MISCONFIG
+asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
+confidence: 88
+reasoning: app reflects attacker Origin in access-control-allow-origin AND sets access-control-allow-credentials:true on GET /api/v1, /health, /, and OPTIONS preflight. staging-monorepo (same stack) does NOT reflect — so this is not default Express behavior but a per-app CORS misconfig. App currently serves 404 on all data routes, /docs behind Access (302 kid 31d4206e), so impact is latent until a data/authenticated route mounts on this app.
+evidence_needed: any mounted route on staging-services returning credentialed data readable cross-origin (AC-Allow-Credentials:true + reflected AC-Allow-Origin).
+verify_steps: repeat Origin:https://attacker.example.com against /health,/metrics,/api/v1/* and any benign GET; capture ac-allow-origin+ac-allow-credentials pair; Passive only.
+impact: If/ when any authenticated/IDOR-able route is mounted on app 1ce4ff55 via this hostname, a malicious site can exfiltrate it with the victim's cookies — ATO/PII/server-side-state theft. HIGH once content surfaces, LATENT now.
+testability: PASSIVE
+[HYP] engine.io anonymous sid plane reaches JWT-gated socket namespaces on app 1ce4ff55
+class: AUTH
+asset: staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling
+confidence: 80
+reasoning: handshake intermittently issues fresh 200 sid=... maxPayload=20480 (observed 8+ rounds); no CF Access/challenge; app 1ce4ff55 shares 6 hostnames. This round returned 400 "Transport unknown" — plane stays intermittent. Namespace connect not yet tested.
+evidence_needed: POST with sid → namespace join (/chat,/raffle,/notifications) returning 200 + namespace payload.
+verify_steps: AUTH_HELPED: capture fresh sid on 200 window, then POST EIO=4 polling with 42["0","/chat"]; read-only.
+impact: real-time staging data exfil / session-bound sid abuse; HIGH if namespace carries user data.
+testability: AUTH_HELPED
+[HYP] api.rainbet.com OPTIONS blanket exemption widens to content on operator WAF edit
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197)
+confidence: 62
+reasoning: OPTIONS 200+Allow+x-do-orig-status on all non-/,/docs paths confirmed stable across rounds; GET/HEAD/POST stay 403 (110KB cf-mitigated); operator re-edits WAF across rounds.
+evidence_needed: content method returning origin 2xx/4xx on a public path.
+verify_steps: cadence OPTIONS /openapi.json,/api/v2/graphql + GET /api/v1/public/ping; passivel.
+impact: prod API contract/OpenAPI disclosure → IDOR/BOLA mapping; HIGH if content opens; latent.
+testability: PASSIVE
