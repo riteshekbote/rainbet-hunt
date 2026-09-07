@@ -1,18 +1,4 @@
-## 2026-09-07 01:19:26 UTC [target] (model bigpickle)
-[PRIO] staging-alerts.rainbet.com,8.2, attack=8 business=6 tech=7 gate=9 cloud=7 fresh=10
-[PRIO] staging-raffles.rainbet.com,8.0, attack=8 business=7 tech=8 gate=9 cloud=7 fresh=10
-[PRIO] api.rainbet.com,6.6, attack=6 business=8 tech=6 gate=3 cloud=7 fresh=10
-[PRIO] staging-chat.rainbet.com,7.8, attack=8 business=6 tech=7 gate=9 cloud=7 fresh=10
-[PRIO] staging-socket.rainbet.com,5.2, attack=5 business=5 tech=5 gate=9 cloud=7 fresh=10
-[HYP] engine.io anonymous sid plane reaches JWT-gated namespaces on app 1ce4ff55
-class: AUTH
-asset: staging-alerts.rainbet.com /socket.io/
-confidence: 84
-reasoning: Both alerts+chat returned 200 with fresh anonymous sids (oh95TnJA56TZ66eXAEKG / qYWJN8MrQlI7JVuSAAB8) at 23:40; different maxPayload (20480 vs 10240) confirms separate configs on same DO app; no CF Access/challenge; cross-vhost sid reuse produces 400 (independent instances). Socket plane intermittent (400↔200 toggle across rounds) but persists on this round.
-evidence_needed: any socket.io namespace connect/event returning data without valid user JWT on a fresh anonymous sid
-verify_steps: AUTH_HELPED: POST connect packet to /socket.io/?EIO=4&transport=polling on alerts.rainbet.com with captured sid, then POST to likely namespaces (/chat,/raffle,/notifications) with same sid; read-only
-impact: unauthenticated realtime read → cross-user chat/raffle data. HIGH if middleware weak.
-testability: AUTH_HELPED
+## 2026-09-07 06:18:29 UTC [target] (model bigpickle)
 [HYP] Staging pocket app origin leak enables full contract mapping on next WAF/route edit
 class: MISCONFIG
 asset: staging-raffles.rainbet.com/health (DO app 1ce4ff55)
@@ -44,3 +30,27 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption CONFIRMED STABLE (+ x-do-orig-status:200 + x-do-app-origin:53f39197 on /openapi.json, /api/v2/); scope "everything but / and /docs" holds.
 [LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403 (110KB cf-mitigated); no content-method bypass.
 [RISK] RainBet: 64 — Unchanged from 62. Staging engine.io plane persists (200↔400 intermittent) on alerts+chat; /health remains benign JSON on raffles; no content-bearing unprotected route discovered; api OPTIONS pass-through latent-only with content methods WAF-closed. staging-originals decommissioned (404), staging-cdn R2 bucket 404-only. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; sids issued by design). Drivers: AUTH_HELPED namespace probe on engine.io plane; next content-bearing vhost mount on 1ce4ff55 or WAF content-method edit on 53f39197.
+[HYP] staging namespace CF Access gap is SYSTEMIC across TWO unprotected DO apps (1ce4ff55 + NEW bc240b8a), 6+ hostnames origin-reachable
+class: MISCONFIG
+asset: staging-services / staging-monorepo (NEW mounts this round)
+confidence: 80
+reasoning: round probes showed staging-services (x-do-app-origin 1ce4ff55, NestJS {"error":"er_resource_not_found"}) and staging-monorepo (x-do-app-origin bc240b8a-ba24-4b78-834b-423990390251, Express {"message":"Cannot GET ..."}) return real origin responses on every route EXCEPT /docs; /docs on staging-services -> 302 CF Access login (kid 31d4206e, CF_AppSession). path-partial policy: only /docs protected, app surface unprotected. Second DO app UUID bc240b8a is NEW (not in knowledge base).
+evidence_needed: any content-bearing route (200/JSON/data) on services or monorepo, or protected-resource polymorphism on a third host.
+impact: broader staging fleet exposure than scoped; money-adjacent services app + api monorepo reachable; HIGH if any data route surfaces.
+testability: PASSIVE
+[HYP] engine.io sid plane reaches JWT-gated namespaces on 1ce4ff55 (unchanged, cov 84) — needs AUTH_HELPED
+[PARKED] api OPTIONS widening (55) latent; [FINAL] staging Access gap (80) now strongest; [FINAL] engine.io namespace (84) still unresolved, never AUTH_HELPED.
+[NEXT] PROBE: stage common Nest routes /api/v1,/v2,/internal over staging-services + staging-monorepo; verify /docs 302 stable vs others 404.
+[NEXT] AUTH_HELPED: POST socket.io namespace connect on staging-alerts fresh sid -> /chat,/raffle,/notifications.
+[RISK] RainBet: 68 (raised from 64) — Access-gap fleet expanded to two DO apps; no data route surfaced yet.
+[HYP] staging namespace CF Access gap is systemic across BOTH DO apps (1ce4ff55 + new bc240b8a)
+[HYP] engine.io anon-sid plane reaches JWT-gated namespaces on app 1ce4ff55
+[HYP] api OPTIONS blanket exemption widens to content on WAF edit
+[NEXT] PROBE (PASSIVE, read-only): stage high-probability Nest/Express route names on staging-services + staging-monorepo (e.g. /api/v1, /v2, /internal, /swagger, /healthz, /actuator, /redis...) to catch a mounted data route; re-confirm services /docs 302 and monorepo /docs 403 stability.
+[NEXT] AUTH_HELPED: POST engine.io namespace connect on staging-alerts with fresh anonymous sid -> /chat, /raffle, /notifications (read-only) to finally test hypothesis 2.
+[NEXT] SEC/CT: extend subdomain monitoring to app bc240b8a's hostnames for future mounts.
+[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: origin-reachable NestJS app on app 1ce4ff55; /docs protected by Access (302, kid 31d4206e) while /health,/api/*,/metrics,/socket.io unprotected — path-partial Access.
+[LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: origin-reachable Express app on NEW app bc240b8a-ba24-4b78-834b-423990390251; /docs 403 (5KB, non-cf-mitigated).
+[LEARN] ACCEPTED SCOPE-EXPANSION: staging Access gap spans 6 hostnames on app 1ce4ff55 (raffles/chat/alerts/socket/socket-services/originals-history) + app bc240b8a — previously scoped to 4 hostnames/one app.
+[LEARN] REJECTED @ maintenance/clever/staging-slot-integrations: non-content (301/404/no-resolve).
+[RISK] RainBet: 68 (up from 64). Raised on breadth of Access-gap (2nd DO app + 2 hostname mounts) and path-partial policy; not raised further because exposed surface is still 404/health-shell with zero data routes. Drivers: any content-bearing mount on bc240b8a or 1ce4ff55; the AUTH_HELPED namespace test on the live engine.io plane.

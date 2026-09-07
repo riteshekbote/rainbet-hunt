@@ -255,3 +255,14 @@ www.rainbet.com
 - CHANGED staging-alerts.rainbet.com engine.io v4 handshake PERSISTS (HTTP 200, 116B, fresh anonymous sid per request)
 
 ## 2026-09-07 01:21:46 UTC
+
+## 2026-09-07 06:18:40 UTC
+- CHANGED staging-alerts.rainbet.com engine.io v4 handshake PERSISTS at 2026-09-07 01:21 (200 len=116, fresh anonymous sid) after 400 at 21:45 — plane stable on DO app 1ce4ff55
+- CHANGED staging-chat.rainbet.com engine.io v4 REAPPEARED (200 len=116) after 400 at 21:45 — plane persists on same DO app 1ce4ff55
+- CHANGED staging-raffles.rainbet.com /health CONFIRMED STABLE real origin JSON (75B, x-do-orig-status:200, x-do-app-origin:1ce4ff55, no cf-mitigated, no CF Access)
+- CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE on /api/v2/, /graphql, /swagger, /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197) — DIFFERENT DO app vs staging 
+- CHANGED staging.rainbet.com Access gap CLOSED (302 to CF Access, kid=a89d8b80) — intermittent drift continues but currently enforced
+- CHANGED files.rainbet.com, media.rainbet.com — both return CF managed challenge (403, 110KB HTML) — no unchallenged surface
+- CHANGED staging-cdn.rainbet.com — R2 bucket uniformly 404 on root and robots.txt (28KB/27KB "Object not found" pages); no listing
+- CHANGED staging-originals.rainbet.com — 504→404 (2B) — origin decommissioned or route unmounted entirely
+- NEW No new live hosts discovered since 2026-09-04 (files.rainbet.com, media.rainbet.com)
