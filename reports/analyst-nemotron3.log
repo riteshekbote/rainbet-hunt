@@ -5232,3 +5232,21 @@ testability: AUTH_HELPED
 
 **STEP 7 — RISK**
 [RISK] RainBet: 85 — Staging pocket app (app 1ce4ff55) confirmed serving real origin API/socket responses on 6 hostnames without any Cloudflare protection (no WAF, no Access, no challenge). Engine.io v4 anonymous sid issuance persists on staging-alerts (200, fresh sid), reappeared on staging-chat, intermittent on staging-socket — WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]), enabling session hijack on socket plane across 6 hostnames. API subdomain hardened (only OPTIONS blanket info leak, GET/POST challenged with cf-mitigated) but on DIFFERENT DO app (53f39197). New staging-services (app 1ce4ff55) and staging-monorepo (app bc240b8a) expand attack surface with path-partial Access gaps. RabbitMQ on direct DO origins theoretical but unconfirmed (OSINT needed). Staging.rainbet.com Access gap closed but intermittent drift persists. 9+ live hosts confirmed with significant protections on production; staging fleet partially exposed. Residual risk: Staging origin API/socket enumeration (HIGH), DO direct-origin bypass if FQDN discovered (CRITICAL but unproven), RabbitMQ exposure (CRITICAL if confirmed).
+===== ANALYST nemotron3 2026-09-08 22:46:28 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat > /tmp/delta_analysis.txt << 'EOF'
+STEP 1 — DELTA:
+[CHANGED] staging-alerts.rainbet.com engine.io v4 handshake flapping: 400 at 17:38 (was 200 at 08:54) — plane persists but intermittent
+[CHANGED] staging-monorepo.rainbet.com /health error body now Express format 69B `{"message":"Cannot GET /health","error":"Not Found","statusCode":404}` (was 2B `{}`) — error handling updated, still 404
+[CHANGED] staging-services.rainbet.com path-partial Access confirmed narrower: only /docs 302→Access (kid 31d4206e); /health,/api/*,/metrics,/socket.io all 404
+[CHANGED] api.rainbet.com OPTIONS blanket exemption STABLE on /api/v2/,/graphql,/swagger,/openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197) — different DO app vs staging fleet
+[CHANGED] staging-raffles.rainbet.com /health CONFIRMED STABLE real origin JSON (75B, x-do-orig-status:200, x-do-app-origin:1ce4ff55, no cf-mitigated, no CF Access)
+[CHANGED] staging-cdn.rainbet.com R2 bucket uniformly 404 on root/robots.txt (28KB/27KB "Object not found")
+[CHANGED] staging-originals.rainbet.com 504→404 (2B) — origin decommissioned/unmounted
+[NEW] No new live hosts since 2026-09-04 (files.rainbet.com, media.rainbet.com remain only new discoveries)
+EOF
+cat /tmp/delta_analysis.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
