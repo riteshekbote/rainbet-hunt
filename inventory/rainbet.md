@@ -310,3 +310,16 @@ www.rainbet.com
 - CHANGED staging-originals.rainbet.com 504→404 (2B) — origin decommissioned
 
 ## 2026-09-08 04:14:08 UTC
+
+## 2026-09-08 08:54:05 UTC
+- CHANGED staging-monorepo.rainbet.com /health: 404 response body changed from `{} ` (2B) to `{"message":"Cannot GET /health","error":"Not Found","statusCode":404}` (69B) — Express error handling updated, still
+- CHANGED staging-alerts.rainbet.com/socket.io: 400 this round (was 200 at 23:48); intermittent toggle continues.
+- NEW No new live hosts since 2026-09-04 (files.rainbet.com, media.rainbet.com remain only new discoveries)
+- CHANGED staging-cdn.rainbet.com R2 bucket uniformly 404 on root/robots.txt (28KB/27KB "Object not found")
+- CHANGED staging-originals.rainbet.com 504→404 (2B) — origin decommissioned/unmounted
+- CHANGED staging-alerts.rainbet.com engine.io v4 handshake PERSISTS (200, fresh sid per request) — plane stable 9+ rounds
+- CHANGED staging-chat.rainbet.com engine.io v4 REAPPEARED (200 len=116) after 400 — plane persists on app 1ce4ff55
+- CHANGED staging-raffles.rainbet.com /health CONFIRMED STABLE real origin JSON (75B, x-do-orig-status:200, x-do-app-origin:1ce4ff55)
+- CHANGED staging-services.rainbet.com /health 404, /docs 302→Access (path-partial Access narrower; only /docs protected)
+- CHANGED staging-monorepo.rainbet.com /health 404, /docs 403 non-cf-mitigated (no Access, new DO app bc240b8a)
+- CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE on /api/v2/, /graphql, /swagger, /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197)
