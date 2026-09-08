@@ -22,3 +22,11 @@
   - | 1 | staging-services unprotected origin | **VALID** | 5.3 |
   - | 2 | staging-alerts anonymous Socket.IO | **VALID** | 5.3 |
   - | 3 | staging-chat engine.io (merge w/ #2) | **VALID** | 5.3 |
+
+- 6 lead(s) marked VALID at 2026-09-08 17:09:18 UTC
+  - ### Verdict: **VALID**
+  - ### Verdict: **VALID**
+  - ### Verdict: **VALID**
+  - | 1. Staging pocket app (health + engine.io) | **VALID** | 6.5 | Report |
+  - | 2. staging-services reflected CORS | **VALID** | 5.3 | Report |
+  - | 8. RabbitMQ brokers on DO origins | **VALID** | 5.3 | Report |
