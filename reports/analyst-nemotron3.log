@@ -4575,3 +4575,209 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
 [LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
 [RISK] RainBet: 85 — Staging pocket app (app 1ce4ff55) confirmed serving real origin API/socket responses on 6 hostnames without any Cloudflare protection (no WAF, no Access, no challenge). Engine.io v4 anonymous sid issuance persists on staging-alerts (200, fresh sid), reappeared on staging-chat, intermittent on staging-socket — WebSocket upgrade CONFIRMED WORKING with captured sid (sid=k6gFHGzBAIQ7ASBwAAEA, upgrades=["websocket"]), enabling session hijack on socket plane across 6 hostnames. API subdomain hardened (only OPTIONS blanket info leak, GET/POST challenged with cf-mitigated) but on DIFFERENT DO app (53f39197). New staging-services (app 1ce4ff55) and staging-monorepo (app bc240b8a) expand attack surface with path-partial Access gaps. RabbitMQ on direct DO origins theoretical but unconfirmed (OSINT needed). Staging.rainbet.com Access gap closed but intermittent drift persists. 9+ live hosts confirmed with significant protections on production; staging fleet partially exposed. Residual risk: Staging origin API/socket enumeration (HIGH), DO direct-origin bypass if FQDN discovered (CRITICAL but unproven), RabbitMQ exposure (CRITICAL if confirmed).
+===== ANALYST nemotron3 2026-09-08 04:14:08 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mdate -u +"%Y-%m-%d %H:%M:%S UTC"
+2026-09-08 03:54:38 UTC
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{content_length}" -H "Accept: application/json" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 10
+curl: unknown --write-out variable: 'content_length'
+200
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null -H "Accept: application/json" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 10
+HTTP/2 200 
+date: Tue, 08 Sep 2026 03:56:27 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 116
+vary: Origin
+access-control-allow-credentials: true
+cache-control: no-store
+cf-cache-status: DYNAMIC
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 200
+server: cloudflare
+set-cookie: __cf_bm=BbEN1GER3aaLfNoVIvPDkdvQdfN_FppX4HJmEnn7vk0-1788839787.3687053-1.0.1.1-dcRpicsM43NUfJXm2h05SsxmrGcs8d649bRyrhsYikaigbD9EuPWd6.zlvaY9OISHK1AK2a6_r5i9QOL74eZEipSPNln2r9VLana4uKMCUAxOqg6t4VyrGgY1dRFuqdR; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 04:26:27 GMT
+cf-ray: a37b05ff08e90056-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -H "Accept: application/json" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 10
+0{"sid":"_-PHowPI3kA8dqgZAAS5","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":20480}
+[0m
+[0m$ [0mcurl -s -H "Accept: application/json" "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 10
+0{"sid":"RZ4IR78sObnv4OCLAAAD","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null -H "Accept: application/json" "https://staging-raffles.rainbet.com/health" --max-time 10
+HTTP/2 200 
+date: Tue, 08 Sep 2026 04:00:19 GMT
+content-type: application/json; charset=utf-8
+content-length: 75
+vary: Origin
+access-control-allow-credentials: true
+content-security-policy: default-src 'self';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline';img-src 'self' data: https:;base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';upgrade-insecure-requests
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+origin-agent-cluster: ?1
+referrer-policy: no-referrer
+strict-transport-security: max-age=31536000; includeSubDomains
+x-content-type-options: nosniff
+x-dns-prefetch-control: off
+x-download-options: noopen
+x-frame-options: DENY
+x-permitted-cross-domain-policies: none
+x-xss-protection: 1; mode=block
+etag: W/"4b-rXtkeLa41atkCQYvEmzgGV3syF8"
+cf-cache-status: DYNAMIC
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 200
+server: cloudflare
+accept-ranges: bytes
+set-cookie: __cf_bm=B3CJACAb3_uhFtz8w0ICVrYSNU6VaQXbtRHTCqV_qC8-1788840019.616939-1.0.1.1-Z.w4Ljo.6LYg3i9FlFzRnL9d8L8EBxuM839iEtsRf8Ntk_hnHjt3hMpyJb7oUiRraPAqv5zypcGRRD41FPnpPPODefsg31XD07qG8rqBsMwx1daObgEYOjilgxaX0FDP; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 04:30:19 GMT
+cf-ray: a37b0baa9ad8e814-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -H "Accept: application/json" "https://staging-raffles.rainbet.com/health" --max-time 10
+{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}
+[0m
+[0m$ [0mcurl -s -X OPTIONS -D - -o /dev/null -H "Accept: application/json" "https://api.rainbet.com/api/v2/" --max-time 10
+HTTP/2 200 
+date: Tue, 08 Sep 2026 04:02:18 GMT
+content-length: 0
+server: cloudflare
+allow: GET,POST,OPTIONS,HEAD
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=D45rJ5qsDD9k7boojUESclKPyjW31avmJRxQNsGmAow-1788840138.2011523-1.0.1.1-9p4Bcz28cguA2gTIYA5BfdhGKUhmZA3uUdjXbRDKhURYLI.sCNNrqd.rCQWBgKUyvD8DJ1Pqzh41WiLj4kzFAgpvRtSCCA9gXHDij0pvgQoGtuJ2Fx1nXTHOJuyI6NCz; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 04:32:18 GMT
+cf-ray: a37b0e8fbb74e17c-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null -H "Accept: application/json" "https://staging-services.rainbet.com/health" --max-time 10
+HTTP/2 404 
+date: Tue, 08 Sep 2026 04:04:09 GMT
+content-type: application/json; charset=utf-8
+content-length: 33
+x-powered-by: Express
+vary: Origin, Accept-Encoding
+access-control-allow-credentials: true
+etag: W/"21-dcnYZsBeejUuJVu2GyrMii6G4vU"
+cf-cache-status: DYNAMIC
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 404
+server: cloudflare
+access-control-expose-headers: Cf-Mitigated
+set-cookie: __cf_bm=nabDIURrW4ArSKcibVwvvWYSs_De7RrO9h_DUYHGx4k-1788840248.9193783-1.0.1.1-hNw0ScFG2s0jSI7D9XkZ8h6.C_lOB_M5GJ43iBRHyCxi0p8uMpj4qKlfWbAySW9ikYPQPZJKNrBmeOT7ymO3J5eD.7RFsRTbdwb5aZLUVA_pfBvLGfJ_IvoCKOoDbttf; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 04:34:09 GMT
+cf-ray: a37b1143b8c30056-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null -H "Accept: application/json" "https://staging-services.rainbet.com/docs" --max-time 10
+HTTP/2 302 
+date: Tue, 08 Sep 2026 04:06:15 GMT
+content-type: text/html; charset=UTF-8
+content-length: 143
+location: https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging-services.rainbet.com?kid=31d4206e72536db899ef756ebdc817b58776ed784288564e4d7e4e48af49ef28&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6IjMxZDQyMDZlNzI1MzZkYjg5OWVmNzU2ZWJkYzgxN2I1ODc3NmVkNzg0Mjg4NTY0ZTRkN2U0ZTQ4YWY0OWVmMjgiLCJob3N0bmFtZSI6InN0YWdpbmctc2VydmljZXMucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvZG9jcyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3ODg4NDA2NzUsIm5iZiI6MTc4ODg0MDM3NSwiaWF0IjoxNzg4ODQwMzc1LCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiZmMxZmZmODA0MmM3NGU2NTRmZmRmNjkxMzQ2ODAwZTEwMTExZmNkMzZiMTMyYTMxNGJlNTE0NjlhODE2MWMyYyJ9.AFtg_obJy7-XJZuZoMrhO-_EycR9atZEN6rAJv2w4J-tW-_uZ45qgL492mXraisExbBzsI8X1oABncDLsjQoerk59PHIzi6VdPQuEmmJ7qxrgjIyVumca25dJKpL3AVf2gf0KlR-s6OaiigmjlLdcubatxgQgE010ybOinW90g2ecGFzEoPo1rAJu2KDgMKIYiByu5l4Vxu7OSsLPz6gboRiziSsOVv49lAbOilHhtvdsRLiNSmXgydKt5FOo62UDOl_H_gxLuc9DvuB5izHL9Oy1R3SiLQYPx2kZ-zAtR-6uraB8fXlweHKiiTxMEFO32WIESy1LzEXq29K8CatGg&redirect_url=%2Fdocs
+access-control-allow-credentials: true
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+www-authenticate: Cloudflare-Access resource_metadata="https://staging-services.rainbet.com/.well-known/cloudflare-access-protected-resource/docs"
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+set-cookie: CF_AppSession=5238f989d547fe56; Expires=Wed, 09 Sep 2026 04:06:15 GMT; Path=/; Secure; HttpOnly
+set-cookie: __cf_bm=UVpl8qElGFoYqI_15HoLpHTxpZMTv0bxoMy4tbXbsgY-1788840375.342516-1.0.1.1-bjwtLDmSoDqw1xn5UOr_UJS4_Sr_aYXjwBbeRswjpamtwMiiII2eDcqq97NLvvEick8JASAHuobf8jWrUSUhrOBWkQ8mRo7DYapFD5BidbsteKUKXGeWsqDVvE7yfHRS; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 04:36:15 GMT
+access-control-expose-headers: Cf-Mitigated
+server: cloudflare
+cf-ray: a37b1459eb6be814-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null -H "Accept: application/json" "https://staging-monorepo.rainbet.com/health" --max-time 10
+HTTP/2 404 
+date: Tue, 08 Sep 2026 04:06:54 GMT
+content-type: application/json; charset=utf-8
+content-length: 69
+x-powered-by: Express
+vary: Origin
+access-control-allow-credentials: true
+etag: W/"45-GtTox42K5gkwECsJlwFl77mrgiE"
+cf-cache-status: DYNAMIC
+x-do-app-origin: bc240b8a-ba24-4b78-834b-423990390251
+cache-control: private
+x-do-orig-status: 404
+server: cloudflare
+set-cookie: __cf_bm=_WE64cg2ovpD0bTBGh_sEgsJrU4rYpT1zGRPcoiFPYw-1788840414.8232903-1.0.1.1-O96PvX_z.9rYR58Tu2jb6urt8w0K5IRwQbF.ufNjtAXSCpe8YNI1fULxQC91n6aQ0T1NClkNe2lg1kA475j9z2caxO9LsJlnNzL8Yadg2zsArUmSgbZ3F5cSnrynybLZ; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 04:36:54 GMT
+cf-ray: a37b1550aa2ee17c-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null -H "Accept: application/json" "https://staging-monorepo.rainbet.com/docs" --max-time 10
+HTTP/2 403 
+date: Tue, 08 Sep 2026 04:07:33 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=HKKLx5QvuZj9etUT.G6dVJIl2lmSkU4zWu7cEjNUZtg-1788840453.7946808-1.0.1.1-aNYPiOb1A4h33GS91ILh7GPeelvMrPguOTpYSRL3JGA4phqnNidzEYPLx.tkepSIeM_dJPd.IZ9qKH41vd3e0cftF.Pa_5s9P17vLl7OtfFN1WA0BWKOVk2gdhVA37m7; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 04:37:33 GMT
+server: cloudflare
+cf-ray: a37b16443cec106c-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" -H "Origin: https://staging-alerts.rainbet.com" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=_-PHowPI3kA8dqgZAAS5" --max-time 15
+{"code":1,"message":"Session ID unknown"}
+[0m
+[0m$ [0mSID=$(curl -s -H "Accept: application/json" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 10 | sed 's/.*"sid":"\([^"]*\)".*/\1/') && echo "SID: $SID" && curl -s -N -H "Connection: Upgrade" -H "Upgrade: websocket" -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" -H "Origin: https://staging-alerts.rainbet.com" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=$SID" --max-time 15
+SID: cx7WpKiAMhyJ8mKjAATU
+{"code":3,"message":"Bad request"}
+[0m
+[0m$ [0mSID=$(curl -s -H "Accept: application/json" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 10 | sed 's/.*"sid":"\([^"]*\)".*/\1/') && echo "SID: $SID" && python3 -c "
+import websocket
+import ssl
+ws = websocket.create_connection('wss://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=$SID', 
+    header={'Origin': 'https://staging-alerts.rainbet.com'},
+    sslopt={'cert_reqs': ssl.CERT_NONE})
+print('Connected')
+print(ws.recv())
+ws.send('2probe')
+print(ws.recv())
+ws.send('5')
+print(ws.recv())
+ws.close()
+"
+SID: PDK6RS_TAwvjl-VWAATf
+Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+ModuleNotFoundError: No module named 'websocket'
+[0m
+[0m$ [0mpip install websocket-client -q 2>/dev/null && python3 -c "
+import websocket
+import ssl
+import os
+SID = os.popen('curl -s -H \"Accept: application/json\" \"https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling\" --max-time 10 | sed \"s/.*\\\"sid\\\":\\\"\\\\([^\\\"]*\\\\)\\\".*/\\1/\"').read().strip()
+print('SID:', SID)
+ws = websocket.create_connection('wss://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=' + SID, 
+    header={'Origin': 'https://staging-alerts.rainbet.com'},
+    sslopt={'cert_reqs': ssl.CERT_NONE})
+print('Connected')
+print(ws.recv())
+ws.send('2probe')
+print(ws.recv())
+ws.send('5')
+print(ws.recv())
+ws.close()
+"
+/bin/sh: 1: Syntax error: Unterminated quoted string
+Traceback (most recent call last):
+  File "<string>", line 7, in <module>
+  File "/home/runner/.local/lib/python3.12/site-packages/websocket/_core.py", line 734, in create_connection
+    websock.connect(url, **options)
+  File "/home/runner/.local/lib/python3.12/site-packages/websocket/_core.py", line 284, in connect
+    self.handshake_response = handshake(self.sock, url, *addrs, **options)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/websocket/_handshake.py", line 73, in handshake
+    status, resp = _get_resp_headers(sock)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.local/lib/python3.12/site-packages/websocket/_handshake.py", line 173, in _get_resp_headers
+    raise WebSocketBadStatusException(
+websocket._exceptions.WebSocketBadStatusException: Handshake status 403 Forbidden -+-+- {'date': 'Tue, 08 Sep 2026 04:12:35 GMT', 'content-type': 'text/html; charset=UTF-8', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'cache-control': 'private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0', 'expires': 'Thu, 01 Jan 1970 00:00:01 GMT', 'referrer-policy': 'same-origin', 'server-timing': 'cfEdge;dur=1,cfOrigin;dur=0', 'x-frame-options': 'SAMEORIGIN', 'set-cookie': '__cf_bm=7WEDG4Cx5KrIaXaNXax0crun8af_eZnyD4V5YyzsRuc-1788840755.7435172-1.0.1.1-XRM1d8.Cr.sumUSEERN5H61oRVEnX9Xom7snfAwI3Bgy7vyeytX7L68fkt9ihRwCwjZVfajKDBP_ID1If742ubphX8Dx.bDxEJXkUUEJjcZWg097QCmMlfZoDjaqqFeW; HttpOnly; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 04:42:35 GMT', 'server': 'cloudflare', 'cf-ray': 'a37b1da36b46356a-ORD', 'alt-svc': 'h3=":443"; ma=86400'} -+-+- None
+SID:
+[0m

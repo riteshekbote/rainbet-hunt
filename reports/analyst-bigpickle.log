@@ -10085,3 +10085,10 @@ run "raffles GET /health" 'https://staging-raffles.rainbet.com/health'
 run "monorepo GET /docs" 'https://staging-monorepo.rainbet.com/docs'
 echo "DONE" failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-08 04:14:08 UTC =====
+[0m
+> build · big-pickle
+[0m
+## STEP 1 — DELTA
+
+NO_DELTA — no new probe data since last round; same inventory, same knowledge base.
