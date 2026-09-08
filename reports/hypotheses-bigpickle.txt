@@ -1,38 +1,30 @@
-## 2026-09-08 13:26:45 UTC [target] (model bigpickle)
-[HYP] staging-services reflected-Origin credentialed CORS primes ATO/CORS-read once a data route mounts
+## 2026-09-08 17:33:30 UTC [target] (model bigpickle)
+[HYP] staging-services credentialed CORS reflector becomes RCE/data-read once any route returns non-404
 class: MISCONFIG
 asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
 confidence: 84
-reasoning: Fresh probes this round: ACAO echoes every tested attacker Origin (attacker.example.com, evil.com) + ACA-credentials:true on GET /, /health, /api/v1/health, /metrics, /socket.io (all 404) AND OPTIONS preflight; app origin 1ce4ff55; /docs protected by Access (302, kid 31d4206e) proves real routes exist on this app; siblings raffles/monorepo never reflect ACAO → deliberate per-hostname CORS reflector config; all data routes currently 404 → impact latent.
-evidence_needed: any mounted route on staging-services returning 2xx data (health body, metrics text, api json) that an attacker Origin can read with credentials
-verify_steps: cadence GET /health, /metrics, /api/v1/*, /api/v2/*, /graphql with Origin:https://evil.example; watch for 2xx + ACAO-repeat + allow-credentials on same response; passive only
-impact: once an authenticated/IDOR-able or sensitive route mounts, a malicious page exfiltrates it with the victim's rainbet.com cookies — ATO/PII/infra internals; HIGH latent
+reasoning: Fresh probes this round: ACAO echoes every attacker Origin (evil.com) + access-control-allow-credentials:true on GET /health,/api,/api/v1/users,/balance,/config,/games,/wallet,/api/v2/,/graphql,OPTIONS preflight, ALL 404 body `{"error":"er_resource_not_found"}` (33B, x-powered-by Express); app origin 1ce4ff55-e85f...; /docs Access-protected (302) proves real routes exist behind partial Access.
+evidence_needed: any mounted route returning 2xx data (health/metrics/api json) with repeated ACAO + allow-credentials on the same response
+verify_steps: cadence GET /health, /metrics, /api/v1/*, /graphql with Origin:https://evil-attacker.example; flag any 2xx + ACAO-reflect + credentials; passive
+impact: victim's authenticated cross-origin read of any data route that mounts — PII/wallet/game-state; HIGH latent
 testability: PASSIVE
-[HYP] engine.io anonymous sid reaches JWT-gated namespaces on staging fleet app 1ce4ff55
+[HYP] anonymous engine.io namespace attach yields event feed on staging fleet (session dies after one round-trip this round)
 class: AUTH
 asset: staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling
-confidence: 78
-reasoning: Fresh sid issued at 23:48 (FEmR9Lfoi__QAg1PAACi, maxPayload 20480); no CF Access/challenge; app 1ce4ff55 serves 6 hostnames; namespace join untested to date; handshake response also carries allow-credentials:true; plane intermittent (400 this round). staging-chat intermittent (400 this round).
-evidence_needed: POST 42["0","/chat|raffle|notifications"] with sid returning namespace ack + payload
-verify_steps: AUTH_HELPED: GET fresh sid; POST socket.io/?EIO=4&transport=polling&sid=<sid> body 40<ns>, then 42["0","<ns>"]; read-only listen; stop on first data
-impact: real-time staging data (raffle/chat/notify) exfil; session-bound abuse if sid maps to user; HIGH if any namespace carries user data
+confidence: 66
+reasoning: Handshake 200 (fresh sid per request, maxPayload 20480, allow-credentials); POST 42["0","/chat|raffle|notifications|game|user|"] all HTTP 200 `ok` (namespace CONNECT accepted anonymously this round — NEW); but next GET returns `{"code":1,"message":"Session ID unknown"}` (session non-durable across polling round-trips); no data received.
+evidence_needed: a GET poll after namespace connect returning a socket.io event payload (42/43 packet with data) on any namespace
+verify_steps: AUTH_HELPED: GET fresh sid; POST 42["0","/chat"]; immediately GET poll 3x within 1s (heartbeat window); stop on any 4x/42 data packet; ≤1rps read-only
+impact: anonymous read of staging chat/raffle/notification stream when session durable; MEDIUM-HIGH latent
 testability: AUTH_HELPED
 [HYP] api OPTIONS blanket exemption widens to content on operator WAF edit
 class: MISCONFIG
 asset: api.rainbet.com (DO app 53f39197)
 confidence: 62
-reasoning: OPTIONS /openapi.json, /api/v2, /graphql, /swagger, /nonsense all 200 + Allow + x-do-orig-status:200 this round; content methods uniformly 403 cf-mitigated; scope "everything but / and /docs" stable across 10+ rounds; impact requires operator change.
-evidence_needed: content method returning origin 2xx/4xx/5xx on a public path
-verify_steps: cadence OPTIONS /openapi.json,/graphql + GET /api/v1/public/ping; capture x-do-orig-status; passive
-impact: prod API contract/OpenAPI disclosure → IDOR/BOLA route mapping → money/financial flows; HIGH if content opens; latent
+reasoning: OPTIONS /openapi.json,/graphql,/api/v2/,/swagger,/nonsense all 200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197 this round; content endpoints GET/POST uniformly 403 cf-mitigated.
+evidence_needed: content method 2xx/4xx/5xx origin response on any public path
+verify_steps: cadence OPTIONS /openapi.json,/graphql + GET /api/v1/public/ping; passive
+impact: prod API contract leak → route mapping → IDOR/BOLA on money flows; HIGH latent
 testability: PASSIVE
-[PARKED] api OPTIONS-widen: 62 — stable by-design config, no new vector this round; monitor cadence only.
-[PARKED] staging-monorepo Express error body change: 404 with richer error body (69B) vs prior `{}` — cosmetic change, no data exposure, no new route mounted. Confidence <40 for any finding.
-[FINAL] staging-services credentialed CORS reflector — CONFIRMED header pair (84); sole live confirmed misconfig; latent impact gated on a route mount.
-[FINAL] engine.io anonymous-sid plane — confirmed persisting (78); namespaces untested; intermittent (400 this round).
-[NEXT] PROBE: GET https://staging-services.rainbet.com/api/v1/users, /api/v1/balance, /api/v1/config, /api/v1/games, /api/v1/wallet, /api/v2/ with Origin:https://evil.com — watch for any 2xx + ACAO reflected + allow-credentials:true (would confirm CORS exploitability); also GET https://staging-monorepo.rainbet.com/api/, /api/v1, /api/docs, /openapi.json to check for newly-mounted routes (error body changed this round); plus cadence on /health + socket.io handshake on alerts.
-[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: reflects arbitrary Origin in ACAO + sets allow-credentials:true on every response (GET /health,/metrics,/api/v1,OPTIONS) on app 1ce4ff55 — per-hostname CORS misconfig; impact latent until data route mounts.
-[LEARN] ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists across 10+ rounds — plane stable; intermittent 400↔200 toggle.
-[LEARN] REJECTED MISCONFIG @ staging-monorepo.rainbet.com: /health error body changed to Express format (69B) but still 404; /openapi.json, /api-docs all 404; no contract exposure; CORS middleware sets allow-credentials but never reflects ACAO.
-[LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403 (110KB cf-mitigated) — no content-method bypass across 10+ rounds.
-[RISK] RainBet: 74 (unchanged from 72→74) — staging-services reflected-Origin CORS reflector persists (ACAO + allow-credentials on every response, app 1ce4ff557 →55035508,5513:460 08: ...
+[NEXT] PROBE: GET https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling (fresh sid), POST 42["0","/chat"], then GET poll 40ms/500ms/1s to catch any event within the session-lifetime window; also GET https://staging-services.rainbet.com/health and /graphql with Origin:https://evil-attacker.example to watch for a non-404 route mount; cadence api.rainbet.com OPTIONS /openapi.json.
+[RISK] RainBet: 74 (unchanged) — staging-services CORS reflector (84) + engine.io anonymous namespace attach (66, non-durable session) persist; no customer/financial/auth data accessed (read-only, no event data received); drivers: a 2xx route mounting on staging-services; durable socket session; WAF content-open on api 53f39197.

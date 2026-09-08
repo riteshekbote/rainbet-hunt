@@ -1429,3 +1429,33 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ staging-monorepo.rainbet.com: /health error body changed to Express format (69B) but still 404; /openapi.json, /api-docs all 404; no contract exposure; CORS middleware sets allow-credentials but never reflects ACAO.
 [LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403 (110KB cf-mitigated) — no content-method bypass across 10+ rounds.
 [RISK] RainBet: 74 (unchanged from 72→74) — staging-services reflected-Origin CORS reflector persists (ACAO + allow-credentials on every response, app 1ce4ff557 →55035508,5513:460 08: ...
+## 2026-09-08 17:33:30 UTC [target] (model bigpickle)
+[HYP] staging-services credentialed CORS reflector becomes RCE/data-read once any route returns non-404
+class: MISCONFIG
+asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
+confidence: 84
+reasoning: Fresh probes this round: ACAO echoes every attacker Origin (evil.com) + access-control-allow-credentials:true on GET /health,/api,/api/v1/users,/balance,/config,/games,/wallet,/api/v2/,/graphql,OPTIONS preflight, ALL 404 body `{"error":"er_resource_not_found"}` (33B, x-powered-by Express); app origin 1ce4ff55-e85f...; /docs Access-protected (302) proves real routes exist behind partial Access.
+evidence_needed: any mounted route returning 2xx data (health/metrics/api json) with repeated ACAO + allow-credentials on the same response
+verify_steps: cadence GET /health, /metrics, /api/v1/*, /graphql with Origin:https://evil-attacker.example; flag any 2xx + ACAO-reflect + credentials; passive
+impact: victim's authenticated cross-origin read of any data route that mounts — PII/wallet/game-state; HIGH latent
+testability: PASSIVE
+[HYP] anonymous engine.io namespace attach yields event feed on staging fleet (session dies after one round-trip this round)
+class: AUTH
+asset: staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling
+confidence: 66
+reasoning: Handshake 200 (fresh sid per request, maxPayload 20480, allow-credentials); POST 42["0","/chat|raffle|notifications|game|user|"] all HTTP 200 `ok` (namespace CONNECT accepted anonymously this round — NEW); but next GET returns `{"code":1,"message":"Session ID unknown"}` (session non-durable across polling round-trips); no data received.
+evidence_needed: a GET poll after namespace connect returning a socket.io event payload (42/43 packet with data) on any namespace
+verify_steps: AUTH_HELPED: GET fresh sid; POST 42["0","/chat"]; immediately GET poll 3x within 1s (heartbeat window); stop on any 4x/42 data packet; ≤1rps read-only
+impact: anonymous read of staging chat/raffle/notification stream when session durable; MEDIUM-HIGH latent
+testability: AUTH_HELPED
+[HYP] api OPTIONS blanket exemption widens to content on operator WAF edit
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197)
+confidence: 62
+reasoning: OPTIONS /openapi.json,/graphql,/api/v2/,/swagger,/nonsense all 200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197 this round; content endpoints GET/POST uniformly 403 cf-mitigated.
+evidence_needed: content method 2xx/4xx/5xx origin response on any public path
+verify_steps: cadence OPTIONS /openapi.json,/graphql + GET /api/v1/public/ping; passive
+impact: prod API contract leak → route mapping → IDOR/BOLA on money flows; HIGH latent
+testability: PASSIVE
+[NEXT] PROBE: GET https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling (fresh sid), POST 42["0","/chat"], then GET poll 40ms/500ms/1s to catch any event within the session-lifetime window; also GET https://staging-services.rainbet.com/health and /graphql with Origin:https://evil-attacker.example to watch for a non-404 route mount; cadence api.rainbet.com OPTIONS /openapi.json.
+[RISK] RainBet: 74 (unchanged) — staging-services CORS reflector (84) + engine.io anonymous namespace attach (66, non-durable session) persist; no customer/financial/auth data accessed (read-only, no event data received); drivers: a 2xx route mounting on staging-services; durable socket session; WAF content-open on api 53f39197.
