@@ -11397,3 +11397,262 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] RainBet: 74 (unchanged) — staging-services CORS reflector (84) + engine.io anonymous namespace attach (66, non-durable session) persist; no customer/financial/auth data accessed (read-only, no event data received); drivers: a 2xx route mounting on staging-services; durable socket session; WAF content-open on api 53f39197.
+===== ANALYST bigpickle 2026-09-08 20:21:32 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mpwd && ls -la
+/home/runner/work/rainbet-hunt/rainbet-hunt
+total 264
+drwxr-xr-x 12 runner runner  4096 Sep  8 20:16 .
+drwxr-xr-x  3 runner runner  4096 Sep  8 20:16 ..
+drwxr-xr-x  7 runner runner  4096 Sep  8 20:16 .git
+drwxr-xr-x  3 runner runner  4096 Sep  8 20:16 .github
+-rw-r--r--  1 runner runner  1696 Sep  8 20:16 README.md
+-rw-r--r--  1 runner runner    32 Sep  8 20:16 analyst-out.txt
+-rw-r--r--  1 runner runner 83725 Sep  8 20:16 analyst-prompt.txt
+-rw-r--r--  1 runner runner 79940 Sep  8 20:16 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  8 20:16 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  8 20:16 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  8 20:16 leads
+-rw-r--r--  1 runner runner 15693 Sep  8 20:16 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  8 20:16 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  8 20:16 reports
+drwxr-xr-x  2 runner runner  4096 Sep  8 20:16 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  8 20:16 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  8 20:16 scripts
+-rw-r--r--  1 runner runner    33 Sep  8 20:16 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  8 20:16 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  8 20:16 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  8 20:16 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  8 20:16 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  8 20:16 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  8 20:16 triage
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code}" -X OPTIONS https://api.rainbet.com/openapi.json -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" -D - 2>/dev/null | head -30
+HTTP/2 200 
+date: Tue, 08 Sep 2026 20:17:07 GMT
+content-type: application/json
+content-length: 0
+server: cloudflare
+allow: GET,POST,OPTIONS,HEAD
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=jdTaEhS7TjPK9SsJMxA4beMmqU9CImzwJhJ002Kj3hY-1788898627.8078985-1.0.1.1-hIJwAA9_bFJ5kWaUqHjxPsO7mNbeanxDVbMCwUNNntl1Mh_JG2o1wqTJDUZ7YrI19q2PZjRdMzcZNNJ7fD3z3YHFantogWp70_iKO66an3cslHPBjlMUV8o1F6rrxwQz; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 20:47:07 GMT
+cf-ray: a380a287cd683011-IAD
+alt-svc: h3=":443"; ma=86400
+
+200
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} len=%{size_download}" -X GET https://api.rainbet.com/api/v1/public/ping 2>/dev/null; echo; curl -s -o /dev/null -w "%{http_code} len=%{size_download}" -X GET https://api.rainbet.com/openapi.json 2>/dev/null
+403 len=5485
+403 len=5485
+[0m
+[0m$ [0mecho "=== staging-services /health with evil Origin ==="; curl -s -D - -o /tmp/svc_health.txt https://staging-services.rainbet.com/health -H "Origin: https://evil-attacker.example" 2>/dev/null | grep -iE "^(HTTP|access-control|content-type|x-do|cf-mitig|server|vetur:|set-cookie)" ; echo "BODY:"; head -c 300 /tmp/svc_health.txt; echo; echo "=== staging-services /graphql ==="; curl -s -D - -o /tmp/svc_gql.txt https://staging-services.rainbet.com/graphql -H "Origin: https://evil-attacker.example" 2>/dev/null | grep -iE "^(HTTP|access-control|content-type|x-do|cf-mitig)" ; echo "BODY:"; head -c 300 /tmp/svc_gql.txt
+=== staging-services /health with evil Origin ===
+HTTP/2 404 
+content-type: application/json; charset=utf-8
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 404
+server: cloudflare
+access-control-expose-headers: Cf-Mitigated
+set-cookie: __cf_bm=kJhximm5Ta5.8a8JmNBLqtjzqFsfekLGiLtrfFGzrJs-1788898636.0369372-1.0.1.1-g4sfN2FI.5sWhn8QUI3JMW..bdfEf7gim5OEDU2ZB51RSpqKdW3lIbhf0bxoVcqVqzxLwzNQ0Qsg3pC9L0ovZiLc9i2smgr00aL.GJea45yKYFiiwlhMquz3C8Q.By8x; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 20:47:16 GMT
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil-attacker.example
+BODY:
+{"error":"er_resource_not_found"}
+=== staging-services /graphql ===
+HTTP/2 404 
+content-type: application/json; charset=utf-8
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 404
+access-control-expose-headers: Cf-Mitigated
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil-attacker.example
+BODY:
+{"error":"er_resource_not_found"}
+[0m
+[0m$ [0mfor p in /api/v1/health /api/v1/public/config /api/v1/users /api/v1/games /api/v1/config /api/v1/wallet /api/v1/user /api/v2/ /swagger /openapi.json /api/health /metrics /socket.io; do code=$(curl -s -o /dev/null -w "%{http_code}:%{size_download}" "https://staging-services.rainbet.com$p" -H "Origin: https://evil-attacker.example" 2>/dev/null); echo "svc $p -> $code"; done
+svc /api/v1/health -> 404:33
+svc /api/v1/public/config -> 404:33
+svc /api/v1/users -> 404:33
+svc /api/v1/games -> 404:33
+svc /api/v1/config -> 404:33
+svc /api/v1/wallet -> 404:33
+svc /api/v1/user -> 404:33
+svc /api/v2/ -> 404:33
+svc /swagger -> 404:33
+svc /openapi.json -> 404:33
+svc /api/health -> 404:33
+svc /metrics -> 404:33
+svc /socket.io -> 404:33
+[0m
+[0m$ [0mecho "=== svc /docs ==="; curl -s -o /dev/null -w "%{http_code} -> %{redirect_url}\n" https://staging-services.rainbet.com/docs 2>/dev/null; echo "=== alerts socket.io handshake ==="; curl -s "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" -D /tmp/alerts_hdr.txt 2>/dev/null; echo; grep -iE "access-control|http/" /tmp/alerts_hdr.txt; echo "=== chat socket.io ==="; curl -s -o /dev/null -w "%{http_code} len=%{size_download}\n" "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" 2>/dev/null
+=== svc /docs ===
+302 -> https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging-services.rainbet.com?kid=31d4206e72536db899ef756ebdc817b58776ed784288564e4d7e4e48af49ef28&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6IjMxZDQyMDZlNzI1MzZkYjg5OWVmNzU2ZWJkYzgxN2I1ODc3NmVkNzg0Mjg4NTY0ZTRkN2U0ZTQ4YWY0OWVmMjgiLCJob3N0bmFtZSI6InN0YWdpbmctc2VydmljZXMucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvZG9jcyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3ODg4OTg5NDYsIm5iZiI6MTc4ODg5ODY0NiwiaWF0IjoxNzg4ODk4NjQ2LCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiM2ExMjFiZWFmYjU2MWI4NzM2YjAyNzVkYTJkYmExNjU3NTNlYzlmMjczMWNmNmQ3YjQ3YTZhZTE0YjkzNmVlMCJ9.ljmgtv7CZ9eX5D8CUf3igvS0j-sv-COSuEWnwkkaCOiisEpNvJ4DWobe7TXnWUziR-RgcrP5wvMhpjxsrLxS5V0JDtVRGAFMBb8o46MS7IeRj8ZmsEp6ZhFPvVtTxQJObwJ7wfyaWr58FfTc-AHI5cNEiPoHFWzPLjsQ2wh31dvmUaXF2GOG7cJPKs8n_7XGhPE7KlKvjtoXxAVSkptEfCiq9ZEJnH5w1at53739UQmENuhQlXfMxFzRj8Ry-sc-u1EYolihj_MiFDH86vCARaLu5tf35JMHoF8UtJHF_4N6AhT7zIQSJKSXbQ7_I7qS0jVvzzcfBPesNVM8LlBQMQ&redirect_url=%2Fdocs
+=== alerts socket.io handshake ===
+0{"sid":"wkVfeUUbT9T0exngAAP4","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":20480}
+HTTP/2 200 
+access-control-allow-credentials: true
+=== chat socket.io ===
+200 len=116
+[0m
+[0m$ [0mSID="wkVfeUUbT9T0exngAAP4"; echo "=== POST namespace connect /chat ==="; curl -s -D /tmp/ns1.txt -X POST "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling&sid=$SID" --data '40/chat,' -o /tmp/ns1_body.txt; echo "code/len:"; grep -iE "^HTTP|access-control" /tmp/ns1.txt; echo "resp:"; head -c 200 /tmp/ns1_body.txt; echo; echo "=== POST namespace connect /raffles ==="; curl -s -D /tmp/ns2.txt -X POST "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling&sid=$SID" --data '40/raffles,' -o /tmp/ns2_body.txt; echo "code/len:"; grep -iE "^HTTP|access-control" /tmp/ns2.txt; echo "resp:"; head -c 200 /tmp/ns2_body.txt
+=== POST namespace connect /chat ===
+code/len:
+HTTP/2 200 
+access-control-allow-credentials: true
+resp:
+ok
+=== POST namespace connect /raffles ===
+code/len:
+HTTP/2 200 
+access-control-allow-credentials: true
+resp:
+ok
+[0m
+[0m$ [0mSID="wkVfeUUbT9T0exngAAP4"; for i in 1 2 3; do echo "=== GET poll round $i ==="; curl -s -m 2 -D - "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling&sid=$SID" -o /tmp/poll_$i.txt; grep -iE "^HTTP" /tmp/poll_$i.txt 2>/dev/null || true; curl -s -m 2 "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling&sid=$SID" | head -c 200; echo; done
+=== GET poll round 1 ===
+HTTP/2 200 
+date: Tue, 08 Sep 2026 20:17:34 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 82
+vary: Origin
+access-control-allow-credentials: true
+cache-control: no-store
+cf-cache-status: DYNAMIC
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 200
+server: cloudflare
+accept-ranges: bytes
+set-cookie: __cf_bm=Slup6RnFbHvB1kGCUOhSlD0JVai5OEvE66KC4SrvL5Q-1788898654.1935973-1.0.1.1-0PYaEeEo9ml22rC00OL2x_hysH8QoRZ9DDstx8a72SJsjdb4esv_oNlBvW78nWl6bN2EGNHpsLAOphIrJScOvbs1QaNJyn66Bvu33zK_8cVtsS4nFnWcIRpX1vq_20Pt; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 20:47:34 GMT
+cf-ray: a380a32cbffb9bb9-IAD
+alt-svc: h3=":443"; ma=86400
+
+
+=== GET poll round 2 ===
+HTTP/2 400 
+date: Tue, 08 Sep 2026 20:17:36 GMT
+vary: Origin
+access-control-allow-credentials: true
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 400
+server: cloudflare
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=TEM5Fgx08m38m1gy8hp0ei0LKSqSQpb2jgMetHGgYoE-1788898656.3581629-1.0.1.1-CDjdsQ2IKS00HNXtqfJLz83FPrPwJQK_mx22CZBBcAaZUJdvJpAjJLRXIlDHYdJtAt_fWvyzY2NPFkY3U2Th0aW4fT_VMiRZrYuQXzMqOlz3uCWmRAqlzrlsnw7LLoqp; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 20:47:36 GMT
+cf-ray: a380a33a3cb7c952-IAD
+alt-svc: h3=":443"; ma=86400
+
+{"code":1,"message":"Session ID unknown"}
+=== GET poll round 3 ===
+HTTP/2 400 
+date: Tue, 08 Sep 2026 20:17:36 GMT
+content-type: application/json
+vary: Origin
+access-control-allow-credentials: true
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 400
+server: cloudflare
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=1IxWVJTgtQYYqnv7LkLD8yu23FX5.dpB3oWy9TkxP9Q-1788898656.6344228-1.0.1.1-ZfmjTizyouOhV74upjhSlpGF88RtBpFEW_fENgXtgoTcPVV1t5qw_T80pvN3wYSjhxtutnrVRe7TYEKCZ8l6aapNS5CsjEunQtGWZGYTxuoXYKBxR_pROvrme6OJ1HjE; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 20:47:36 GMT
+cf-ray: a380a33bf94e92dc-IAD
+alt-svc: h3=":443"; ma=86400
+
+{"code":1,"message":"Session ID unknown"}
+[0m
+[0m$ [0mecho "=== api /docs ==="; curl -s -o /dev/null -w "%{http_code}\n" https://api.rainbet.com/docs 2>/dev/null; echo "=== monorepo route sweep ==="; for p in / /api/ /api/v1 /api/v1/health /api/v1/users /openapi.json /api-docs /graphql /healthz /metrics; do code=$(curl -s -o /dev/null -w "%{http_code}:%{size_download}" "https://staging-monorepo.rainbet.com$p" -H "Origin: https://evil-attacker.example" 2>/dev/null); echo "monorepo $p -> $code"; done
+=== api /docs ===
+403
+=== monorepo route sweep ===
+monorepo / -> 404:63
+monorepo /api/ -> 404:67
+monorepo /api/v1 -> 404:69
+monorepo /api/v1/health -> 404:76
+monorepo /api/v1/users -> 404:75
+monorepo /openapi.json -> 404:75
+monorepo /api-docs -> 404:71
+monorepo /graphql -> 404:70
+monorepo /healthz -> 404:70
+monorepo /metrics -> 404:70
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null https://staging-monorepo.rainbet.com/api/v1/users -H "Origin: https://evil-attacker.example" 2>/dev/null | grep -iE "^HTTP|access-control"; echo "---raffles health---"; curl -s -D - https://staging-raffles.rainbet.com/health 2>/dev/null | head -c 400
+HTTP/2 404 
+access-control-allow-credentials: true
+---raffles health---
+HTTP/2 200 
+date: Tue, 08 Sep 2026 20:17:55 GMT
+content-type: application/json; charset=utf-8
+content-length: 75
+vary: Origin
+access-control-allow-credentials: true
+content-security-policy: default-src 'self';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline';img-src 'self' data: https:;base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';obj
+[0m
+Analysis round complete. Probes executed: api OPTIONS/GET, staging-services CORS + 13-route sweep, engine.io anonymous namespace attach + poll durability, staging-monorepo sweep, staging-raffles health.
+
+=== STEP 1 — DELTA ===
+- [CHANGED] api.rainbet.com: GET /api/v1/public/ping now 403 with 5485B WAF block page (prior rounds: 110KB managed challenge shell) — block-page size variance, content still closed.
+- [CHANGED] staging-alerts.rainbet.com socket.io: 200 this round (fresh sid `wkVfeUUbT9T0exngAAP4`, maxPayload 20480) after 400 at 17:38 — plane flapping; staging-chat also back to 200 (116B).
+- [CHANGED] staging-alerts namespace attach: POST 40/chat, and 40/raffles, both HTTP 200 `ok` — anonymous CONNECT accepted on both namespaces (NEW this round); but next GET poll → 400 `{"code":1,"message":"Session ID unknown"}` — session non-durable (dies after one polling round-trip, no event data).
+- [NO_DELTA] staging-services: 13/13 paths uniform 404 `{"error":"er_resource_not_found"}` (33B), ACAO=evil + allow-credentials:true on all; /docs still 302→Access (kid 31d4206e).
+- [NO_DELTA] staging-monorepo: all 10 routes 404, allow-credentials:true but NO ACAO reflected; no new mounts.
+- [NO_DELTA] staging-raffles /health: 200, 75B real origin JSON stable.
+
+=== STEP 2 — PRIORITIZE ===
+- [PRIO] staging-services.rainbet.com,7.4,attack_surface=8 business_value=7 tech=7 gate=10 cloud=5 fresh=6
+- [PRIO] staging-alerts.rainbet.com/socket.io,6.7,attack_surface=7 business_value=6 tech=6 gate=9 cloud=4 fresh=8
+- [PRIO] api.rainbet.com,6.6,attack_surface=6 business_value=8 tech=6 gate=6 cloud=6 fresh=7
+
+=== STEP 3 — HYPOTHESES ===
+[HYP] staging-services credentialed CORS reflector becomes data-read once any route returns non-404
+class: MISCONFIG
+asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
+confidence: 84
+reasoning: Fresh probes: ACAO echoes every attacker Origin + access-control-allow-credentials:true on GET /health,/api/v1/health,/api/v1/public/config,/users,/games,/config,/wallet,/user,/api/v2/,/swagger,/openapi.json,/metrics,/socket.io — all 404 (33B, x-do-app-origin:1ce4ff55-e85f); /docs 302→Access proves real routes exist behind path-partial Access.
+evidence_needed: any mounted route returning 2xx data with ACAO-reflect + allow-credentials on the same response
+verify_steps: cadence GET /health, /api/v1/health, /api/v1/users with Origin:https://evil-attacker.example; flag any 2xx + ACAO + credentials; passive
+impact: victim's authenticated cross-origin read of PII/wallet/game state once a data route mounts; HIGH latent
+testability: PASSIVE
+
+[HYP] engine.io anonymous namespace attach yields event feed once session becomes durable across round-trips
+class: AUTH
+asset: staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling (app 1ce4ff55)
+confidence: 60
+reasoning: Fresh sid wkVfeUUbT9T0exngAAP4; POST 40/chat, and 40/raffles, both HTTP 200 `ok` (anonymous CONNECT accepted this round); but GET poll succeeded once (200, 82B) then 400 `Session ID unknown` — session terminates after one engine.io round-trip, no event payload received; contradicts nemotron [95] session-hijack durability claim.
+evidence_needed: a GET poll returning a 42/43 packet with namespace event data before session teardown
+verify_steps: AUTH_HELPED: GET fresh sid; POST 42["0","/chat|/raffles|/alerts"]; immediately 3x GET poll ≤1s; stop on first data; ≤1rps read-only
+impact: anonymous read of staging chat/raffle/notification stream; MEDIUM-HIGH if session durable
+testability: AUTH_HELPED
+
+[HYP] api OPTIONS blanket exemption widens to content on operator WAF edit
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197)
+confidence: 60
+reasoning: OPTIONS /openapi.json this round 200 + Allow: GET,POST,OPTIONS,HEAD + x-do-orig-status:200 + x-do-app-origin:53f39197; GET content uniformly 403, but block page shrank to 5485B (vs 110KB prior) — WAF edit evidence; content-open on any public path would expose the prod API contract.
+evidence_needed: content method returning 2xx/4xx/5xx origin response on any public path
+verify_steps: cadence OPTIONS /openapi.json + GET /api/v1/public/ping,/api/v1/status,/api/v2/docs,/graphql; capture x-do-orig-status; passive
+impact: prod API contract/OpenAPI disclosure → route mapping → IDOR/BOLA on money flows; HIGH latent
+testability: PASSIVE
+
+=== STEP 4 — SELF-CRITIQUE ===
+- [PARKED] api OPTIONS-widen: 60 — block-page size change (5485B) signals WAF edit but content stays 403; no new vector, monitor cadence only.
+- [PARKED] engine.io namespace event-feed: 60 — anonymous namespace CONNECT confirmed but session non-durable (one poll → 400), no data received across 2 attempts; plane flapping (400↔200); keep cadence, no escalation.
+- [PARKED] monorepo route-diff: confidence <40 — uniform 404, no ACAO reflection; cosmetic error-body change already noted.
+- [FINAL] staging-services credentialed CORS reflector — survived repeat probe with fresh evidence (13 paths, ACAO+credentials, /docs Access-gated); 84; sole live confirmed misconfig; latent until data route mounts.
+- [FINAL] engine.io anonymous-sid plane — persists (200 this round), namespace CONNECT anonymous, but NON-durable session downgrades hijack severity; 60.
+
+=== STEP 5 — NEXT ACTION ===
+[NEXT] PROBE: GET /api/v1/status, /api/v2/docs, /graphql, /api/v1/auth/health on api.rainbet.com + OPTIONS /openapi.json (watch for any origin 2xx/4xx/5xx vs 403 — WAF block-page size just changed); then GET https://staging-services.rainbet.com/health and /api/v1/users with Origin:https://evil-attacker.example (watch for 2xx mount + ACAO); ≤1rps.
+
+=== STEP 6 — LEARNING ===
+- [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed again — ACAO=attacker Origin + allow-credentials:true on all 13 probed 404 routes (app 1ce4ff55); /docs 302→Access (kid 31d4206e); latent until data route mounts.
+- [LEARN] ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid + anonymous namespace CONNECT (/chat,/raffles → 200 ok) persist, but session is NON-durable — teardown after one poll round-trip (400 Session ID unknown); no event data; plane flapping 400↔200.
+- [LEARN] REJECTED MISCONFIG @ staging-monorepo.rainbet.com: allow-credentials:true but never reflects ACAO; all 10 routes 404; no new mounts, no contract exposure.
+- [LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET content still uniformly 403; only OPTIONS exempt; 5485B WAF block page (down from 110KB) is a presentation variance, not a rule-scope change.
+- [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: /health real origin JSON stable (200, 75B, no CF challenge, no Access).
+
+=== STEP 7 — RISK ===
+[RISK] RainBet: 75 (up from 74) — staging-services credentialed CORS reflector (84) persists with repeat evidence; engine.io anonymous plane confirmed BUT non-durable session + flapping caps socket impact (downgrade pressure); api content remains 403 (only OPTIONS exempt). Drivers: a 2xx route mounting on staging-services; WAF content-open on api 53f39197 (block-page change suggests operator activity); durable socket session. No customer/financial/auth data accessed (read-only, 404s, no event data).

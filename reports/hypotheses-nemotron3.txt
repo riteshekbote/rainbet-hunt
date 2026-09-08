@@ -1,23 +1,23 @@
-## 2026-09-08 17:38:04 UTC [target] (model nemotron3)
-[NEW] staging-monorepo.rainbet.com /health error body changed to Express format `{"message":"Cannot GET /health","error":"Not Found","statusCode":404}` (69B) — error handling updated, still 404
-[NEW] staging-alerts.rainbet.com/socket.io intermittent toggle: 400 this round (was 200 at 23:48) — plane persists but flapping
-[CHANGED] staging-services.rainbet.com path-partial Access confirmed narrower: only /docs 302→Access; /health,/api/*,/metrics,/socket.io return 404
-[CHANGED] staging-monorepo.rainbet.com /health 404, /docs 403 non-cf-mitigated (no Access, new DO app bc240b8a)
-[CHANGED] api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE on /api/v2/, /graphql, /swagger, /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197)
-[CHANGED] staging-raffles.rainbet.com /health CONFIRMED STABLE real origin JSON (75B, x-do-orig-status:200, x-do-app-origin:1ce4ff55)
+## 2026-09-08 20:21:20 UTC [target] (model nemotron3)
+[CHANGED] staging-alerts.rainbet.com engine.io v4 handshake flapping: 400 at 17:38 (was 200 at 08:54) — plane persists but intermittent
+[CHANGED] staging-monorepo.rainbet.com /health error body now Express format 69B `{"message":"Cannot GET /health","error":"Not Found","statusCode":404}` (was 2B `{}`) — error handling updated, still 404
+[CHANGED] staging-services.rainbet.com path-partial Access confirmed narrower: only /docs 302→Access (kid 31d4206e); /health,/api/*,/metrics,/socket.io all 404
+[CHANGED] api.rainbet.com OPTIONS blanket exemption STABLE on /api/v2/,/graphql,/swagger,/openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197) — different DO app vs staging fleet
+[CHANGED] staging-raffles.rainbet.com /health CONFIRMED STABLE real origin JSON (75B, x-do-orig-status:200, x-do-app-origin:1ce4ff55, no cf-mitigated, no CF Access)
 [CHANGED] staging-cdn.rainbet.com R2 bucket uniformly 404 on root/robots.txt (28KB/27KB "Object not found")
 [CHANGED] staging-originals.rainbet.com 504→404 (2B) — origin decommissioned/unmounted
+[NEW] No new live hosts since 2026-09-04 (files.rainbet.com, media.rainbet.com remain only new discoveries)
 [PRIO] staging-alerts.rainbet.com,9.6,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
 [PRIO] staging-raffles.rainbet.com,9.4,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=9
 [PRIO] staging-chat.rainbet.com,9.2,attack_surface=10,business_value=8,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=9
-[PRIO] staging-services.rainbet.com,9.0,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=9,cloud_surface=8,freshness=10
-[PRIO] staging-monorepo.rainbet.com,8.7,attack_surface=9,business_value=8,tech_exposure=9,gate_ease=9,cloud_surface=7,freshness=10
+[PRIO] staging-services.rainbet.com,8.7,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=9,cloud_surface=8,freshness=10
+[PRIO] staging-monorepo.rainbet.com,8.5,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=9,cloud_surface=7,freshness=10
 [PRIO] api.rainbet.com,7.6,attack_surface=8,business_value=10,tech_exposure=6,gate_ease=4,cloud_surface=9,freshness=7
 [HYP] Engine.io v4 anonymous sid enables socket plane session hijack and event abuse
 class: AUTH
 asset: staging-alerts.rainbet.com (also staging-chat/socket/raffles/services.rainbet.com)
 confidence: 95
-reasoning: engine.io v4 handshake on /socket.io/?EIO=4&transport=polling returns 200 with fresh anonymous sid on staging-alerts (persistent 10+ rounds), staging-chat (reappeared), staging-socket (intermittent). WebSocket upgrade CONFIRMED WORKING with captured sid (sid=k6gFHGzBAIQ7ASBwAAEA, upgrades=["websocket"]). Same DO app (1ce4ff55) serves 6 hostnames. No CF Access, no WAF, no authentication on socket plane.
+reasoning: engine.io v4 handshake on /socket.io/?EIO=4&transport=polling returns 200 with fresh anonymous sid on staging-alerts (persistent 10+ rounds), staging-chat (reappeared), staging-socket (intermittent). WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]). Same DO app (1ce4ff55) serves 6 hostnames. No CF Access, no WAF, no authentication on socket plane.
 evidence_needed: Ability to emit/listen on application events (raffle, chat, alert, wallet, betting) via captured sid; sid reuse across hostnames on same DO app (1ce4ff55)
 verify_steps: GET https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling (capture sid); WebSocket upgrade wss://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<captured>; send engine.io packet 42["event",{"data":{}}] to test event emission
 impact: Anonymous session hijack on socket plane → real-time event interception, unauthorized emit on betting/wallet/chat/raffle events, potential RCE via malicious message payloads. Severity: HIGH (persistent, no auth, 6 hostnames)
