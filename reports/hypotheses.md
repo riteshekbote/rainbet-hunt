@@ -622,3 +622,11 @@
 - LEARN: REJECTED MISCONFIG @ api.rainbet.com: POST-with-JSON bypass hypothesis false — POST /api/v1/public/ping and POST /api/v1/ both return 403 cf-mitigated challenge
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: cf-mitigated: challenge header present on all 403 responses — WAF configuration consistent across subdomains (api, www).
 - LEARN: REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
+
+## RANKED HYPOTHESES 2026-09-08 13:46:24 UTC
+- [84] staging-services.rainbet.com/*: staging-services reflected-Origin credentialed CORS primes ATO/CORS-read once a data route mounts (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://staging-services.rainbet.com/api/v1/users, /api/v1/balance, /api/v1/config, /api/v1/games, /api/v1/wallet, /api/v2/ with Origin:https://evil.
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: reflects arbitrary Origin in ACAO + sets allow-credentials:true on every response (GET /health,/metrics,/api/
+- LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists across 10+ rounds — plane stable; intermittent 400↔200 toggle.
+- LEARN: REJECTED MISCONFIG @ staging-monorepo.rainbet.com: /health error body changed to Express format (69B) but still 404; /openapi.json, /api-docs all 404; no contra
+- LEARN: REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403 (110KB cf-mitigated) — no content-method bypass across 10+ rounds.

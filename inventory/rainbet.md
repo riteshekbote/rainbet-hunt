@@ -323,3 +323,5 @@ www.rainbet.com
 - CHANGED staging-services.rainbet.com /health 404, /docs 302→Access (path-partial Access narrower; only /docs protected)
 - CHANGED staging-monorepo.rainbet.com /health 404, /docs 403 non-cf-mitigated (no Access, new DO app bc240b8a)
 - CHANGED api.rainbet.com OPTIONS blanket exemption CONFIRMED STABLE on /api/v2/, /graphql, /swagger, /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197)
+
+## 2026-09-08 13:46:24 UTC

@@ -4890,3 +4890,134 @@ testability: AUTH_HELPED
 [LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all tested paths — no unchallenged surface.
 
 [RISK] RainBet: 85 — Staging pocket app (app 1ce4ff55) confirmed serving real origin API/socket responses on 6 hostnames without any Cloudflare protection (no WAF, no Access, no challenge). Engine.io v4 anonymous sid issuance persists on staging-alerts (200, fresh sid), reappeared on staging-chat, intermittent on staging-socket — WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]), enabling session hijack on socket plane across 6 hostnames. API subdomain hardened (only OPTIONS blanket info leak, GET/POST challenged with cf-mitigated) but on DIFFERENT DO app (53f39197). New staging-services (app 1ce4ff55) and staging-monorepo (app bc240b8a) expand attack surface with path-partial Access gaps. RabbitMQ on direct DO origins theoretical but unconfirmed (OSINT needed). Staging.rainbet.com Access gap closed but intermittent drift persists. 9+ live hosts confirmed with significant protections on production; staging fleet partially exposed. Residual risk: Staging origin API/socket enumeration (HIGH), DO direct-origin bypass if FQDN discovered (CRITICAL but unproven), RabbitMQ exposure (CRITICAL if confirmed).
+===== ANALYST nemotron3 2026-09-08 13:46:24 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la /home/runner/work/rainbet-hunt/rainbet-hunt/
+total 268
+drwxr-xr-x 12 runner runner  4096 Sep  8 13:26 .
+drwxr-xr-x  3 runner runner  4096 Sep  8 13:25 ..
+drwxr-xr-x  7 runner runner  4096 Sep  8 13:26 .git
+drwxr-xr-x  3 runner runner  4096 Sep  8 13:25 .github
+-rw-r--r--  1 runner runner  1696 Sep  8 13:25 README.md
+-rw-r--r--  1 runner runner    43 Sep  8 13:26 analyst-out.txt
+-rw-r--r--  1 runner runner 85882 Sep  8 13:26 analyst-prompt.txt
+-rw-r--r--  1 runner runner 82097 Sep  8 13:26 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  8 13:25 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  8 13:25 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  8 13:25 leads
+-rw-r--r--  1 runner runner 15135 Sep  8 13:25 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  8 13:25 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  8 13:25 reports
+drwxr-xr-x  2 runner runner  4096 Sep  8 13:25 reposcan-raw
+-rw-r--r--  1 runner runner  3198 Sep  8 13:25 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  8 13:25 scripts
+-rw-r--r--  1 runner runner    33 Sep  8 13:25 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  8 13:25 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  8 13:25 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  8 13:25 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  8 13:25 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  8 13:25 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  8 13:25 triage
+[0m
+[0m→ [0mRead state_nemotron3.json
+[0m→ [0mRead scope.yml
+[0m✱ [0mGlob "leads/*.txt"[90m 0 matches[0m
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mls -la /home/runner/work/rainbet-hunt/rainbet-hunt/knowledge/
+total 40
+drwxr-xr-x  2 runner runner  4096 Sep  8 13:25 .
+drwxr-xr-x 12 runner runner  4096 Sep  8 13:26 ..
+-rw-r--r--  1 runner runner 32165 Sep  8 13:25 index.md
+[0m
+[0m→ [0mRead knowledge/index.md
+[0m
+[0m$ [0mcurl -s -I "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" 2>&1 | head -20
+HTTP/2 200 
+date: Tue, 08 Sep 2026 13:34:43 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 116
+vary: Origin
+access-control-allow-credentials: true
+cache-control: no-store
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 200
+server: cloudflare
+accept-ranges: bytes
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=GbD4fbUqQQEuNdX1L69Xn_VXpAFqhi2idfF0Kl4hyIQ-1788874483.1230423-1.0.1.1-6Kp5ioFl5mGolA8PLE80_SIcKalt72hd2sVT86rRh4WUitv4wtaMLzt7NrIJIhOM0vKKXWAzm4nQkHxopUuZBxR3ttHxt84WulHSgKCwV7iakIh4Da.JmVcehGTc1dm6; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 14:04:43 GMT
+cf-ray: a37e550f8d40acb2-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" 2>&1
+0{"sid":"lVKbEMU99Yj3McL_AACK","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":20480}
+[0m
+[0m$ [0mcurl -s -I "https://staging-raffles.rainbet.com/health" 2>&1
+HTTP/2 200 
+date: Tue, 08 Sep 2026 13:40:12 GMT
+content-type: application/json; charset=utf-8
+content-length: 75
+vary: Origin
+access-control-allow-credentials: true
+content-security-policy: default-src 'self';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline';img-src 'self' data: https:;base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';upgrade-insecure-requests
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+origin-agent-cluster: ?1
+referrer-policy: no-referrer
+strict-transport-security: max-age=31536000; includeSubDomains
+x-content-type-options: nosniff
+x-dns-prefetch-control: off
+x-download-options: noopen
+x-frame-options: DENY
+x-permitted-cross-domain-policies: none
+x-xss-protection: 1; mode=block
+etag: W/"4b-rXtkeLa41atkCQYvEmzgGV3syF8"
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 200
+server: cloudflare
+accept-ranges: bytes
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=_nK8GlR51c7691CylYiWQSFh_X4cTGrDovdv_xIEnzk-1788874812.4916384-1.0.1.1-M8C1MjZjR3I7.sfO8Ta_0DYyFIV5vf.TbkXfmq6LYEnW2RvE916NLubcWabLieBPeYAiPhK2LDsboJnFTc5h1aqy3PkSrMaAN.xwQ_Pn7D1VwQHmT59QUgQEWZwEI67j; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 14:10:12 GMT
+cf-ray: a37e5d1a0c8bacb2-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s "https://staging-raffles.rainbet.com/health" 2>&1
+{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}
+[0m
+[0m$ [0mcurl -s -I -H "Origin: https://evil.com" "https://staging-services.rainbet.com/health" 2>&1
+HTTP/2 404 
+date: Tue, 08 Sep 2026 13:43:36 GMT
+content-type: application/json; charset=utf-8
+content-length: 33
+x-powered-by: Express
+etag: W/"21-dcnYZsBeejUuJVu2GyrMii6G4vU"
+vary: Accept-Encoding
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 404
+server: cloudflare
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=ZgI7RLdPo1LTQlioLzEor4mSlzOsk_s8CmwchbwE6dg-1788875016.7070346-1.0.1.1-6FkXHDyiomUOYwX7slAyTNKiBZU.gKl3.CdJ6iRpyFebifILmYfMnX_0bAhXQKq1ySCoDcn6bQtUv8OJ9oWCS2MCGqpssAh9d3sdF9lWc3Bu8bSK08FbBignLowpT1vY; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 14:13:36 GMT
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil.com
+access-control-expose-headers: Cf-Mitigated
+cf-ray: a37e62166ed98e5c-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -X OPTIONS -I "https://api.rainbet.com/api/v2/" 2>&1
+HTTP/2 200 
+date: Tue, 08 Sep 2026 13:44:44 GMT
+content-length: 0
+server: cloudflare
+allow: OPTIONS,HEAD,GET,POST
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=oJX8VTe0Z5W3rpZyM09UutmEiQv9dVJmiWG20aKM1u4-1788875084.5824163-1.0.1.1-xjclHgLZuAbVc8bHkrLub1zJXydpDotKdjrlfgKQ6IW8bFNBvCtpf_JNZb6UewB.e90KTVcp_tmElFEzGGevZDwoZP328FEdszHt1185MmEzGWAn8wGEblrxdlLqWxUg; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 08 Sep 2026 14:14:44 GMT
+cf-ray: a37e63beae54acb2-ORD
+alt-svc: h3=":443"; ma=86400
+[0m

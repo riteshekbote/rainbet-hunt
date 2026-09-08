@@ -1,9 +1,4 @@
-## 2026-09-08 08:49:15 UTC [target] (model bigpickle)
-[CHANGED] staging-monorepo.rainbet.com /health: 404 response body changed from `{} ` (2B) to `{"message":"Cannot GET /health","error":"Not Found","statusCode":404}` (69B) — Express error handling updated, still 404; not a new mounted route.
-[CHANGED] staging-alerts.rainbet.com/socket.io: 400 this round (was 200 at 23:48); intermittent toggle continues.
-[PRIO] staging-services.rainbet.com, 7.2, a4 b8 t8 g9 c6 f9
-[PRIO] staging-alerts.rainbet.com/socket.io, 7.0, a5 b6 t9 g10 c6 f8
-[PRIO] api.rainbet.com, 6.7, a6 b10 t7 g1 c8 f7
+## 2026-09-08 13:26:45 UTC [target] (model bigpickle)
 [HYP] staging-services reflected-Origin credentialed CORS primes ATO/CORS-read once a data route mounts
 class: MISCONFIG
 asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
@@ -40,4 +35,4 @@ testability: PASSIVE
 [LEARN] ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists across 10+ rounds — plane stable; intermittent 400↔200 toggle.
 [LEARN] REJECTED MISCONFIG @ staging-monorepo.rainbet.com: /health error body changed to Express format (69B) but still 404; /openapi.json, /api-docs all 404; no contract exposure; CORS middleware sets allow-credentials but never reflects ACAO.
 [LEARN] REJECTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping still 403 (110KB cf-mitigated) — no content-method bypass across 10+ rounds.
-[RISK] RainBet: 74 (unchanged from 72→74) — staging-services reflected-Origin CORS reflector persists (ACAO + allow-credentials on every response, app 1ce4ff55) + engine.io plane persists (intermittent). No customer/employee/financial/auth data accessed — all read-only, no namespace join; sids are server-issued. Drivers: any data route mounting on staging-services; namespace join on the live socket plane; WAF edit on api 53f39197.
+[RISK] RainBet: 74 (unchanged from 72→74) — staging-services reflected-Origin CORS reflector persists (ACAO + allow-credentials on every response, app 1ce4ff557 →55035508,5513:460 08: ...
