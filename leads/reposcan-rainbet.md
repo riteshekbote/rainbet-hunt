@@ -121,3 +121,12 @@ TARGET_ORG not configured for rainbet; skipping public-org deep scan.
 TARGET_ORG not configured for rainbet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-09 14:14:00 UTC
 TARGET_ORG not configured for rainbet; skipping public-org deep scan.
+## REPOSCAN 2026-09-09 17:52:05 UTC
+[HYP] (none — no candidate repos)
+class: N/A
+asset: N/A
+confidence: 0
+reasoning: RainBet has no public GitHub org. API returns empty. Third-party repos are unrelated third-party code.
+impact: N/A
+verify_steps: N/A
+TARGET_ORG not configured for rainbet; skipping public-org deep scan.
