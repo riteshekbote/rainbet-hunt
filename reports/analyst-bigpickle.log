@@ -13905,3 +13905,24 @@ testability: PASSIVE
 ```
 [RISK] RainBet: 80 (up from 78) — staging-chat unauthenticated socket.io session discovery (confidence 72→78) adds new active finding: bare CONNECT accepted on same DO app where staging-alerts properly enforces auth. Event reception unconfirmed but session establishment proven. staging-services CORS reflector (82) persists with strengthened evidence (3 paths, x-powered-by change noted). api WAF churn confirmed but no content-method breach. No customer/financial/auth data accessed this round (read-only; all 404s/challenges; no event payloads on unauthenticated sessions). Drivers: event data reception on staging-chat unauthenticated session, 2xx route mounting on staging-services, WAF content-open on api.
 ```
+===== ANALYST bigpickle 2026-09-09 21:36:53 UTC =====
+[0m
+> build · big-pickle
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mreq() {
+  desc="$1"; shift
+  curl -sk -o /tmp/rb_body.bin -D /tmp/rb_headers.txt -w "%{http_code}|%{content_type}|%{size_download}" "$@" -m 20 > /tmp/rb_code.txt
+  echo "== $desc"
+  echo -n "result: "; cat /tmp/rb_code.txt; echo
+  grep -iE '^(x-do-orig-status|x-do-app-origin|cf-mitigated|access-control-allow-origin|access-control-allow-credentials|access-control-expose-headers|x-powered-by|allow|server|cf-ray):' /tmp/rb_headers.txt | head -12
+  case "$desc" in *engine*) echo "body: $(head -c 200 /tmp/rb_body.bin | tr -d '\n')" ;; esac
+  sleep 1
+}
+req "svc GET /api/v1/games (evil origin)" -H "Origin: https://evil-attacker.example" "https://staging-services.rainbet.com/api/v1/games"
+req "svc GET /api/v1/health (evil origin)"     -H "Origin: https://evil-attacker.example" "https://staging-services.rainbet.com/api/v1/health"
+req "chat engine.io GET"                       "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"
+req "api GET /api/v1/public/ping"              "https://api.rainbet.com/api/v1/public/ping"
+req "api OPTIONS /openapi.json"                -X OPTIONS "https://api.rainbet.com/openapi.json"
+req "raffles GET /health"                      "https://staging-raffles.rainbet.com/health" failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
