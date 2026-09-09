@@ -30,3 +30,16 @@
   - | 1. Staging pocket app (health + engine.io) | **VALID** | 6.5 | Report |
   - | 2. staging-services reflected CORS | **VALID** | 5.3 | Report |
   - | 8. RabbitMQ brokers on DO origins | **VALID** | 5.3 | Report |
+
+- 11 lead(s) marked VALID at 2026-09-09 20:31:46 UTC
+  - | **Q5 Novel/unreported?** | YES — not on valid-bugs.md as merged/duplicate for this exact combination. |
+  - **Verdict: VALID**
+  - | **Q5 Novel/unreported?** | YES — confirmed in probe results 2026-09-09 06:16:09 but not yet in valid-bugs.md as a distinct merged finding for CORS. |
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | **Q3 Real security impact?** | YES — admin console + unencrypted message broker on public internet bypassing WAF. If default/weak creds → full message-bus compromise → payment/withdrawal event injec
+  - | **Q5 Novel/unreported?** | NO — already marked VALID at 2026-09-06 01:20 UTC and merged into valid-bugs.md. |
+  - | **Q5 Novel/unreported?** | Already accepted in prior triage as valid but low-impact. |
+  - | 1 | staging-{raffles,chat,alerts,socket} unprotected origin + engine.io | **VALID** | 5.3 | Report to bugs.olivermaicher.eu |
+  - | 2 | staging-services reflected CORS (credentials:true) | **VALID** | 5.3 | Report to bugs.olivermaicher.eu |
+  - | 3 | staging-chat socket.io bare CONNECT auth asymmetry | **VALID** | 5.3 | Report to bugs.olivermaicher.eu (merge w/ Lead 1) |
