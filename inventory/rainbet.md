@@ -365,3 +365,9 @@ www.rainbet.com
 - CHANGED staging-cdn.rainbet.com R2 bucket uniformly 404 on root/robots.txt (28KB/27KB "Object not found")
 - CHANGED staging-originals.rainbet.com 504→404 (2B) — origin decommissioned/unmounted
 - NEW No new live hosts since 2026-09-04 (files.rainbet.com, media.rainbet.com remain only new discoveries)
+
+## 2026-09-09 06:15:59 UTC
+- CHANGED staging-services.rainbet.com: `x-powered-by: Express` now visible on error responses (was reported NestJS on 2026-09-07) — NestJS runs on Express but typically self-identifies; possible app reconfigur
+- CHANGED staging-services.rainbet.com: CORS reflector confirmed on `/api/v1/users` (untested prior) — path-agnostic per-DO-app reflector (3/3 paths tested reflect arbitrary Origin + credentials + expose-header
+- NEW staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with NO auth — returns `40{"sid":"..."}` (200). staging-alerts properly rejects empty/fake tokens with `er_auth_token_inv
+- CHANGED staging-services.rainbet.com: `x-powered-by: Express` now visible (was NestJS on 2026-09-07); CORS reflector confirmed on `/api/v1/users` (untested prior) — path-agnostic reflector (3/3 paths)

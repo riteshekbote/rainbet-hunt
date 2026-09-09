@@ -339,3 +339,12 @@ https://staging-services.rainbet.com/metrics -> HTTP 404
 https://api.rainbet.com/api/v1/status -> HTTP 403
 https://api.rainbet.com/api/v1/public/ping -> HTTP 403
 https://api.rainbet.com/openapi.json -> HTTP 403
+
+## 2026-09-09 06:16:09 UTC
+https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 len=116
+https://staging-raffles.rainbet.com/api/v1/public/config -> HTTP 404
+https://staging-raffles.rainbet.com/api/v1/health -> HTTP 404
+https://staging-services.rainbet.com/api/health -> HTTP 404
+https://staging-services.rainbet.com/metrics -> HTTP 404
+https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 len=116
+https://staging-services.rainbet.com/api/v1/games -> HTTP 404
