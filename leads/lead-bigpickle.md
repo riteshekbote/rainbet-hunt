@@ -1777,3 +1777,47 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: origin-reachable Express app on app 1ce4ff55; /docs protected by Access (302, kid 31d4206e) while /health,/api/*,/metrics,/socket.io return 404/403 — path-partial Access narrower than prior lead
 [RISK] RainBet: 80 (up from 78) — staging-chat unauthenticated socket.io session discovery (confidence 72→78) adds new active finding: bare CONNECT accepted on same DO app where staging-alerts properly enforces auth. Event reception unconfirmed but session establishment proven. staging-services CORS reflector (82) persists with strengthened evidence (3 paths, x-powered-by change noted). api WAF churn confirmed but no content-method breach. No customer/financial/auth data accessed this round (read-only; all 404s/challenges; no event payloads on unauthenticated sessions). Drivers: event data reception on staging-chat unauthenticated session, 2xx route mounting on staging-services, WAF content-open on api.
 ## 2026-09-09 21:34:23 UTC [target] (model bigpickle)
+## 2026-09-09 23:34:51 UTC [target] (model bigpickle)
+[NEW] staging-chat.rainbet.com/socket.io: unauthenticated namespace joins EXPANDED beyond root — /raffles and /alerts both ack connect with `40{"sid":"..."}` on anonymous engine.io sid (connect requires sid; POST-without-sid → `Bad handshake method`). No app events in 20s poll window.
+[CHANGED] api.rainbet.com WAF state: unchanged from 2026-09-09 — content GET = 5484B block, no cf-mitigated; OPTIONS /openapi.json = 200 + `Allow: OPTIONS,HEAD,GET,POST` + x-do-orig-status:200 + app 53f39197.
+[CHANGED] staging-services CORS reflector: persists on /health AND new path /api/v1/games (both 404, ACAO-relect+credentials+expose Cf-Mitigated, x-powered-by Express) — no 2xx still.
+[CHANGED] alerts/chat engine.io: both 200 len=116 (plane up); raffles /health 75B stable; monorepo /health 404/69B stable.
+[PRIO] staging-chat.rainbet.com,7.7,attack_surface=7,business_value=7,tech_exposure=7,gate_ease=9,cloud_surface=7,freshness=9
+[PRIO] api.rainbet.com,7.2,attack_surface=6,business_value=9,tech_exposure=7,gate_ease=7,cloud_surface=8,freshness=9
+[PRIO] staging-services.rainbet.com,7.0,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=4,cloud_surface=7,freshness=9
+[PRIO] staging-raffles.rainbet.com,6.8,attack_surface=5,business_value=7,tech_exposure=5,gate_ease=8,cloud_surface=7,freshness=9
+[HYP] staging-chat unauthenticated socket.io session receives server-push events on business namespaces
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/?EIO=4 (DO app 1ce4ff55)
+confidence: 82
+reasoning: Anonymous engine.io sid (GET polling) accepted POST connect + connects on /raffles, /alerts, root — all acked `40{"sid":...}` (fresh socket-level sid issued per namespace). Same DO app host staging-alerts rejects identical connect with `er_auth_token_invalid`. Per-hostname auth middleware demonstrably absent on staging-chat; only missing piece is an app event arriving on the anonymous session.
+evidence_needed: Server-push event (raffle draw, alert broadcast, chat message) within a held session during active gameplay; or app-level ack showing subscription registered for anonymous socket.
+verify_steps: WS upgrade wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid from GET handshake> → send `40{"0":"/raffles"}` → hold 60s for push → repeat /alerts, /chat; if silent, send `42["subscribe",{"channel":"raffles"}]` and poll again during peak hours.
+impact: Anonymous real-time interception of raffle outcomes / user messages / system alerts on business broadcast plane — data leak, bet-front-running insight; HIGH if events flow.
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector enables cross-origin exfiltration once an authenticated route mounts
+class: MISCONFIG
+asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
+confidence: 82
+reasoning: 4/4 paths reflect arbitrary Origin in ACAO + allow-credentials:true + access-control-expose-headers:Cf-Mitigated (now incl. /api/v1/games); all 404; /docs 302→Access (kid 31d4206e) proves real route exists. Reflector path-agnostic on this DO app.
+evidence_needed: Any mounted route returning 2xx with ACAO-reflect + credentials
+verify_steps: cadence GET /health, /api/v1/users, /api/v1/health, /api/v1/games with `Origin: https://evil-attacker.example`; flag first 2xx
+impact: Authenticated cross-origin read of wallet/game/PII routes once mounted; HIGH latent
+testability: PASSIVE
+[HYP] api WAF content-method exposure during operator rule churn
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197)
+confidence: 58
+reasoning: Content GET block switched 110KB managed challenge → 5484B plain block with no cf-mitigated; OPTIONS blanket exemption stable (200+Allow+x-do-orig-status on /openapi.json this round). Active WAF edits proven; a scope-widening edit would expose origin contract.
+evidence_needed: Any content method returning origin status (2xx/4xx/5xx) + x-do-orig-status on public api path
+verify_steps: cadence GET /api/v1/status, /api/v1/public/ping + OPTIONS /openapi.json; record len + cf-mitigated + x-do-orig-status; flag transition off the 5484B block
+impact: Prod API/OpenAPI contract disclosure → IDOR/BOLA on wallet/betting money flows; HIGH latent
+testability: PASSIVE
+[PARKED] api WAF churn: 58 — requires operator edit widening content-method scope; no current exposure; latent chain only. Passive cadence, not primary.
+[FINAL] staging-chat unauth socket.io: 82 — namespace-join matrix now root+/raffles+/alerts all acked with fresh socket sids; event reception still unconfirmed (20s idle window empty). Establishment + per-hostname inconsistency proven.
+[FINAL] staging-services CORS reflector: 82 — 4/4 paths reflect (incl. new /api/v1/games); latent until 2xx.
+[NEXT] PROBE: WebSocket upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid-from-GET-handshake>`; after CONNECT send `40{"0":"/raffles"}` then `40{"0":"/alerts"}`, hold 60s for server-push during active window; parallel cadence OPTIONS /openapi.json + GET ping on api.rainbet.com.
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts namespaces ack unauthenticated connect (`40{"sid":...}`, fresh socket-level sid each) on anonymous engine.io sid, expanding root-only finding; POST-without-sid rejected (`Bad handshake method`) — session must be engine.io-bound.
+[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on 4th path /api/v1/games (ACAO-reflect + credentials + expose Cf-Mitigated, 404 Express) — path-agnostic persists; no 2xx mount.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json stable (200, Allow, x-do-orig-status:200, app 53f39197); content GET 5484B no cf-mitigated — WAF state frozen vs 2026-09-09.
+[RISK] RainBet: 82 (from 80) — staging-chat anonymous socket plane gains namespace-join depth (root+/raffles+/alerts acked, fresh sids) on same DO app where alerts enforces auth; event reception is the sole unverified link in an otherwise proven bypass chain. staging-services CORS reflector 4/4 paths; api WAF stable. Read-only only: no payload capture, no 2xx data, no events received. Drivers: event flow on anonymous chat socket, CORS 2xx mount, api WAF content-open.

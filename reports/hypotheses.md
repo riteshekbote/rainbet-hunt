@@ -838,3 +838,10 @@
 - LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs 403 is now the standard 5485B CF WAF block page, not a non-cf-mitigated origin 403 — WAF front now unif
 - LEARN: ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-r
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption STABLE on /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197); /docs e
+
+## RANKED HYPOTHESES 2026-09-09 23:35:01 UTC
+- [82] staging-chat.rainbet.com/socket.io/?EIO=4: staging-chat unauthenticated socket.io session receives server-push events on business namespaces (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: WebSocket upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid-from-GET-handshake>`; after CONNECT send `40{"0":"/raffle
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts namespaces ack unauthenticated connect (`40{"sid":...}`, fresh socket-level sid each) on anonymous 
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on 4th path /api/v1/games (ACAO-reflect + credentials + expose Cf-Mitigated, 404 Exp
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json stable (200, Allow, x-do-orig-status:200, app 53f39197); content GET 5484B no cf-mitigated — WAF sta

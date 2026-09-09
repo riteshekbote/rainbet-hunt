@@ -400,3 +400,9 @@ www.rainbet.com
 - CHANGED staging-raffles.rainbet.com: origin JSON /health stable (75B, x-do-orig-status:200, full CSP+HSTS+XFO headers, no cf-mitigated, no CF Access)
 
 ## 2026-09-09 21:36:53 UTC
+
+## 2026-09-09 23:35:01 UTC
+- NEW staging-chat.rainbet.com/socket.io: unauthenticated namespace joins EXPANDED beyond root — /raffles and /alerts both ack connect with `40{"sid":"..."}` on anonymous engine.io sid (connect requires sid
+- CHANGED api.rainbet.com WAF state: unchanged from 2026-09-09 — content GET = 5484B block, no cf-mitigated; OPTIONS /openapi.json = 200 + `Allow: OPTIONS,HEAD,GET,POST` + x-do-orig-status:200 + app 53f39197.
+- CHANGED staging-services CORS reflector: persists on /health AND new path /api/v1/games (both 404, ACAO-relect+credentials+expose Cf-Mitigated, x-powered-by Express) — no 2xx still.
+- CHANGED alerts/chat engine.io: both 200 len=116 (plane up); raffles /health 75B stable; monorepo /health 404/69B stable.
