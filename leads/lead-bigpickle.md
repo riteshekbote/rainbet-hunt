@@ -1658,3 +1658,31 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: origin JSON /health stable (75B, x-do-orig-status:200, full CSP+HSTS+XFO, no cf-mitigated, no CF Access)
 [LEARN] ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists but socket.io enforces auth on namespace connect — transport-layer gap, application-layer closed
 [RISK] RainBet: 80 (up from 78) — staging-chat unauthenticated socket.io session discovery (confidence 72) adds new active finding: bare CONNECT accepted on same DO app where staging-alerts properly enforces auth. Event reception unconfirmed but session establishment proven. staging-services CORS reflector (82) persists with strengthened evidence (3 paths, x-powered-by change noted). api WAF churn confirmed but no content-method breach. No customer/financial/auth data accessed this round (read-only; all 404s/challenges; no event payloads on unauthenticated sessions). Drivers: event data reception on staging-chat unauthenticated session, 2xx route mounting on staging-services, WAF content-open on api.
+## 2026-09-09 11:41:43 UTC [target] (model bigpickle)
+[HYP] staging-chat unauth namespace join yields data-capable session on business channels
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/?EIO=4 (DO app 1ce4ff55)
+confidence: 78
+reasoning: Long-poll namespace join confirmed on every namespace tested with no `er_auth_token_invalid`; emitted packets (`subscribe`, `track`, `ping`) accepted silently. Same DO app host staging-alerts rejects equivalent connects with `44 er_auth_token_invalid` (401) — auth middleware absent per-hostname on staging-chat. Idle window captured no broadcast events.
+evidence_needed: server-push event (subscribe to /alerts or /raffles during active game) or an error/ack on event emission
+verify_steps: POST long-poll connect `40{"0":"/raffles"}` + `40{"0":"/alerts"}` → poll 60s during peak; on failure emit `42["subscribe",{"channel":"raffles"}]` and poll
+impact: anonymous event-stream interception on chat/raffle/alerts broadcast; MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] staging-services credentialed CORS reflector enables cross-origin exfil once a 2xx route mounts
+class: MISCONFIG
+asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
+confidence: 82
+reasoning: 3/3 paths (<health,/api/v1/users, OPTIONS /api/v1) reflect arbitrary Origin in ACAO + allow-credentials:true + expose-headers:Cf-Mitigated; /docs 302→Access (kid 31d4206e) proves real routes exist; see output:size=1&compare_result=FAIL&output_type=compact&for_uuid=17e1d6b7-46c4-4dbe-b97a-0964860552ff
+evidence_needed: any mounted 2xx data route with ACAO-reflect + credentials
+verify_steps: cadence GET /health, /api/v1/users, /api/v1/health with Origin:https://evil-attacker.example; flag first 2xx
+impact: authenticated cross-origin read of any data route (PII/wallet/game state); HIGH latent
+testability: PASSIVE
+[HYP] api WAF content-open during operator rule churn
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197)
+confidence: 58
+reasoning: Content GET 403 is 5485B block with no cf-mitigated (was 110KB managed challenge) = active WAF edits; OPTIONS blanket exemption stable. Exploitability contingent on operator behavior.
+evidence_needed: any content method returning origin status + x-do-orig-status on public path
+verify_steps: cadence GET /api/v1/public/ping + OPTIONS /openapi.json; flag transition from 5485B block to origin JSON/404
+impact: prod OpenAPI contract disclosure → IDOR/BOLA on wallet/money flows; HIGH latent
+testability: PASSIVE

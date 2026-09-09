@@ -13636,3 +13636,70 @@ testability: PASSIVE
 **STEP 7 — RISK**
 
 [RISK] RainBet: 80 (up from 78) — staging-chat unauthenticated socket.io session discovery (confidence 72) adds new active finding: bare CONNECT accepted on same DO app where staging-alerts properly enforces auth. Event reception unconfirmed but session establishment proven. staging-services CORS reflector (82) persists with strengthened evidence (3 paths, x-powered-by change noted). api WAF churn confirmed but no content-method breach. No customer/financial/auth data accessed this round (read-only; all 404s/challenges; no event payloads on unauthenticated sessions). Drivers: event data reception on staging-chat unauthenticated session, 2xx route mounting on staging-services, WAF content-open on api.
+===== ANALYST bigpickle 2026-09-09 11:42:50 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m• [0mAnalyze RainBet surface[90m General Agent[0m
+[0m✓ [0mAnalyze RainBet surface[90m General Agent[0m
+## Round 2026-09-09 11:40 UTC — SCORED
+
+**STEP 1 — DELTA**
+- NEW staging-chat.rainbet.com: unauth socket.io namespace join confirmed via HTTP long-poll on ALL namespaces (root, /chat, /, /socket.io) — `40`/`40{"0":"<nsp>"}` POST → 200 ok → poll returns real `40{"sid":...}`; emitted `subscribe`/`track`/`ping` accepted with no auth error. Widen scope vs prior bare-root-40-only finding; both transports now proven.
+- NO_DELTA staging-services: 5 data paths still 404 (33B) + credential CORS reflection; no 2xx mount.
+- NO_DELTA staging-alerts (socket.io 401), api.rainbet.com (WAF 403), staging-raffles (75B).
+
+**STEP 2 — PRIORITIZE**
+- [PRIO] staging-chat.rainbet.com (unauth socket.io, all namespaces),8.70 — a:9 b:7 t:8 g:10 c:9 f:9
+- [PRIO] staging-services.rainbet.com (CORS reflector),7.30 — a:7 b:7 t:6 g:8 c:9 f:8
+- [PRIO] api.rainbet.com (WAF churn),6.55 — a:6 b:9 t:7 g:3 c:4 f:9
+- [PRIO] staging-raffles.rainbet.com (origin JSON),5.85 — a:5 b:4 t:5 g:9 c:9 f:9
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] staging-chat unauth namespace join yields data-capable session on business channels
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/?EIO=4 (DO app 1ce4ff55)
+confidence: 78
+reasoning: Long-poll namespace join confirmed on every namespace tested with no `er_auth_token_invalid`; emitted packets (`subscribe`, `track`, `ping`) accepted silently. Same DO app host staging-alerts rejects equivalent connects with `44 er_auth_token_invalid` (401) — auth middleware absent per-hostname on staging-chat. Idle window captured no broadcast events.
+evidence_needed: server-push event (subscribe to /alerts or /raffles during active game) or an error/ack on event emission
+verify_steps: POST long-poll connect `40{"0":"/raffles"}` + `40{"0":"/alerts"}` → poll 60s during peak; on failure emit `42["subscribe",{"channel":"raffles"}]` and poll
+impact: anonymous event-stream interception on chat/raffle/alerts broadcast; MEDIUM-HIGH
+testability: AUTH_HELPED
+
+[HYP] staging-services credentialed CORS reflector enables cross-origin exfil once a 2xx route mounts
+class: MISCONFIG
+asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
+confidence: 82
+reasoning: 3/3 paths (<health,/api/v1/users, OPTIONS /api/v1) reflect arbitrary Origin in ACAO + allow-credentials:true + expose-headers:Cf-Mitigated; /docs 302→Access (kid 31d4206e) proves real routes exist; see output:size=1&compare_result=FAIL&output_type=compact&for_uuid=17e1d6b7-46c4-4dbe-b97a-0964860552ff
+evidence_needed: any mounted 2xx data route with ACAO-reflect + credentials
+verify_steps: cadence GET /health, /api/v1/users, /api/v1/health with Origin:https://evil-attacker.example; flag first 2xx
+impact: authenticated cross-origin read of any data route (PII/wallet/game state); HIGH latent
+testability: PASSIVE
+
+[HYP] api WAF content-open during operator rule churn
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197)
+confidence: 58
+reasoning: Content GET 403 is 5485B block with no cf-mitigated (was 110KB managed challenge) = active WAF edits; OPTIONS blanket exemption stable. Exploitability contingent on operator behavior.
+evidence_needed: any content method returning origin status + x-do-orig-status on public path
+verify_steps: cadence GET /api/v1/public/ping + OPTIONS /openapi.json; flag transition from 5485B block to origin JSON/404
+impact: prod OpenAPI contract disclosure → IDOR/BOLA on wallet/money flows; HIGH latent
+testability: PASSIVE
+
+**STEP 4 — SELF-CRITIQUE**
+- [FINAL] staging-chat unauth namespace join: 78 (up from 72) — widened to all namespaces + long-poll transport; event data still not captured
+- [FINAL] staging-services CORS reflector: 82 — unchanged, still latent
+- [PARKED] api WAF churn: 58 — requires operator behavior; monitor only
+- [PARKED] staging-alerts engine.io: socket.io layer enforces auth; anonymous sids alone non-exploitable
+
+**STEP 5 — NEXT ACTION**
+- [NEXT] PROBE: POST https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling with body `40{"0":"/raffles"}`, capture sid from poll, then long-poll 60s for `42` event packets; repeat for `/alerts` namespace during peak gameplay window.
+
+**STEP 6 — LEARNING**
+- [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: unauth CONNECT accepted on ALL namespaces over long-poll (root, /chat, /), widened from root-only WS; packet emits silently accepted — auth gap not transport- or namespace-scoped
+- [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector persists (3/3 paths, ALL still 404) — no 2xx mount since prior round
+- [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption + 5485B content block unchanged — WAF state stable from 2026-09-09 06:15
+
+**STEP 7 — RISK**
+- [RISK] RainBet: 81 (up from 80) — staging-chat unauth socket.io now confirmed across all namespaces and HTTP long-poll transport (conf 78), highest-value live gap; staging-services credential CORS reflector (82) persists latent; api WAF churn stable not breached; no customer/financial/auth data accessed this round (all 404s/401s/challenges, no event payloads captured); residual: socket event data interception on staging (MEDIUM-HIGH), CORS escalation HIGH latent, WAF edit-window HIGH latent.
