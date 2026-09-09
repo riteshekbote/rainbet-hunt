@@ -1,4 +1,4 @@
-## 2026-09-09 15:24:09 UTC [target] (model nemotron3)
+## 2026-09-09 18:44:10 UTC [target] (model nemotron3)
 [NEW] staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with NO auth — returns `40{"sid":"...","_placeholder":true}` establishing valid session on DO app 1ce4ff55
 [NEW] staging-alerts.rainbet.com: socket.io root namespace REJECTS unauthenticated CONNECT (`40{}` and `40{"token":"fake..."}`) with `44{"message":"er_auth_token_invalid","data":{"status":401}}` — per-hostname auth inconsistency confirmed
 [CHANGED] api.rainbet.com: content GET 403 changed to 5485B plain WAF block WITH NO cf-mitigated header (was 110KB managed challenge with header) — active operator WAF churn on DO app 53f39197
@@ -6,8 +6,8 @@
 [CHANGED] staging-monorepo.rainbet.com: /docs now returns standard 5485B CF WAF block page (not origin 403) — WAF front now uniform on app bc240b8a
 [CHANGED] staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists (10+ rounds, fresh sid each request); WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"])
 [CHANGED] staging-raffles.rainbet.com: origin JSON /health stable (75B, x-do-orig-status:200, full CSP+HSTS+XFO headers, no cf-mitigated, no CF Access)
-[PRIO] staging-chat.rainbet.com/socket.io, 8.8, attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=10
-[PRIO] staging-alerts.rainbet.com/socket.io, 8.5, attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=10
+[PRIO] staging-chat.rainbet.com/socket.io/, 8.8, attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=10
+[PRIO] staging-alerts.rainbet.com/socket.io/, 8.5, attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=8 freshness=10
 [PRIO] staging-raffles.rainbet.com, 7.5, attack_surface=8 business_value=7 tech_exposure=7 gate_ease=10 cloud_surface=6 freshness=10
 [PRIO] staging-services.rainbet.com, 7.2, attack_surface=8 business_value=7 tech_exposure=8 gate_ease=10 cloud_surface=6 freshness=10
 [PRIO] api.rainbet.com, 6.8, attack_surface=7 business_value=9 tech_exposure=6 gate_ease=2 cloud_surface=8 freshness=8
@@ -41,9 +41,9 @@ testability: AUTH_HELPED
 [PARKED] Internet-exposed RabbitMQ management + AMQP on direct DigitalOcean origins: confidence 55 but no confirmed asset (DO IP ranges with open 15672/5672 not yet identified); requires RAG (Shodan/Censys) first to become falsifiable
 [PARKED] staging.rainbet.com intermittent Access policy enforcement: confidence 38 < 40; intermittent finding with no confirmed data leak (all 200 responses were 32KB CF challenge HTML); gap CLOSED at 09:00Z per latest probe
 [PARKED] api.rainbet.com GraphQL introspection behind WAF: confidence 35 < 40; no evidence of WAF bypass; purely speculative
-[FINAL] 1. staging-chat socket.io root namespace accepts unauthenticated CONNECT enabling full session establishment (confidence 95)
-[FINAL] 2. Staging pocket app (app 1ce4ff55) exposes full API contract via unprotected /health and /api/* endpoints on 6 hostnames (confidence 90)
-[FINAL] 3. api.rainbet.com DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN (confidence 65)
+[FINAL] 1. staging-chat.rainbet.com/socket.io/: staging-chat socket.io root namespace accepts unauthenticated CONNECT enabling full session establishment (confidence 95)
+[FINAL] 2. staging-raffles.rainbet.com (also staging-chat/alerts/socket/services/originals-history.rainbet.com): Staging pocket app (app 1ce4ff55) exposes full API contract via unprotected /health and /api/* endpoints on 6 hostnames (confidence 90)
+[FINAL] 3. api.rainbet.com: DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN (confidence 65)
 [NEXT] PROBE: WebSocket upgrade to wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket with sid captured from GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling — send engine.io packet `40` (bare CONNECT) then `42["subscribe",{"channel":"raffles"}]` to test namespace join and event subscription
 [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with no auth — returns `40{"sid":"...","_placeholder":true}` establishing valid session on DO app 1ce4ff55; staging-alerts on same app correctly rejects with `er_auth_token_invalid` (401); per-hostname auth inconsistency confirmed
 [LEARN] REJECTED AUTH @ staging-alerts.rainbet.com: socket.io root namespace REJECTS unauthenticated CONNECT (`40{}` and `40{"token":"fake..."}`) with `44{"message":"er_auth_token_invalid","data":{"status":401}}` — auth middleware properly enforced; engine.io anonymous sids accepted but socket.io blocks namespace entry

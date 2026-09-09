@@ -366,3 +366,14 @@ https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` -> HTTP 400
 https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling&sid=<captured_sid>` -> HTTP 400
 https://staging-services.rainbet.com/api/v1/games` -> HTTP 404
 https://staging-services.rainbet.com/api/v1/health` -> HTTP 404
+
+## 2026-09-09 18:46:02 UTC
+https://staging-raffles.rainbet.com/api/v1/public/config -> HTTP 404
+https://staging-raffles.rainbet.com/api/v1/health -> HTTP 404
+https://staging-services.rainbet.com/api/health -> HTTP 404
+https://staging-services.rainbet.com/metrics -> HTTP 404
+https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 len=116
+https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` -> HTTP 400
+https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling&sid=<captured_sid>` -> HTTP 400
+https://staging-services.rainbet.com/api/v1/games` -> HTTP 404
+https://staging-services.rainbet.com/api/v1/health` -> HTTP 404

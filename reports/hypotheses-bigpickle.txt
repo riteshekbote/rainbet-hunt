@@ -1,6 +1,6 @@
-## 2026-09-09 15:27:05 UTC [target] (model bigpickle)
-[PRIO] api.rainbet.com,7.2,attack_surface=6,business_value=9,tech_exposure=7,gate_ease=7,cloud_surface=8,freshness=9
+## 2026-09-09 18:43:58 UTC [target] (model bigpickle)
 [PRIO] staging-chat.rainbet.com,7.5,attack_surface=7,business_value=7,tech_exposure=7,gate_ease=9,cloud_surface=7,freshness=9
+[PRIO] api.rainbet.com,7.2,attack_surface=6,business_value=9,tech_exposure=7,gate_ease=7,cloud_surface=8,freshness=9
 [PRIO] staging-services.rainbet.com,7.0,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=4,cloud_surface=7,freshness=9
 [PRIO] staging-raffles.rainbet.com,6.8,attack_surface=5,business_value=7,tech_exposure=5,gate_ease=8,cloud_surface=7,freshness=9
 [HYP] staging-chat unauthenticated socket.io session intercepts server-push events on business channels
