@@ -782,3 +782,25 @@
 - LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: x-powered-by changed to Express (was NestJS on 2026-09-07) — possible framework config change or downgrade on
 - LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with no auth — returns `40{"sid":"...","_placeholder":true}` esta
 - LEARN: REJECTED AUTH @ staging-alerts.rainbet.com: socket.io root namespace REJECTS unauthenticated CONNECT (`40{}` and `40{"token":"fake..."}`) with `44{"message":"er
+
+## RANKED HYPOTHESES 2026-09-09 15:27:15 UTC
+- [95] staging-chat.rainbet.com/socket.io/: staging-chat socket.io root namespace accepts unauthenticated CONNECT enabling full session establishment (from art/lead_nemotron3.txt)
+- [78] staging-chat.rainbet.com/socket.io/?EIO=4: staging-chat unauthenticated socket.io session intercepts server-push events on business channels (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: POST `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` with `Content-Type: text/plain` body `40` (engine.io connect, root namespace) 
+- NEXT(hypotheses-nemotron3.txt): PROBE: WebSocket upgrade to wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket with sid captured from GET https://staging-chat.rainbet.com/sock
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with no auth — returns `40{"sid":"...","_placeholder":true}` esta
+- LEARN: REJECTED AUTH @ staging-alerts.rainbet.com: socket.io root namespace REJECTS unauthenticated CONNECT (`40{}` and `40{"token":"fake..."}`) with `44{"message":"er
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on 3 paths (/health, /api/v1/users, OPTIONS /api/v1) — reflects arbitrary Origin + a
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: x-powered-by changed to Express (was NestJS on 2026-09-07) — possible framework config change or downgrade on
+- LEARN: REJECTED MISCONFIG @ api.rainbet.com: content GET 403 still 5485B block with no cf-mitigated; OPTIONS still 200 with x-do-orig-status — WAF state unchanged from
+- LEARN: ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: origin JSON /health stable (75B, x-do-orig-status:200, full CSP+HSTS+XFO, no cf-mitigated, no CF Access)
+- LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists but socket.io enforces auth on namespace connect — transport-layer gap,
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: origin-reachable Express app on app 1ce4ff55; /docs protected by Access (302, kid 31d4206e) while /health,/ap
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with no auth — returns `40{"sid":"...","_placeholder":true}` esta
+- LEARN: REJECTED AUTH @ staging-alerts.rainbet.com: socket.io root namespace REJECTS unauthenticated CONNECT (`40{}` and `40{"token":"fake..."}`) with `44{"message":"er
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on 3 paths (/health, /api/v1/users, OPTIONS /api/v1) — reflects arbitrary Origin in 
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: x-powered-by changed to Express (was NestJS on 2026-09-07) — possible framework config change or downgrade on
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: content GET 403 changed to 5485B plain WAF block WITH NO cf-mitigated header (was 110KB managed challenge with header) — a
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs 403 is now the standard 5485B CF WAF block page, not a non-cf-mitigated origin 403 — WAF front now unif
+- LEARN: ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-r
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption STABLE on /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197); /docs e

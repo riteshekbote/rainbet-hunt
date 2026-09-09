@@ -380,3 +380,12 @@ www.rainbet.com
 - CHANGED staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists (10+ rounds, fresh sid each request); WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades
 - CHANGED staging-raffles.rainbet.com: origin JSON /health stable (75B, x-do-orig-status:200, full CSP+HSTS+XFO headers, no cf-mitigated, no CF Access)
 - CHANGED staging-monorepo.rainbet.com: /docs now returns standard 5485B CF WAF block page (not origin 403) — WAF front now uniform on app bc240b8a
+
+## 2026-09-09 15:27:15 UTC
+- NEW staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with NO auth — returns `40{"sid":"...","_placeholder":true}` establishing valid session on DO app 1ce4ff55
+- NEW staging-alerts.rainbet.com: socket.io root namespace REJECTS unauthenticated CONNECT (`40{}` and `40{"token":"fake..."}`) with `44{"message":"er_auth_token_invalid","data":{"status":401}}` — per-hostn
+- CHANGED api.rainbet.com: content GET 403 changed to 5485B plain WAF block WITH NO cf-mitigated header (was 110KB managed challenge with header) — active operator WAF churn on DO app 53f39197
+- CHANGED staging-services.rainbet.com: CORS reflector confirmed path-agnostic on 3/3 tested paths (/health, /api/v1/users, OPTIONS /api/v1) — reflects arbitrary Origin + allow-credentials:true + access-control
+- CHANGED staging-monorepo.rainbet.com: /docs now returns standard 5485B CF WAF block page (not origin 403) — WAF front now uniform on app bc240b8a
+- CHANGED staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists (10+ rounds, fresh sid each request); WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades
+- CHANGED staging-raffles.rainbet.com: origin JSON /health stable (75B, x-do-orig-status:200, full CSP+HSTS+XFO headers, no cf-mitigated, no CF Access)

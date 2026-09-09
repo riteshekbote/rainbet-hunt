@@ -219,3 +219,4 @@
 - 2026-09-09 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: origin JSON /health stable (75B, x-do-orig-status:200, full CSP+HSTS+XFO, no cf-mitigated, no CF Access)
 - 2026-09-09 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists but socket.io enforces auth on namespace connect — transport-layer gap, application-layer closed
 - 2026-09-09 ACCEPTED MISCONFIG @ staging-services.rainbet.com: origin-reachable Express app on app 1ce4ff55; /docs protected by Access (302, kid 31d4206e) while /health,/api/*,/metrics,/socket.io return 404/403 — path-partial Access narrower than prior lead.
+- 2026-09-09 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs 403 is now the standard 5485B CF WAF block page, not a non-cf-mitigated origin 403 — WAF front now uniform on app bc240b8a; no distinct new surface
