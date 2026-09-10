@@ -235,3 +235,6 @@
 - 2026-09-10 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs 403 is now the standard 5485B CF WAF block page, not a non-cf-mitigated origin 403 — WAF front now uniform on app bc240b8a; no distinct new surface
 - 2026-09-10 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 4 staging hostnames
 - 2026-09-10 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption STABLE on /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197); /docs excluded (403) — scope "everything but / and /docs" holds
+- 2026-09-10 ACCEPTED AUTH @ staging-chat.rainbet.com: socket.io root + business namespaces accept unauthenticated CONNECT; session establishment fully proven across root+/raffles+/alerts; event reception is sole unverified link.
+- 2026-09-10 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector 5/5 paths confirmed; latent until 2xx mount.
+- 2026-09-10 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption stable; content GET WAF frozen at 5485B block.
