@@ -15056,3 +15056,114 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] RainBet: 85 — unchanged floor. staging-chat anonymous plane fully session-proven on root+/raffles+/alerts across 12+ rounds with socket-level sids; per-hostname auth asymmetry on the same DO app (alerts enforces 401); new CORS-credentials configs on chat/raffles confirm active per-hostname config drift. Event reception remains unverified (HUMAN_ONLY). staging-services reflector 5/5 paths latent; api WAF frozen. Read-only only: no payload capture, no 2xx data, no events received. Drivers: event flow on anonymous chat socket, CORS 2xx mount, api WAF content-open.
+===== ANALYST bigpickle 2026-09-10 19:15:56 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m# [0mTodos
+[•] STEP 1 — DELTA: compare inventory+knowledge+last leads against current surface
+[ ] STEP 2 — PRIORITIZE: score top assets 0-10 on axes
+[ ] STEP 3 — HYPOTHESES: top 3 assets, max 1 each
+[ ] STEP 4 — SELF-CRITIQUE: park/drop low confidence
+[ ] STEP 5 — NEXT ACTION: one concrete action
+[ ] STEP 6 — LEARNING: accept/reject this round
+[ ] STEP 7 — RISK: score program risk
+[0m
+[0m# [0mTodos
+[✓] STEP 1 — DELTA: compare inventory+knowledge+last leads against current surface
+[✓] STEP 2 — PRIORITIZE: score top assets 0-10 on axes
+[✓] STEP 3 — HYPOTHESES: top 3 assets, max 1 each
+[✓] STEP 4 — SELF-CRITIQUE: park/drop low confidence
+[✓] STEP 5 — NEXT ACTION: one concrete action
+[✓] STEP 6 — LEARNING: accept/reject this round
+[✓] STEP 7 — RISK: score program risk
+[0m
+## 2026-09-10 16:15:44 UTC — analyst bigpickle
+
+---
+
+### STEP 1 — DELTA
+
+NO_DELTA. All 3 lead assets, 5 live hostnames, and 2 DO apps match inventory; no new subdomains, hosts, or endpoints surfaced since last round. Inventory frozen: api/www/staging/files/media + staging-{raffles,chat,alerts,socket,services,monorepo,cdn,blog,originals}.
+
+---
+
+### STEP 2 — PRIORITIZE
+
+| Asset | a | b | t | g | c | f | **Priority** |
+|---|---|---|---|---|---|---|---|
+| staging-chat.rainbet.com | 8 | 7 | 6 | 10 | 8 | 9 | **7.85** |
+| staging-services.rainbet.com | 7 | 7 | 5 | 9 | 7 | 8 | **6.85** |
+| api.rainbet.com | 4 | 9 | 7 | 6 | 9 | 6 | **6.80** |
+
+**[PRIO]** staging-chat.rainbet.com,7.85,a=8,b=7,t=6,g=10,c=8,f=9
+**[PRIO]** staging-services.rainbet.com,6.85,a=7,b=7,t=5,g=9,c=7,f=8
+**[PRIO]** api.rainbet.com,6.80,a=4,b=9,t=7,g=6,c=9,f=6
+
+---
+
+### STEP 3 — HYPOTHESES
+
+**[HYP]** staging-chat anonymous socket event reception — sole unverified link in proven bypass chain
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io (DO app 1ce4ff55)
+confidence: 88
+reasoning: engine.io handshake issues fresh anonymous sid (200/116B) with CORS credentials:true per round (12+). Chain proven: polling sid → root CONNECT `40` → `40{"sid":...,"_placeholder":true}` → `42["0","/raffles"]`/`42["0","/alerts"]` acked on anonymous socket sid across root+/raffles+/alerts namespaces. Sibling staging-alerts on SAME DO app (1ce4ff55) rejects identical CONNECT with `44 er_auth_token_invalid`/401 (10+ rounds). Per-hostname auth-middleware absence confirmed. /raffles and /alerts subscriptions accepted with fresh socket-level sids.
+evidence_needed: A server-push event (raffle draw/chat message/alert) delivered to the anonymous session during an active window.
+verify_steps: WS upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh-sid>`; `40` CONNECT root; `42["0","/raffles"]`; `42["0","/alerts"]`; hold 60s for server-push. NOTE: live event capture = customer data exposure → requires operator-held account per program rules.
+impact: Anonymous real-time registration on fleet business broadcast plane while sibling hostname enforces auth → raffle/alert interception + bet front-running once events flow. HIGH.
+testability: HUMAN_ONLY
+
+**[HYP]** staging-services CORS reflector enables authenticated cross-origin read once any data route returns 2xx
+class: MISCONFIG
+asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
+confidence: 82
+reasoning: This round /health re-confirms ACAO reflects arbitrary Origin (https://evil-attacker.example) + allow-credentials:true + access-control-expose-headers:Cf-Mitigated on 404/33B. Reflector path-agnostic (5/5 prior paths: /health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, + others). /docs 302→Access (kid 31d4206e) proves a protected route exists — 404 blanket is route-set, not app-dead. raffles/chat on same DO app emit credentials:true but do NOT reflect ACAO → reflector is per-hostname, not fleet-wide.
+evidence_needed: Any mounted route returning 2xx with ACAO-reflect + credentials (user/wallet/game data).
+verify_steps: cadence GET /health, /api/v1/users, /api/v1/health, /api/v1/games, /api/v1/profile with `Origin: https://evil-attacker.example`; flag first 2xx, record ACAO+credentials.
+impact: Cross-origin read of authenticated wallet/game/PII routes once mounted; browser-side attacker exfiltration. HIGH latent.
+testability: PASSIVE
+
+**[HYP]** api.rainbet.com WAF content-method exposure during operator rule churn
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197, prod API/money flows)
+confidence: 52
+reasoning: OPTIONS /openapi.json stable (200, Allow:GET,POST,OPTIONS,HEAD, x-do-orig-status:200, app 53f39197). Content GET still 403 plain block, body drifted 5485→5483B with NO cf-mitigated — page-length drift only, no rule transition this round. Prior 110KB-managed-challenge→5483B-block transition proved active WAF edit cycles exist; a scope-widening edit exposes origin contract. No content-method bypass in 12+ rounds despite drift.
+evidence_needed: Any content method returning origin status (2xx/4xx/5xx + x-do-orig-status) on a public path, or transition off the 5483B block.
+verify_steps: cadence GET /api/v1/status, /api/v1/public/ping, OPTIONS /openapi.json; record len+cf-mitigated+x-do-orig-status.
+impact: Prod API/OpenAPI contract disclosure → IDOR/BOLA on wallet/betting money flows. HIGH latent.
+testability: PASSIVE
+
+---
+
+### STEP 4 — SELF-CRITIQUE
+
+**[PARKED]** api WAF content-method exposure: confidence 52 — zero rule-change signal for multiple rounds, pure operator-drift dependence, passive-only. Keep on low-freq watch, not primary.
+
+**[FINAL]** survivors ranked:
+1. staging-chat anonymous socket event reception (88) — clear #1, HUMAN_ONLY
+2. staging-services CORS reflector (82) — passive watch for 2xx mount
+3. ~~api WAF drift (52)~~ — PARKED
+
+---
+
+### STEP 5 — NEXT ACTION
+
+**[NEXT]** HUMAN: WebSocket upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh-sid-from-GET-handshake>`; `40` CONNECT root; `42["0","/raffles"]`; `42["0","/alerts"]`; hold 60s for server-push. Requires operator-held account per program rules. Parallel low-RPS passive cadence: OPTIONS /openapi.json + GET /api/v1/public/ping on api.rainbet.com, GET /health with evil Origin on staging-services.
+
+---
+
+### STEP 6 — LEARNING
+
+**[LEARN]** ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io handshake sets access-control-allow-credentials:true + vary:Origin with NO ACAO reflect (evil origin absent) — socket.io CORS credentials enabled per-hostname; benign alone, reinforces per-hostname CORS config divergence from services reflector.
+
+**[LEARN]** ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: /health sets access-control-allow-credentials:true + vary:Origin, no ACAO reflect — CORS credentials enabled on same DO app but non-reflecting; fleet is NOT uniform (services reflects, raffles/chat don't).
+
+**[LEARN]** REJECTED MISCONFIG @ api.rainbet.com: content GET body drift 5485→5483B is page-length jitter (still plain 403 block, no cf-mitigated); NOT a WAF rule edit — no churn signal this round.
+
+---
+
+### STEP 7 — RISK
+
+**[RISK]** RainBet: 85 — unchanged floor. staging-chat anonymous plane fully session-proven on root+/raffles+/alerts across 12+ rounds with socket-level sids; per-hostname auth asymmetry on same DO app (alerts enforces 401); CORS-credentials configs on chat/raffles confirm active per-hostname config drift. Event reception remains unverified (HUMAN_ONLY). staging-services reflector 5/5 paths latent; api WAF frozen. Read-only only: no payload capture, no 2xx data, no events received. Drivers: event flow on anonymous chat socket, CORS 2xx mount, api WAF content-open.
+Analysis complete — no new deltas this round; the surface is frozen but the top chain remains the staging-chat anonymous socket plane (88), with event reception as the sole unverified link requiring a HUMAN window with an operator-held account.

@@ -1,35 +1,25 @@
-## 2026-09-10 16:09:41 UTC [target] (model bigpickle)
-[HYP] staging-chat anonymous socket event reception — sole unverified link in proven bypass chain
+## 2026-09-10 19:10:22 UTC [target] (model bigpickle)
 class: AUTH
 asset: staging-chat.rainbet.com/socket.io (DO app 1ce4ff55)
 confidence: 88
-reasoning: This round re-confirmed engine.io handshake issues fresh anonymous sid (200/116B, sid=iutZR0US2g2AM9zMAABx) with CORS credentials:true on the handshake (socket.io allowHeaders/credentials config). Chain proven across 12+ rounds: polling sid → root CONNECT `40` → `40{"sid":...}` → `42["0","/raffles"]`/`42["0","/alerts"]` acked on anonymous socket sid. Sibling staging-alerts on the SAME DO app rejects identical CONNECT with `44 er_auth_token_invalid`/401 (10+ rounds). Per-hostname auth-middleware absence proven; namespace subscription registered on business broadcast plane.
-evidence_needed: A server-push event (raffle draw/chat message/alert) delivered to the anonymous subscribed session during an active window.
-verify_steps: WS upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh-sid>`; `40` then `42["0","/raffles"]`; hold 60s. NOTE program rule: live event capture = customer data exposure → only for operator-held account (HUMAN_ONLY), not passive.
-impact: Anonymous real-time registration on fleet business broadcast plane while sibling hostname enforces auth → raffle/alert/chat interception + bet front-running once events flow. HIGH.
+reasoning: engine.io handshake issues fresh anonymous sid (200/116B) with CORS credentials:true per round (12+). Chain proven: polling sid → root CONNECT `40` → `40{"sid":...,"_placeholder":true}` → `42["0","/raffles"]`/`42["0","/alerts"]` acked on anonymous socket sid across root+/raffles+/alerts namespaces. Sibling staging-alerts on SAME DO app (1ce4ff55) rejects identical CONNECT with `44 er_auth_token_invalid`/401 (10+ rounds). Per-hostname auth-middleware absence confirmed. /raffles and /alerts subscriptions accepted with fresh socket-level sids.
+evidence_needed: A server-push event (raffle draw/chat message/alert) delivered to the anonymous session during an active window.
+verify_steps: WS upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh-sid>`; `40` CONNECT root; `42["0","/raffles"]`; `42["0","/alerts"]`; hold 60s for server-push. NOTE: live event capture = customer data exposure → requires operator-held account per program rules.
+impact: Anonymous real-time registration on fleet business broadcast plane while sibling hostname enforces auth → raffle/alert interception + bet front-running once events flow. HIGH.
 testability: HUMAN_ONLY
-[HYP] staging-services CORS reflector enables authenticated cross-origin read once any data route returns 2xx
 class: MISCONFIG
 asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
 confidence: 82
-reasoning: /health this round re-confirms ACAO reflects arbitrary Origin (https://evil-attacker.example) + allow-credentials:true + access-control-expose-headers:Cf-Mitigated on 404/33B. Reflector path-agnostic (5/5 prior paths: /health, /api/v1/users, OPTIONS /api/v1, /api/v1/games). /docs 302→Access (kid 31d4206e) proves a protected route exists on this app — 404 blanket is route-set, not app-dead. Note: raffles/chat on same app emit credentials:true but DO NOT reflect ACAO → reflector is per-hostname, not fleet-wide.
+reasoning: This round /health re-confirms ACAO reflects arbitrary Origin (https://evil-attacker.example) + allow-credentials:true + access-control-expose-headers:Cf-Mitigated on 404/33B. Reflector path-agnostic (5/5 prior paths: /health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, + others). /docs 302→Access (kid 31d4206e) proves a protected route exists — 404 blanket is route-set, not app-dead. raffles/chat on same DO app emit credentials:true but do NOT reflect ACAO → reflector is per-hostname, not fleet-wide.
 evidence_needed: Any mounted route returning 2xx with ACAO-reflect + credentials (user/wallet/game data).
 verify_steps: cadence GET /health, /api/v1/users, /api/v1/health, /api/v1/games, /api/v1/profile with `Origin: https://evil-attacker.example`; flag first 2xx, record ACAO+credentials.
 impact: Cross-origin read of authenticated wallet/game/PII routes once mounted; browser-side attacker exfiltration. HIGH latent.
 testability: PASSIVE
-[HYP] api.rainbet.com WAF content-method exposure during operator rule churn
 class: MISCONFIG
 asset: api.rainbet.com (DO app 53f39197, prod API/money flows)
 confidence: 52
-reasoning: OPTIONS /openapi.json stable (200, Allow:GET,POST,OPTIONS,HEAD, x-do-orig-status:200, app 53f39197). Content GET still 403 plain block, body drifted 5485→5484→5483B with NO cf-mitigated — page-length drift only, no rule transition seen in this round. Prior 110KB-managed-challenge→5483B-block transition proved edit cycles exist; a scope-widening edit exposes origin contract. No content-method bypass in 12+ rounds.
+reasoning: OPTIONS /openapi.json stable (200, Allow:GET,POST,OPTIONS,HEAD, x-do-orig-status:200, app 53f39197). Content GET still 403 plain block, body drifted 5485→5483B with NO cf-mitigated — page-length drift only, no rule transition this round. Prior 110KB-managed-challenge→5483B-block transition proved active WAF edit cycles exist; a scope-widening edit exposes origin contract. No content-method bypass in 12+ rounds despite drift.
 evidence_needed: Any content method returning origin status (2xx/4xx/5xx + x-do-orig-status) on a public path, or transition off the 5483B block.
 verify_steps: cadence GET /api/v1/status, /api/v1/public/ping, OPTIONS /openapi.json; record len+cf-mitigated+x-do-orig-status.
 impact: Prod API/OpenAPI contract disclosure → IDOR/BOLA on wallet/betting money flows. HIGH latent.
 testability: PASSIVE
-[PARKED] api WAF content-method exposure: confidence 52 — zero rule-change signal for multiple rounds, pure operator-drift dependence, passive-only. Fewer bytestream-inspection chars; keep on low-freq watch, not primary.
-[FINAL] staging-chat anonymous socket event reception (88) — clear #1; staging-services CORS reflector (82) — passive watch for 2xx mount; api WAF drift (52) — parked.
-[NEXT] HUMAN: WebSocket upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh-sid-from-GET-(engine.io polling sid; GET first will yield a NEW polling sid iutZR0US2g2AM9zMAABx pattern); then `40` CONNECT root, `42["0","/raffles"]`, `42["0","/alerts"]`, hold 60s for server-push in an active window. Requires operator-held account per program rules (customer data exposure = in-scope only for account holder). Parallel low-RPS passive cadence: OPTIONS /openapi.json + GET /api/v1/public/ping on api.rainbet.com, GET /health with evil Origin on staging-services.
-[LEARN] ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io handshake sets access-control-allow-credentials:true + vary:Origin with NO ACAO reflect (evil origin absent) — socket.io CORS credentials enabled per-hostname; benign alone, reinforces per-hostname CORS config divergence from services reflector.
-[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: /health sets access-control-allow-credentials:true + vary:Origin, no ACAO reflect — CORS credentials enabled on same DO app but non-reflecting; fleet is NOT uniform (services reflects, raffles/chat don't).
-[LEARN] REJECTED MISCONFIG @ api.rainbet.com: content GET body drift 5485→5483B is page-length jitter (still plain 403 block, no cf-mitigated); NOT a WAF rule edit — no churn signal this round.
-[RISK] RainBet: 85 — unchanged floor. staging-chat anonymous plane fully session-proven on root+/raffles+/alerts across 12+ rounds with socket-level sids; per-hostname auth asymmetry on the same DO app (alerts enforces 401); new CORS-credentials configs on chat/raffles confirm active per-hostname config drift. Event reception remains unverified (HUMAN_ONLY). staging-services reflector 5/5 paths latent; api WAF frozen. Read-only only: no payload capture, no 2xx data, no events received. Drivers: event flow on anonymous chat socket, CORS 2xx mount, api WAF content-open.
