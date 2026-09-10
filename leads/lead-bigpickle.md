@@ -1892,3 +1892,31 @@ evidence_needed: Any mounted route returning 2xx with ACAO-reflect + credentials
 verify_steps: cadence GET /health, /api/v1/users, /api/v1/health, /api/v1/games, /api/v1/profile with `Origin: https://evil-attacker.example`; flag first 2xx.
 impact: Authenticated cross-origin read of wallet/game/PII routes once a data route mounts. HIGH latent.
 testability: PASSIVE
+## 2026-09-10 06:50:31 UTC [target] (model bigpickle)
+[HYP] staging-chat anonymous socket registration on business namespaces — session establishment fully proven; only event reception unverified
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io (DO app 1ce4ff55)
+confidence: 87
+reasoning: This round re-proved full chain on one anonymous engine.io sid: GET handshake issues sid (200/116B) → POST `40` root CONNECT returns `40{"sid":"iCoP21J_Ahm4tSOKAABd"}` (anonymous socket sid) → POST `42["0","/raffles"]` and `42["0","/alerts"]` both acked `ok`. Sibling host staging-alerts on the SAME DO app rejects identical CONNECT with `er_auth_token_invalid`/401 (established across 10+ prior rounds). Per-hostname auth-middleware absence proven; namespace subscription registered.
+evidence_needed: A server-push event (raffle draw/chat message/alert) delivered to the anonymous subscribed session during an active window.
+verify_steps: WS upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh-sid>`; `40` then `42["0","/raffles"]`; hold 60s. NOTE program rule: live event capture = customer data exposure → only for operator-held account (HUMAN_ONLY), not passive.
+impact: Anonymous real-time registration on the fleet's business broadcast plane while sibling hostname enforces auth → raffle/alert/chat interception + bet front-running once events flow. HIGH.
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector enables authenticated cross-origin read once any data route returns 2xx
+class: MISCONFIG
+asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
+confidence: 82
+reasoning: This round `/health` re-confirms ACAO reflects arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated (404/33B). Reflector path-agnostic (5/5 prior paths). /docs 302→Access (kid 31d4206e) proves a protected route exists on this app — 404 blanket is route-set, not app-dead.
+evidence_needed: Any mounted route returning 2xx with ACAO-reflect + credentials (user/wallet/game data).
+verify_steps: cadence GET /health, /api/v1/users, /api/v1/health, /api/v1/games, /api/v1/profile with `Origin: https://evil-attacker.example`; flag first 2xx, record ACAO+credentials.
+impact: Cross-origin read of authenticated wallet/game/PII routes once mounted; browser-side attacker exfiltration. HIGH latent.
+testability: PASSIVE
+[HYP] api.rainbet.com WAF content-method exposure during operator rule churn
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197, prod API/money flows)
+confidence: 55
+reasoning: OPTIONS blanket exemption STABLE (200+Allow+x-do-orig-status on /openapi.json, /api/v2/) while content GET uniformly 403 (5486B plain block, no cf-mitigated). Prior observed transition 110KB managed-challenge → 5484B block proves active WAF edit cycles; a scope-widening edit exposes origin contract. No content-method bypass in 10+ rounds despite drift.
+evidence_needed: Any content method returning origin status (2xx/4xx/5xx + x-do-orig-status) on a public path, or transition off the 5486B block.
+verify_steps: cadence GET /api/v1/status, /api/v1/public/ping, OPTIONS /openapi.json; record len+cf-mitigated+x-do-orig-status.
+impact: Prod API/OpenAPI contract disclosure → IDOR/BOLA on wallet/betting money flows. HIGH latent.
+testability: PASSIVE

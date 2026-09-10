@@ -418,3 +418,13 @@ www.rainbet.com
 - CHANGED staging-services.rainbet.com: CORS reflector confirmed path-agnostic on 4 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games) — reflects arbitrary Origin + allow-credentials:true + access-c
 - CHANGED staging-monorepo.rainbet.com: /docs now returns standard 5485B CF WAF block page (not origin 403) — WAF front now uniform on app bc240b8a
 - CHANGED staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists (10+ rounds, fresh sid each request); WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades
+
+## 2026-09-10 06:50:39 UTC
+- NEW staging-chat.rainbet.com/socket.io: socket.io root namespace accepts bare CONNECT (`40`) with NO auth — returns `40{"sid":"...","_placeholder":true}` establishing valid session on DO app 1ce4ff55; /ra
+- NEW staging-chat.rainbet.com/socket.io: unauthenticated namespace joins EXPANDED beyond root — /raffles and /alerts both ack connect with `40{"sid":"..."}` on anonymous engine.io sid (connect requires sid
+- NEW api.rainbet.com: content GET 403 changed to 5485B plain WAF block WITH NO cf-mitigated header (was 110KB managed challenge with header) — active operator WAF churn on DO app 53f39197
+- NEW staging-services.rainbet.com: CORS reflector confirmed path-agnostic on 4 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games) — reflects arbitrary Origin + allow-credentials:true + access-c
+- NEW staging-monorepo.rainbet.com: /docs now returns standard 5485B CF WAF block page (not origin 403) — WAF front now uniform on app bc240b8a
+- NEW staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists (10+ rounds, fresh sid each request); WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades
+- CHANGED staging-raffles.rainbet.com: REAL origin JSON exposed unprotected stable — {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}, x-do-orig-status 200, no cf-mitigated, no CF Acc
+- CHANGED api.rainbet.com: OPTIONS blanket exemption STABLE on /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197); /docs excluded (403) — scope "everything but / and /docs" holds
