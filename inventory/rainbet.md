@@ -406,3 +406,15 @@ www.rainbet.com
 - CHANGED api.rainbet.com WAF state: unchanged from 2026-09-09 — content GET = 5484B block, no cf-mitigated; OPTIONS /openapi.json = 200 + `Allow: OPTIONS,HEAD,GET,POST` + x-do-orig-status:200 + app 53f39197.
 - CHANGED staging-services CORS reflector: persists on /health AND new path /api/v1/games (both 404, ACAO-relect+credentials+expose Cf-Mitigated, x-powered-by Express) — no 2xx still.
 - CHANGED alerts/chat engine.io: both 200 len=116 (plane up); raffles /health 75B stable; monorepo /health 404/69B stable.
+
+## 2026-09-10 01:34:53 UTC
+- NEW staging-chat.rainbet.com/socket.io: unauthenticated namespace joins EXPANDED beyond root — /raffles and /alerts both ack connect with `40{"sid":"..."}` on anonymous engine.io sid (connect requires sid
+- CHANGED api.rainbet.com WAF state: unchanged from 2026-09-09 — content GET = 5484B block, no cf-mitigated; OPTIONS /openapi.json = 200 + `Allow: OPTIONS,HEAD,GET,POST` + x-do-orig-status:200 + app 53f39197.
+- CHANGED staging-services CORS reflector: persists on /health AND new path /api/v1/games (both 404, ACAO-relect+credentials+expose Cf-Mitigated, x-powered-by Express) — no 2xx still.
+- CHANGED alerts/chat engine.io: both 200 len=116 (plane up); raffles /health 75B stable; monorepo /health 404/69B stable.
+- NEW staging-chat.rainbet.com/socket.io: socket.io root namespace accepts bare CONNECT (`40`) with NO auth — returns `40{"sid":"...","_placeholder":true}` establishing valid session on DO app 1ce4ff55; /ra
+- NEW staging-chat.rainbet.com/socket.io: unauthenticated namespace joins EXPANDED beyond root — /raffles and /alerts both ack connect with `40{"sid":"..."}` on anonymous engine.io sid
+- CHANGED api.rainbet.com: content GET 403 changed to 5485B plain WAF block WITH NO cf-mitigated header (was 110KB managed challenge with header) — active operator WAF churn on DO app 53f39197
+- CHANGED staging-services.rainbet.com: CORS reflector confirmed path-agnostic on 4 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games) — reflects arbitrary Origin + allow-credentials:true + access-c
+- CHANGED staging-monorepo.rainbet.com: /docs now returns standard 5485B CF WAF block page (not origin 403) — WAF front now uniform on app bc240b8a
+- CHANGED staging-alerts.rainbet.com: engine.io v4 anonymous sid issuance persists (10+ rounds, fresh sid each request); WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades
