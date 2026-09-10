@@ -238,3 +238,6 @@
 - 2026-09-10 ACCEPTED AUTH @ staging-chat.rainbet.com: socket.io root + business namespaces accept unauthenticated CONNECT; session establishment fully proven across root+/raffles+/alerts; event reception is sole unverified link.
 - 2026-09-10 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector 5/5 paths confirmed; latent until 2xx mount.
 - 2026-09-10 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption stable; content GET WAF frozen at 5485B block.
+- 2026-09-10 ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io handshake sets access-control-allow-credentials:true + vary:Origin with NO ACAO reflect (evil origin absent) — socket.io CORS credentials enabled per-hostname; benign alone, reinforces per-hostname CORS config divergence from services reflector.
+- 2026-09-10 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: /health sets access-control-allow-credentials:true + vary:Origin, no ACAO reflect — CORS credentials enabled on same DO app but non-reflecting; fleet is NOT uniform (services reflects, raffles/chat don't).
+- 2026-09-10 REJECTED MISCONFIG @ api.rainbet.com: content GET body drift 5485→5483B is page-length jitter (still plain 403 block, no cf-mitigated); NOT a WAF rule edit — no churn signal this round.

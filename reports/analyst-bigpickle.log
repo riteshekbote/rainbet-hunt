@@ -14892,3 +14892,167 @@ testability: PASSIVE
 ## STEP 7 — RISK
 
 [RISK] RainBet: 85 (from 82) — staging-chat anonymous socket plane gains namespace-join depth (root+/raffles+/alerts acked, fresh sids) on same DO app where alerts enforces auth; event reception is the sole unverified link in an otherwise proven bypass chain. staging-services CORS reflector 5/5 paths; api WAF stable. Read-only only: no payload capture, no 2xx data, no events received. Drivers: event flow on anonymous chat socket, CORS 2xx mount, api WAF content-open.
+===== ANALYST bigpickle 2026-09-10 16:15:44 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - -X OPTIONS "https://api.rainbet.com/openapi.json" -H "Origin: https://evil-attacker.example" -H "Access-Control-Request-Method: GET" -w "BODY_BYTES=%{size_download} CODE=%{http_code}\n" --max-time 20
+HTTP/2 200 
+date: Thu, 10 Sep 2026 16:08:15 GMT
+content-type: application/json
+content-length: 0
+server: cloudflare
+allow: GET,POST,OPTIONS,HEAD
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=YgwZQDVJnJbMzb8HG8bmpU68J64pnlfYRHQldN4mFbI-1789056495.3401124-1.0.1.1-sDxdvj_SymV2CFzxM2_F4TnZelzCJK64zLShS1gOPIAaE1X.2hUU_ziI41zVBkciILOAVGFHFGpaLtMJFzWrzvmI237QlRcNLN8dEOyC01gtUQd0I2Ful6mKBQT56WFq; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 10 Sep 2026 16:38:15 GMT
+cf-ray: a38fb0b7dfa249ad-ORD
+alt-svc: h3=":443"; ma=86400
+
+BODY_BYTES=0 CODE=200
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null "https://api.rainbet.com/api/v1/public/ping" -w "BODY_BYTES=%{size_download} CODE=%{http_code}\n" --max-time 20
+HTTP/2 403 
+date: Thu, 10 Sep 2026 16:08:15 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=LHwA.8Cjov3Xd9hxFeG8fgaIiVCXJGoe0d.vcLSvUEQ-1789056495.433724-1.0.1.1-nYNXdkT5PsbdrKxCT3gWrZ1tYtL.sLnJ8JPUXiddpKlM5dybum9F_gNbA0VlrmvMUQ3FmWEVvxos7axpjUiVPf.J15tRZbFoDfg6KX4lRFTl9yZVgQG51_jwSXTVqhkJ; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 10 Sep 2026 16:38:15 GMT
+server: cloudflare
+cf-ray: a38fb0b87b9ff7fc-ORD
+alt-svc: h3=":443"; ma=86400
+
+BODY_BYTES=5483 CODE=403
+[0m
+[0m$ [0mcurl -s -D - "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" -w "\nBODY_BYTES=%{size_download} CODE=%{http_code}\n" --max-time 20
+HTTP/2 200 
+date: Thu, 10 Sep 2026 16:08:16 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 116
+vary: Origin
+access-control-allow-credentials: true
+cache-control: no-store
+accept-ranges: bytes
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 200
+server: cloudflare
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=henP9VbgkKlEXMDSu0lDOuqowUXlra9L1nYihBPGMag-1789056496.7243998-1.0.1.1-SvLwuOjr78Ls6OjFJeurwEfWPsurdANvZ6WdaQv8JbmIxklkTNwjLbazQIQJ8o8kmiDv3OJ0DBZNT5jiPUJq59i7oi92l4MDP2peXw5sz1_1FTFTDarvB.m2yiHBKwOY; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 10 Sep 2026 16:38:16 GMT
+cf-ray: a38fb0c08a9bead6-ORD
+alt-svc: h3=":443"; ma=86400
+
+0{"sid":"iutZR0US2g2AM9zMAABx","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+BODY_BYTES=116 CODE=200
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null "https://staging-services.rainbet.com/health" -H "Origin: https://evil-attacker.example" -w "BODY_BYTES=%{size_download} CODE=%{http_code}\n" --max-time 20
+HTTP/2 404 
+date: Thu, 10 Sep 2026 16:08:16 GMT
+content-type: application/json; charset=utf-8
+content-length: 33
+x-powered-by: Express
+etag: W/"21-dcnYZsBeejUuJVu2GyrMii6G4vU"
+vary: Accept-Encoding
+server: cloudflare
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 404
+cf-cache-status: DYNAMIC
+access-control-expose-headers: Cf-Mitigated
+set-cookie: __cf_bm=wqGbDMuSHnK880NdtjhOuKnwZsDKrP2RTQyRgrw3b4w-1789056496.8097417-1.0.1.1-9UwMloXpSM_dprrtN61wxmY0KkjNd1.nObQeXcraVP3ruCA0wQPjJUzWluwoYB9hyZSAAEXGRpFBGkol927uH0iacLMfysAh4YhA2uK_WRyaKXgDLeZih9woBcVmKR3A; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 10 Sep 2026 16:38:16 GMT
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil-attacker.example
+cf-ray: a38fb0c10ae023d3-ORD
+alt-svc: h3=":443"; ma=86400
+
+BODY_BYTES=33 CODE=404
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null "https://staging-raffles.rainbet.com/health" -w "BODY_BYTES=%{size_download} CODE=%{http_code}\n" --max-time 20
+HTTP/2 200 
+date: Thu, 10 Sep 2026 16:08:16 GMT
+content-type: application/json; charset=utf-8
+content-length: 75
+vary: Origin
+access-control-allow-credentials: true
+content-security-policy: default-src 'self';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline';img-src 'self' data: https:;base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';upgrade-insecure-requests
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+origin-agent-cluster: ?1
+referrer-policy: no-referrer
+strict-transport-security: max-age=31536000; includeSubDomains
+x-content-type-options: nosniff
+x-dns-prefetch-control: off
+x-download-options: noopen
+x-frame-options: DENY
+x-permitted-cross-domain-policies: none
+x-xss-protection: 1; mode=block
+etag: W/"4b-rXtkeLa41atkCQYvEmzgGV3syF8"
+accept-ranges: bytes
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 200
+server: cloudflare
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=Uy368EimE8dDUTwaY8X4rbXS3UhT7WCY_txmgdwUHrk-1789056496.8779259-1.0.1.1-QENYCIGrztlbGtoM0iP4s2KmqeGzKGQHpRwIRU2452vxrA68.5Y_esr3l_Y_gRA.gne_PUjZ4YkjOYkc3zJuA_mIPh0d6yFHmSvchJQ5lHrvu3gSRbvX_O_RQk6ny7M5; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Thu, 10 Sep 2026 16:38:16 GMT
+cf-ray: a38fb0c179fff157-ORD
+alt-svc: h3=":443"; ma=86400
+
+BODY_BYTES=75 CODE=200
+[0m
+STEP 1 — DELTA
+- [NEW] staging-chat.rainbet.com engine.io polling handshake now emits `access-control-allow-credentials: true` + `vary: Origin` (fresh sid iutZR0US2g2AM9zMAABx, 200/116B, x-do-orig-status 200) — socket.io CORS credentials enabled, NO ACAO reflect (evil origin absent).
+- [NEW] staging-raffles.rainbet.com /health emits `access-control-allow-credentials: true` + `vary: Origin` alongside full CSP/HSTS/XFO suite (200/75B, still `{"code":200,"db":"Running",...}`) — CORS credentials enabled, no ACAO reflect.
+- [CHANGED] api.rainbet.com content GET /api/v1/public/ping → 403, BODY=5483B (was 5484/5485B), still no cf-mitigated header — sub-3-byte page drift, not a rule edit.
+- Stable: api OPTIONS /openapi.json 200 + Allow:GET,POST,OPTIONS,HEAD + x-do-orig-status:200 + x-do-app-origin:53f39197; staging-services /health 404/33B reflects `Origin: https://evil-attacker.example` in ACAO + credentials:true + expose Cf-Mitigated; x-powered-by: Express.
+
+STEP 2 — PRIORITIZE
+- [PRIO] staging-chat.rainbet.com/socket.io,9.2, a=9 b=9 t=8 g=10 c=7 f=9 — anonymous socket plane (root+/raffles+/alerts) fully session-proven on app 1ce4ff55; new CORS-credentials config detail; event reception sole gap
+- [PRIO] staging-services.rainbet.com,7.4, a=6 b=7 t=8 g=8 c=7 f=8 — CORS reflector 5/5 paths + credentials + expose Cf-Mitigated; latent until 2xx mount
+- [PRIO] api.rainbet.com,6.3, a=4 b=9 t=8 g=4 c=7 f=6 — OPTIONS exemption stable; content WAF frozen (5483B block); drift-dependent
+
+STEP 3 — HYPOTHESES
+[HYP] staging-chat anonymous socket event reception — sole unverified link in proven bypass chain
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io (DO app 1ce4ff55)
+confidence: 88
+reasoning: This round re-confirmed engine.io handshake issues fresh anonymous sid (200/116B, sid=iutZR0US2g2AM9zMAABx) with CORS credentials:true on the handshake (socket.io allowHeaders/credentials config). Chain proven across 12+ rounds: polling sid → root CONNECT `40` → `40{"sid":...}` → `42["0","/raffles"]`/`42["0","/alerts"]` acked on anonymous socket sid. Sibling staging-alerts on the SAME DO app rejects identical CONNECT with `44 er_auth_token_invalid`/401 (10+ rounds). Per-hostname auth-middleware absence proven; namespace subscription registered on business broadcast plane.
+evidence_needed: A server-push event (raffle draw/chat message/alert) delivered to the anonymous subscribed session during an active window.
+verify_steps: WS upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh-sid>`; `40` then `42["0","/raffles"]`; hold 60s. NOTE program rule: live event capture = customer data exposure → only for operator-held account (HUMAN_ONLY), not passive.
+impact: Anonymous real-time registration on fleet business broadcast plane while sibling hostname enforces auth → raffle/alert/chat interception + bet front-running once events flow. HIGH.
+testability: HUMAN_ONLY
+[HYP] staging-services CORS reflector enables authenticated cross-origin read once any data route returns 2xx
+class: MISCONFIG
+asset: staging-services.rainbet.com/* (DO app 1ce4ff55)
+confidence: 82
+reasoning: /health this round re-confirms ACAO reflects arbitrary Origin (https://evil-attacker.example) + allow-credentials:true + access-control-expose-headers:Cf-Mitigated on 404/33B. Reflector path-agnostic (5/5 prior paths: /health, /api/v1/users, OPTIONS /api/v1, /api/v1/games). /docs 302→Access (kid 31d4206e) proves a protected route exists on this app — 404 blanket is route-set, not app-dead. Note: raffles/chat on same app emit credentials:true but DO NOT reflect ACAO → reflector is per-hostname, not fleet-wide.
+evidence_needed: Any mounted route returning 2xx with ACAO-reflect + credentials (user/wallet/game data).
+verify_steps: cadence GET /health, /api/v1/users, /api/v1/health, /api/v1/games, /api/v1/profile with `Origin: https://evil-attacker.example`; flag first 2xx, record ACAO+credentials.
+impact: Cross-origin read of authenticated wallet/game/PII routes once mounted; browser-side attacker exfiltration. HIGH latent.
+testability: PASSIVE
+[HYP] api.rainbet.com WAF content-method exposure during operator rule churn
+class: MISCONFIG
+asset: api.rainbet.com (DO app 53f39197, prod API/money flows)
+confidence: 52
+reasoning: OPTIONS /openapi.json stable (200, Allow:GET,POST,OPTIONS,HEAD, x-do-orig-status:200, app 53f39197). Content GET still 403 plain block, body drifted 5485→5484→5483B with NO cf-mitigated — page-length drift only, no rule transition seen in this round. Prior 110KB-managed-challenge→5483B-block transition proved edit cycles exist; a scope-widening edit exposes origin contract. No content-method bypass in 12+ rounds.
+evidence_needed: Any content method returning origin status (2xx/4xx/5xx + x-do-orig-status) on a public path, or transition off the 5483B block.
+verify_steps: cadence GET /api/v1/status, /api/v1/public/ping, OPTIONS /openapi.json; record len+cf-mitigated+x-do-orig-status.
+impact: Prod API/OpenAPI contract disclosure → IDOR/BOLA on wallet/betting money flows. HIGH latent.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] api WAF content-method exposure: confidence 52 — zero rule-change signal for multiple rounds, pure operator-drift dependence, passive-only. Fewer bytestream-inspection chars; keep on low-freq watch, not primary.
+[FINAL] staging-chat anonymous socket event reception (88) — clear #1; staging-services CORS reflector (82) — passive watch for 2xx mount; api WAF drift (52) — parked.
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: WebSocket upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh-sid-from-GET-(engine.io polling sid; GET first will yield a NEW polling sid iutZR0US2g2AM9zMAABx pattern); then `40` CONNECT root, `42["0","/raffles"]`, `42["0","/alerts"]`, hold 60s for server-push in an active window. Requires operator-held account per program rules (customer data exposure = in-scope only for account holder). Parallel low-RPS passive cadence: OPTIONS /openapi.json + GET /api/v1/public/ping on api.rainbet.com, GET /health with evil Origin on staging-services.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io handshake sets access-control-allow-credentials:true + vary:Origin with NO ACAO reflect (evil origin absent) — socket.io CORS credentials enabled per-hostname; benign alone, reinforces per-hostname CORS config divergence from services reflector.
+[LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: /health sets access-control-allow-credentials:true + vary:Origin, no ACAO reflect — CORS credentials enabled on same DO app but non-reflecting; fleet is NOT uniform (services reflects, raffles/chat don't).
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: content GET body drift 5485→5483B is page-length jitter (still plain 403 block, no cf-mitigated); NOT a WAF rule edit — no churn signal this round.
+
+STEP 7 — RISK
+[RISK] RainBet: 85 — unchanged floor. staging-chat anonymous plane fully session-proven on root+/raffles+/alerts across 12+ rounds with socket-level sids; per-hostname auth asymmetry on the same DO app (alerts enforces 401); new CORS-credentials configs on chat/raffles confirm active per-hostname config drift. Event reception remains unverified (HUMAN_ONLY). staging-services reflector 5/5 paths latent; api WAF frozen. Read-only only: no payload capture, no 2xx data, no events received. Drivers: event flow on anonymous chat socket, CORS 2xx mount, api WAF content-open.

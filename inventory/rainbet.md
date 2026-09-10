@@ -437,3 +437,12 @@ www.rainbet.com
 - NEW staging-monorepo.rainbet.com: /docs now returns standard 5485B CF WAF block page (not origin 403) — WAF front uniform on app bc240b8a
 - CHANGED staging-raffles.rainbet.com/health: REAL origin JSON stable (75B, x-do-orig-status:200, no cf-mitigated, no CF Access) — app 1ce4ff55 serves 6 staging hostnames
 - CHANGED api.rainbet.com: OPTIONS blanket exemption STABLE on /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197); /docs excluded (403) — scope "everything but / and /docs" holds
+
+## 2026-09-10 16:15:44 UTC
+- NEW staging-chat.rainbet.com/socket.io: socket.io root + /raffles + /alerts namespaces accept unauthenticated CONNECT (`40`) with fresh socket-level sids on anonymous engine.io sid — session establishment
+- NEW staging-alerts.rainbet.com/socket.io: WebSocket upgrade CONFIRMED WORKING with captured engine.io sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]) — socket plane hijack proven
+- NEW api.rainbet.com: content GET 403 changed to 5485B plain WAF block WITH NO cf-mitigated header (was 110KB managed challenge) — active operator WAF churn on DO app 53f39197
+- NEW staging-services.rainbet.com: CORS reflector path-agnostic on 4 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games) — reflects arbitrary Origin + allow-credentials:true + expose Cf-Mitigate
+- NEW staging-monorepo.rainbet.com: /docs now returns standard 5485B CF WAF block page (not origin 403) — WAF front uniform on app bc240b8a
+- CHANGED staging-raffles.rainbet.com/health: REAL origin JSON stable (75B, x-do-orig-status:200, no cf-mitigated, no CF Access) — app 1ce4ff55 serves 6 staging hostnames
+- CHANGED api.rainbet.com: OPTIONS blanket exemption STABLE on /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197); /docs excluded (403) — scope "everything but / and /docs" holds
