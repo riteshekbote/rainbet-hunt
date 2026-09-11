@@ -512,3 +512,11 @@ www.rainbet.com
 - CHANGED staging-monorepo.rainbet.com /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc240b8a
 - CHANGED staging-raffles.rainbet.com /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — app 1ce4ff55 serves 6 staging hostnames
 - CHANGED staging-alerts.rainbet.com engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control proving same-DO-app auth asymmetry with staging-chat
+
+## 2026-09-11 22:24:45 UTC
+- NEW api.rainbet.com GET /api/v1/public/ping reverted to 5485B plain WAF block (no cf-mitigated header) from 110KB managed challenge — active operator WAF churn on DO app 53f39197 confirmed live
+- NEW staging-chat.rainbet.com engine.io handshake flapped to HTTP 400 at 09:02 then REAPPEARED 200/116B at 13:31 — intermittent flapping persists on DO app 1ce4ff55 across 15+ rounds
+- CHANGED staging-services.rainbet.com CORS reflector expanded to 6 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet) — all 404/33B, reflects arbitrary Origin + all
+- CHANGED staging-monorepo.rainbet.com /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc240b8a
+- CHANGED staging-raffles.rainbet.com /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — app 1ce4ff55 serves 6 staging hostnames
+- CHANGED staging-alerts.rainbet.com engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control proving same-DO-app auth asymmetry with staging-chat

@@ -1069,3 +1069,7 @@
 - LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: x-powered-by changed to Express (was NestJS on 2026-09-07) — possible framework config change or downgrade on
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json STABLE (200 + Allow:POST,OPTIONS,HEAD,GET + x-do-orig-status:200 + x-do-app-origin:53f39197); conten
 - LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (sid=aOncFcuyVOcVjyKVAAJi, maxPayload=20480) — plane persists, serves as control provin
+
+## RANKED HYPOTHESES 2026-09-11 22:24:45 UTC
+- [95] staging-chat.rainbet.com/socket.io: Unauthenticated socket.io plane on staging-chat (session establishment proven, event reception unverified) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: staging-chat.rainbet.com — capture fresh EIO4 sid (`/socket.io/?EIO=4&transport=polling`), WebSocket-upgrade with that sid, send `40/raffles,` CONNECT (n

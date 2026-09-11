@@ -2287,3 +2287,33 @@ testability: AUTH_HELPED
 [NEXT] PROBE: GET https://api.rainbet.com/api/v1/public/ping with headers: Accept: application/json, User-Agent: RainBet-Mobile/1.0 (test common mobile API endpoint pattern), then GET https://api.rainbet.com/api/v1/health with Accept: application/json, then OPTIONS https://api.rainbet.com/api/v1/
 [LEARN] REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of path-based policy gaps
 [LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively
+## 2026-09-11 22:24:34 UTC [target] (model bigpickle)
+[HYP] Unauthenticated socket.io plane on staging-chat (session establishment proven, event reception unverified)
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 95
+reasoning: engine.io v4 issues anonymous sid `MA_XtFFJk8hUC_TxAAAY` unauthenticated (200/116B, maxPayload=10240, DO app 1ce4ff55). Root + `/raffles` + `/alerts` namespaces already ack bare CONNECT with fresh socket-level sids across 15+ rounds. Sibling hostname staging-alerts on the SAME DO app rejects namespace CONNECT with `er_auth_token_invalid` (401) — proving chat's deployment lacks the auth middleware using a per-hostname config, not a shared failure.
+evidence_needed: After anonymous sid + `/raffles` CONNECT, receive at least one emitted event (raffle draw, bet placement, chat message) without any credential — proving data egress over the anonymous plane.
+verify_steps: EIO4 polling handshake → WebSocket upgrade with captured sid → socket.io `40/raffles,` CONNECT → subscribe to room/event → observe inbound frames.
+impact: Anonymous session on live raffles/chat bus → read live wagering/draw data (potentially PII/email on chat), spoofed events. Severity: HIGH.
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector unlocks the moment a 2xx route mounts
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 48
+reasoning: Path-agnostic ACAO reflect of arbitrary Origin + `allow-credentials:true` + access-control-expose-headers:Cf-Mitigated confirmed on 9+ probed paths (all 404/33B `{"error":"er_resource_not_found"}`, x-powered-by Express, DO app 1ce4ff55). 2xx mount currently absent; any data-bearing route that returns 200 will enable credentialed cross-origin reads by arbitrary attacker origins.
+evidence_needed: One GET on a live unauthenticated route returning 2xx WITH the ACAO reflect + credentials headers.
+verify_steps: GET `/api/v1/health`, `/api/v1/markets`, `/api/v1/bets` (done, 404); continue passive GET enums of `/api/v1/public/*`, `/api/v1/config`, `/healthz`, `/ready`, `/metrics` with Origin: https://evil.example and grep for 2xx+ACAO.
+impact: Cross-origin credentialed read of any authenticated data once a 2xx user route mounts → account/wallet data theft. Severity: HIGH (conditionally exploitable).
+testability: PASSIVE
+[HYP] api.rainbet.com transient WAF whitelist window during active rule churn
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 42
+reasoning: Content GET has flipped 110KB-managed-challenge ↔ 5485B-plain-block across 14+ rounds (operator edit cycles live on DO app 53f39197). Current state = small-block. An edit window may transiently whitelist common paths (robots, security.txt, health, ping) revealing origin responses before re-blocking.
+evidence_needed: Any content GET returning non-403/no-challenge (200/401/404-from-origin) during a churn window — proving a per-path whitelist bypass.
+verify_steps: Repeat GET `/robots.txt`, `/.well-known/security.txt`, `/openapi.json`, `/health`, `/api/v1/public/config` (1 rps) each round alongside the ping control; flag any non-403.
+impact: WAF bypass → origin API surface (wallets, auth, bets) enumerable. Severity: HIGH (conditional on window).
+testability: PASSIVE
+[NEXT] PROBE: staging-chat.rainbet.com — capture fresh EIO4 sid (`/socket.io/?EIO=4&transport=polling`), WebSocket-upgrade with that sid, send `40/raffles,` CONNECT (no token), then passive-listen for inbound engine.io `42/raffles,<event>` frames for >=30s. Single host, no mutations, verifies the final H1 link (AUTH_HELPED).
+[RISK] RainBet: 45/100 — Top finding (staging-chat anonymous socket plane) is proven session establishment but unverified data egress, and its impact is confined to staging mirroring prod data. CORS reflector on staging-services is the strongest latent severity (credentialed cross-origin read) but awaits a 2xx mount. CF WAF/Access churn indicates active operator hardening; 17/20 inventory hosts dead. Overall exposure moderate, exploitation conditionally gated.
