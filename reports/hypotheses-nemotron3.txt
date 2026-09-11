@@ -1,4 +1,4 @@
-## 2026-09-10 23:53:35 UTC [target] (model nemotron3)
+## 2026-09-11 03:59:21 UTC [target] (model nemotron3)
 [NEW] api.rainbet.com GET /api/v1/public/ping reverted to full CF managed challenge (110KB HTML, no cf-mitigated header) — was 5485B plain WAF block; active operator WAF churn on DO app 53f39197
 [NEW] staging-monorepo.rainbet.com /docs returns full CF managed challenge (not 5485B block) — WAF front state differs from 2026-09-09
 [CHANGED] staging-chat.rainbet.com/socket.io engine.io handshake stable 200 (116B, fresh sid, `access-control-allow-credentials:true`, `vary:Origin`, no ACAO reflect, `x-do-app-origin:1ce4ff55`)
@@ -7,8 +7,8 @@
 [CHANGED] api.rainbet.com OPTIONS /api/v1/ stable 200 (`Allow: OPTIONS,HEAD,GET,POST`, `x-do-orig-status:200`, `x-do-app-origin:53f39197` — different DO app vs staging fleet)
 [CHANGED] staging-services.rainbet.com/health 404 but CORS reflector confirmed (`access-control-allow-origin:https://evil.com`, `allow-credentials:true`, `expose-headers:Cf-Mitigated`, `x-powered-by:Express`, `x-do-app-origin:1ce4ff55`)
 [PRIO] staging-chat.rainbet.com/socket.io/, 9.4, attack_surface=10 business_value=9 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=10
-[PRIO] staging-alerts.rainbet.com/socket.io/, 9.1, attack_surface=10 business_value=8 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=10
 [PRIO] staging-raffles.rainbet.com (and 5 sibling hostnames on app 1ce4ff55), 8.7, attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=7 freshness=10
+[PRIO] staging-alerts.rainbet.com/socket.io/, 9.1, attack_surface=10 business_value=8 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=10
 [PRIO] staging-services.rainbet.com, 7.6, attack_surface=8 business_value=7 tech_exposure=8 gate_ease=10 cloud_surface=6 freshness=9
 [PRIO] api.rainbet.com, 6.3, attack_surface=7 business_value=9 tech_exposure=6 gate_ease=2 cloud_surface=8 freshness=8
 [PRIO] staging-monorepo.rainbet.com, 5.8, attack_surface=6 business_value=6 tech_exposure=7 gate_ease=7 cloud_surface=5 freshness=8
@@ -16,7 +16,7 @@
 class: AUTH
 asset: staging-chat.rainbet.com/socket.io/
 confidence: 95
-reasoning: engine.io handshake returns 200 with anonymous sid and `access-control-allow-credentials:true`; prior probes confirmed socket.io root namespace accepts bare CONNECT packet `40` returning `40{"sid":"...","_placeholder":true}`; /raffles and /alerts namespaces also ack unauthenticated connect on same engine.io sid; staging-alerts on same DO app (1ce4ff55) correctly rejects with `er_auth_token_invalid` (401); per-hostname auth inconsistency confirmed
+reasoning: engine.io handshake returns 200 with anonymous sid and `access-control-allow-credentials:true`; prior probes confirmed socket.io root namespace accepts bare CONNECT packet `40` returning `40{"sid":"...","_placeholder":true}`
 evidence_needed: Ability to emit/listen on application events (raffle, chat, alert, wallet, betting) via captured socket.io sid; sid reuse across hostnames on same DO app
 verify_steps: GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling → capture engine.io sid; WebSocket upgrade to wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<captured_sid>; send engine.io packet `40` (bare CONNECT to root namespace); if 200 with sid, send `40{"0":"/raffles"}` and `40{"0":"/alerts"}` to test namespace joins; then emit `42["subscribe",{"channel":"raffles"}]` and `42["chat:message",{"data":{}}]` to test event emission; repeat with sids from staging-alerts/staging-socket to test cross-hostname sid reuse
 impact: Anonymous session establishment on socket plane → real-time event interception, unauthorized emit on betting/wallet/chat/raffle events, potential RCE via malicious message payloads. Severity: HIGH (persistent, no auth on namespace, 6 hostnames on same DO app)
