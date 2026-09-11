@@ -15958,3 +15958,46 @@ All hypotheses survive threshold (>40 confidence, not REJECTED class, have verif
 ## STEP 7 — RISK
 
 [RISK] RainBet: 85 — floor unchanged. staging-chat anonymous plane RECOVERED from transient 400 (confirmed stable across 2 sequential probes); session-proven on root+/raffles+/alerts across 15+ rounds with per-hostname auth asymmetry on same DO app (alerts enforces 401); event reception remains sole gap, HUMAN_ONLY. All leads persist/latent: services reflector now 6 paths (was 4) but still 404-only; api WAF flapping 110KB↔5485B with no content opening. Read-only throughout: no payloads captured, no 2xx data, no events received. Drivers to raise: chat event flow proven, services 2xx mount, api content-open.
+===== ANALYST bigpickle 2026-09-11 17:17:48 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "GET ping: %{http_code} len=%{size_download} cf=%{header_json}\n" -H "User-Agent: Mozilla/5.0 (research)" https://api.rainbet.com/api/v1/public/ping 2>/dev/null; echo "---"; curl -s -D - -o /dev/null -X OPTIONS "https://api.rainbet.com/openapi.json" 2>/dev/null | head -30
+GET ping: 403 len=5483 cf={"date":["Fri, 11 Sep 2026 17:14:17 GMT"],
+"content-type":["text/html; charset=UTF-8"],
+"cache-control":["private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"],
+"expires":["Thu, 01 Jan 1970 00:00:01 GMT"],
+"referrer-policy":["same-origin"],
+"x-frame-options":["SAMEORIGIN"],
+"set-cookie":["__cf_bm=GEC1EUo7thbz9.MT4TSJpMaSH7SrZ6iIvWUgSt6BmMo-1789146857.1116025-1.0.1.1-Px48A7W6Rw59Lw7QTaOzz_Q_qkgnrs4o4ONoHdu7IAiK6dXf0kEZKST7mViruQArFccZpq1ae95Ha7DlRAI1aBSghy9ZFYrgT_B3F1fqODHV.sZFkQyDcYPCl1Eq8WhU; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Fri, 11 Sep 2026 17:44:17 GMT"],
+"server":["cloudflare"],
+"cf-ray":["a3984ed0ed31ace8-MSP"],
+"alt-svc":["h3=\":443\"; ma=86400"]
+}
+---
+HTTP/2 200 
+date: Fri, 11 Sep 2026 17:14:17 GMT
+content-type: application/json
+content-length: 0
+server: cloudflare
+allow: POST,OPTIONS,HEAD,GET
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=llvFDZMBbsgPaWeLEH5S0Hj2SbxM3acwJg8YwbN_7eA-1789146857.1756995-1.0.1.1-GZZHKWzqpCXi.vdg.ndMF.92vGVQfQ468nEIbee_z.ny4hgijK0hhvTZV5FUELx._5RrEehpyII5zj14Pf4R.6oI0E9xG3NY9ANn1Z1PtOUGRG8gYwVS_hXjjfIVX0xe; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Fri, 11 Sep 2026 17:44:17 GMT
+cf-ray: a3984ed15d8de80c-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null -H "Origin: https://evil-attacker.example" -H "User-Agent: Mozilla/5.0" https://staging-services.rainbet.com/health 2>/dev/null | grep -iE "HTTP/|access-control|x-do|x-powered|allow-origin|resource" | head -15
+HTTP/2 404 
+x-powered-by: Express
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 404
+access-control-expose-headers: Cf-Mitigated
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil-attacker.example
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -o /tmp/eio.txt -D - -H "User-Agent: Mozilla/5.0" "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" 2>/dev/null | grep -iE "HTTP/|x-do|access-control|allow-origin|credentials" | head; echo "BODY:"; cat /tmp/eio.txt | head -c 200; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
