@@ -493,3 +493,5 @@ www.rainbet.com
 - CHANGED staging-raffles.rainbet.com/health stable 200 (75B JSON, `x-do-orig-status:200`, full Helmet CSP+HSTS+XFO, no CF Access/challenge)
 - CHANGED api.rainbet.com OPTIONS /api/v1/ stable 200 (`Allow: OPTIONS,HEAD,GET,POST`, `x-do-orig-status:200`, `x-do-app-origin:53f39197` — different DO app vs staging fleet)
 - CHANGED staging-services.rainbet.com/health 404 but CORS reflector confirmed (`access-control-allow-origin:https://evil.com`, `allow-credentials:true`, `expose-headers:Cf-Mitigated`, `x-powered-by:Express`, `
+
+## 2026-09-11 13:31:43 UTC

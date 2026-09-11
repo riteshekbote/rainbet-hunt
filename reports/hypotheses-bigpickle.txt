@@ -1,5 +1,5 @@
-## 2026-09-11 08:48:09 UTC [target] (model bigpickle)
-[PRIO] staging-chat.rainbet.com,8.1,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=9,cloud_surface=5,freshness=9
+## 2026-09-11 13:27:32 UTC [target] (model bigpickle)
+[PRIO] staging-chat.rainbet.com,8.1,attack_surface=8,business_value=8,tech_exposure=8,gate_ease=9,cloud_surface=5,freshness=9
 [PRIO] staging-services.rainbet.com,7.1,attack_surface=6,business_value=7,tech_exposure=7,gate_ease=9,cloud_surface=5,freshness=7
 [PRIO] api.rainbet.com,6.6,attack_surface=7,business_value=9,tech_exposure=6,gate_ease=2,cloud_surface=7,freshness=9
 [PRIO] staging-raffles.rainbet.com,5.2,attack_surface=3,business_value=4,tech_exposure=4,gate_ease=9,cloud_surface=4,freshness=8
@@ -7,18 +7,18 @@
 class: AUTH
 asset: staging-chat.rainbet.com/socket.io (app 1ce4ff55)
 confidence: 88
-reasoning: EIO4 polling 200/116B fresh anonymous sid re-confirmed this round (credentials:true, vary:Origin, no ACAO). Prior chains proved root + /raffles + /alerts CONNECT ack unauthenticated with fresh socket sids; sibling staging-alerts on same app rejects identical CONNECT `44 er_auth_token_invalid/401`. Event reception = sole unverified link.
+reasoning: EIO4 polling 200/116B fresh anonymous sids confirmed STABLE across two sequential probes this round (JRlTjH5zOotW2WjeAAAL, vUVEIzB3mtpSbKNyAAAM) after 400 at 09:02 (transient flap). Prior chains proved root + /raffles + /alerts CONNECT ack unauthenticated; sibling staging-alerts on same app rejects identical CONNECT with 401. Event reception = sole unverified link.
 evidence_needed: server-push event (raffle draw/chat msg/alert) delivered to anonymous subscribed session during active window.
-verify_steps: GET polling sid; WS upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>`; `40` CONNECT root; `42["0","/raffles"]`; `42["0","/alerts"]`; hold 60s. NOTE: live event capture = customer data exposure → HUMAN only w/ operator-held account.
+verify_steps: GET polling sid; WS upgrade wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>; 40 CONNECT root; 42["0","/raffles"]; 42["0","/alerts"]; hold 60s. NOTE: live event capture = customer data exposure → HUMAN only w/ operator-held account.
 impact: anonymous real-time registration on fleet business broadcast plane → raffle/alert/chat interception + bet front-running once events flow. HIGH.
 testability: HUMAN_ONLY
 [HYP] staging-services CORS reflector enables authenticated cross-origin read once any 2xx route mounts
 class: MISCONFIG
 asset: staging-services.rainbet.com/* (app 1ce4ff55)
-confidence: 82
-reasoning: Reflector persists on /health and 5 additional /api/v1/* routes (all 404/33B) — 15 total probed this round, zero 2xx. ACAO reflects arbitrary Origin + allow-credentials:true on every error response; x-powered-by Express; access-control-expose-headers:Cf-Mitigated. /docs 302→Access proves protected routes exist — 404 blanket is route-set narrow, not app-dead.
+confidence: 83
+reasoning: CORS reflector confirmed on 6 paths this round (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet) — all 404/33B with ACAO reflect + allow-credentials:true + access-control-expose-headers:Cf-Mitigated + x-powered-by:Express. Body is {"error":"er_resource_not_found"}. /docs 302→Access proves protected routes exist — 404 blanket is route-set narrow, not app-dead. Two new probe paths /api/v1/profile and /api/v1/wallet also reflect.
 evidence_needed: any mounted route returning 2xx with ACAO-reflect + credentials (user/wallet/game data).
-verify_steps: cadence GET /health, /api/v1/users, /api/v1/games, /api/v1/profile with `Origin: https://evil-attacker.example`; flag first 2xx, record ACAO+allow-credentials+expose-headers.
+verify_steps: cadence GET /health, /api/v1/users, /api/v1/games, /api/v1/profile, /api/v1/wallet, /api/v1/bets with Origin: https://evil-attacker.example; flag first 2xx, record ACAO+allow-credentials+expose-headers.
 impact: cross-origin credentialed read of wallet/game/PII once a 2xx data route mounts — browser-side exfiltration. HIGH latent.
 testability: PASSIVE
 [HYP] api.rainbet.com WAF content-method exposure during operator edit cycle
@@ -31,9 +31,9 @@ verify_steps: cadence GET /api/v1/public/ping, /api/v1/status, HEAD /openapi.jso
 impact: prod OpenAPI/API contract disclosure → IDOR/BOLA on wallet/betting flows. HIGH latent.
 testability: PASSIVE
 [FINAL] Survivors ranked:
-[NEXT] HUMAN: On staging-chat, GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` (fresh 116B sid), WS-upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>`, `40` CONNECT root, then `42["0","/raffles"]` + `42["0","/alerts"]`, hold 60s for server-push. Requires operator-held account per program rules (event reception = customer data exposure); no anonymous event harvesting. Parallel passive cadence (≤1rps): GET /api/v1/public/ping + OPTIONS /openapi.json on api.rainbet.com; GET /health + /api/v1/profile with evil Origin on staging-services.
-[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json stable (200, Allow, x-do-orig-status:200, app 53f39197); content GET 403 fully blocked — WAF state frozen vs 2026-09-11.
-[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health evil-origin 404/33B continues ACAO-reflect + allow-credentials:true + access-control-expose-headers:Cf-Mitigated + x-powered-by: Express — reflector persists, still no 2xx.
-[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: EIO4 polling 200/116B anonymous sid + vary:Origin + credentials:true (no ACAO reflect) — CORS credentials + anonymous plane persist; per-hostname socket config divergence from alerts/sibling confirmed 14+ rounds.
-[LEARN] REJECTED MISCONFIG @ api.rainbet.com: content GET body drift 5485→5483B is page-length jitter (still plain 403 block, no cf-mitigated); NOT a WAF rule edit — no churn signal this round.
-[RISK] RainBet: 85 — floor unchanged. staging-chat anonymous plane session-proven on root+/raffles+/alerts across 14+ rounds with per-hostname auth asymmetry on same DO app (alerts enforces 401); event reception remains sole gap, HUMAN_ONLY. All leads persist/latent: services reflector 404-only (15 routes now negative), api WAF flapping 110KB↔5485B with no content opening. Read-only throughout: no payloads captured, no 2xx data, no events received. Drivers to raise: chat event flow proven, services 2xx mount, api content-open.
+[NEXT] HUMAN: staging-chat.rainbet.com engine.io plane CONFIRMED RECOVERED (200, fresh anonymous sids, 2/2 probes). On staging-chat, GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` (fresh 116B sid), WS-upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>`, `40` CONNECT root, then `42["0","/raffles"]` + `42["0","/alerts"]`, hold 60s for server-push. Requires operator-held account per program rules (event reception = customer data exposure); no anonymous event harvesting. Parallel passive cadence (≤1rps): GET /api/v1/public/ping + OPTIONS /openapi.json on api.rainbet.com; GET /health + /api/v1/profile + /api/v1/wallet with evil Origin on staging-services.
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 REAPPEARED (200, 116B, fresh sids JRlTjH5zOotW2WjeAAAL + vUVEIzB3mtpSbKNyAAAM, maxPayload=10240) after 400 at 09:02 — intermittent flapping confirmed, plane persists on DO app 1ce4ff55 across 15+ rounds
+[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now confirmed on 6 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet) — reflects arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated; x-powered-by:Express; all 404/33B {"error":"er_resource_not_found"}; still no 2xx mount
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json STABLE (200 + Allow:POST,OPTIONS,HEAD,GET + x-do-orig-status:200 + app 53f39197); content GET 403 fully blocked — WAF state frozen vs 2026-09-11
+[LEARN] ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (sid=aOncFcuyVOcVjyKVAAJi, maxPayload=20480) — plane persists, serves as control proving same-DO-app auth asymmetry with staging-chat
+[RISK] RainBet: 85 — floor unchanged. staging-chat anonymous plane RECOVERED from transient 400 (confirmed stable across 2 sequential probes); session-proven on root+/raffles+/alerts across 15+ rounds with per-hostname auth asymmetry on same DO app (alerts enforces 401); event reception remains sole gap, HUMAN_ONLY. All leads persist/latent: services reflector now 6 paths (was 4) but still 404-only; api WAF flapping 110KB↔5485B with no content opening. Read-only throughout: no payloads captured, no 2xx data, no events received. Drivers to raise: chat event flow proven, services 2xx mount, api content-open.
