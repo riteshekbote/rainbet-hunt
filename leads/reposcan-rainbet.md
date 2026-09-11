@@ -165,3 +165,12 @@ TARGET_ORG not configured for rainbet; skipping public-org deep scan.
 TARGET_ORG not configured for rainbet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-11 17:48:04 UTC
 TARGET_ORG not configured for rainbet; skipping public-org deep scan.
+## REPOSCAN 2026-09-11 20:32:00 UTC
+[HYP] No Candidate Repositories
+class: OTHER
+asset: none
+confidence: 100
+reasoning: cands.txt = "no org candidates". scope.yml github_orgs = none-configured.
+impact: none — source-code audit vector is closed
+verify_steps: N/A — no candidates to verify
+TARGET_ORG not configured for rainbet; skipping public-org deep scan.
