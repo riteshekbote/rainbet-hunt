@@ -468,3 +468,17 @@ https://staging-raffles.rainbet.com/api/v1/public/config -> HTTP 404
 https://staging-raffles.rainbet.com/api/v1/health -> HTTP 404
 https://staging-services.rainbet.com/api/health -> HTTP 404
 https://staging-services.rainbet.com/metrics -> HTTP 404
+
+## 2026-09-11 20:03:40 UTC
+https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling -> HTTP 400
+https://staging-raffles.rainbet.com/api/v1/public/config -> HTTP 404
+https://staging-raffles.rainbet.com/api/v1/health -> HTTP 404
+https://staging-services.rainbet.com/api/health -> HTTP 404
+https://staging-services.rainbet.com/metrics -> HTTP 404
+https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/` -> HTTP 404
+https://api.rainbet.com/.well-known/security.txt` -> HTTP 403
+https://api.rainbet.com/robots.txt` -> HTTP 403
+https://api.rainbet.com/v1/auth` -> HTTP 403
+https://api.rainbet.com/v1/auth/login` -> HTTP 403
+https://www.rainbet.com/` -> HTTP 403
+https://www.rainbet.com/auth/callback` -> HTTP 403
