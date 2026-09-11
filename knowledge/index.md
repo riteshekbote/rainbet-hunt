@@ -262,3 +262,7 @@
 - 2026-09-11 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs returns full CF managed challenge (not 5485B block) — WAF front state fluctuates on app bc240b8a
 - 2026-09-11 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 6 staging hostnames
 - 2026-09-11 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS blanket exemption STABLE on /openapi.json (200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197); /docs excluded (403) — scope "everything but / and /docs" holds
+- 2026-09-11 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json stable (200, Allow, x-do-orig-status:200, app 53f39197); content GET 403 fully blocked — WAF state frozen vs 2026-09-11.
+- 2026-09-11 ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health evil-origin 404/33B continues ACAO-reflect + allow-credentials:true + access-control-expose-headers:Cf-Mitigated + x-powered-by: Express — reflector persists, still no 2xx.
+- 2026-09-11 REJECTED MISCONFIG @ api.rainbet.com: content GET body drift 5485→5483B is page-length jitter (still plain 403 block, no cf-mitigated); NOT a WAF rule edit — no churn signal this round.
+- 2026-09-11 ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to full CF managed challenge (110KB) — active operator WAF churn on DO app 53f39197 (previously 5485B plain block without cf-mitigated)
