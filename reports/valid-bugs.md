@@ -43,3 +43,9 @@
   - | 1 | staging-{raffles,chat,alerts,socket} unprotected origin + engine.io | **VALID** | 5.3 | Report to bugs.olivermaicher.eu |
   - | 2 | staging-services reflected CORS (credentials:true) | **VALID** | 5.3 | Report to bugs.olivermaicher.eu |
   - | 3 | staging-chat socket.io bare CONNECT auth asymmetry | **VALID** | 5.3 | Report to bugs.olivermaicher.eu (merge w/ Lead 1) |
+
+- 4 lead(s) marked VALID at 2026-09-12 13:07:59 UTC
+  - | 1 | staging-{raffles,chat,alerts,socket} anonymous Socket.IO + health JSON origin exposure | 5.4 | VALID |
+  - | 2 | rainbet-com-rabbitmq internet-exposed brokers (management 15672 + AMQP 5672) | 7.3 | VALID |
+  - | 3 | Staging pocket app (DO app 1ce4ff55) unprotected origin | 5.3 | VALID |
+  - | 4 | staging-services reflected CORS (credentials:true on 4+ paths) | 5.3 | VALID |
