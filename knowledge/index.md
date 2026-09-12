@@ -318,3 +318,6 @@
 - 2026-09-12 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped to 5483B plain block (app bc240b8a) — front churn live.
 - 2026-09-12 ACCEPTED AUTH @ staging.rainbet.com: Access gap CLOSED (302); Access 302 reflects evil Origin + credentials:true — pre-auth, CORS-neutral.
 - 2026-09-12 REJECTED (methodology) @ staging-chat.rainbet.com: post-close NS enum reads are invalid — /raffles /alerts "44/ACK" flip claims require enum-before-listen to be trusted.
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to full CF managed challenge (110KB) — active operator WAF churn on DO app 53f39197 confirmed live (110KB ↔ 5485B plain block)
+- 2026-09-12 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — reflects arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated; x-powered-by: Express; all 404/33B, no 2xx across 13+ rounds
+- 2026-09-12 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, serves as control proving same-DO-app auth asymmetry with staging-chat

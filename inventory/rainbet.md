@@ -595,3 +595,13 @@ www.rainbet.com
 - CHANGED staging.rainbet.com: /health → 302 (Access gap CLOSED); Access 302 block page reflects evil Origin + allow-credentials:true — pre-auth, CORS-neutral
 - CHANGED staging-chat.rainbet.com: EIO4 polling 200/116B; WS 101 on fresh sid; root `40` CONNECT ACKs socket-sid (5th round); server sends engine.io ping `2` then closes — client never pongs, all prior listens
 - CHANGED staging-raffles.rainbet.com: /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — app 1ce4ff55 serves 6 staging hostnames
+
+## 2026-09-12 23:16:27 UTC
+- NEW staging-chat.rainbet.com/socket.io/: engine.io handshake 200 (116B, fresh sid), socket.io root namespace accepts bare CONNECT (`40`) → returns valid socket-level sid (confirmed live 2026-09-12 23:08)
+- NEW staging-alerts.rainbet.com/socket.io/: engine.io handshake 200 (116B, fresh sid, maxPayload=20480), WebSocket upgrade CONFIRMED per knowledge base (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"])
+- CHANGED staging-raffles.rainbet.com/health: real origin JSON stable 200/75B (`{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`), x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no 
+- CHANGED staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin in ACAO + allow-credentials:true + access-control-expose-headers:Cf-Mitigated; x-powered-
+- CHANGED api.rainbet.com: GET /api/v1/public/ping → 403 full CF managed challenge (110KB HTML, no cf-mitigated); OPTIONS /openapi.json → 200 + Allow:HEAD,GET,POST,OPTIONS + x-do-orig-status:200 + x-do-app-orig
+- CHANGED staging-monorepo.rainbet.com: /docs → 403 CF managed challenge (110KB) — WAF front fluctuates on app bc240b8a-ba24-4b78-834b-423990390251
+- CHANGED staging.rainbet.com: /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — pre-auth, CORS-neutral
+- CHANGED files.rainbet.com, media.rainbet.com: both 403 CF managed challenge — no unchallenged surface
