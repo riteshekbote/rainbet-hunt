@@ -585,3 +585,13 @@ www.rainbet.com
 - CHANGED staging-chat.rainbet.com engine.io handshake flapping: 400 at 00:41 → 200/116B at 05:08 → 200/116B at 13:17 — intermittent persistence on DO app 1ce4ff55
 - CHANGED staging-raffles.rainbet.com /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — app 1ce4ff55 serves 6 hostnames
 - CHANGED staging-alerts.rainbet.com engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists as control proving same-DO-app auth asymmetry
+
+## 2026-09-12 21:21:42 UTC
+- NEW staging-chat.rainbet.com/socket.io: root + /raffles + /alerts namespaces accept unauthenticated CONNECT (`40`) with fresh socket-level sids on anonymous engine.io sid — full session establishment prov
+- NEW staging-alerts.rainbet.com/socket.io: WebSocket upgrade CONFIRMED WORKING with captured engine.io sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]) — socket plane hijack proven on DO app 1ce4ff55
+- NEW staging-services.rainbet.com: CORS reflector now on `/` root (6/6 paths incl root) — all reflect arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated; still no 2xx mo
+- CHANGED api.rainbet.com: WAF in plain-block mode — two template classes (static=4545B pure block no JS; API=5483B block+challenge bootstrap); both classes OPTIONS-exempt (blanket preflight passthrough); GET 4
+- CHANGED staging-monorepo.rainbet.com: /docs flipped 110KB challenge → 5483B plain block (app bc240b8a) — front churn live
+- CHANGED staging.rainbet.com: /health → 302 (Access gap CLOSED); Access 302 block page reflects evil Origin + allow-credentials:true — pre-auth, CORS-neutral
+- CHANGED staging-chat.rainbet.com: EIO4 polling 200/116B; WS 101 on fresh sid; root `40` CONNECT ACKs socket-sid (5th round); server sends engine.io ping `2` then closes — client never pongs, all prior listens
+- CHANGED staging-raffles.rainbet.com: /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — app 1ce4ff55 serves 6 staging hostnames

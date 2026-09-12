@@ -2793,3 +2793,4 @@ testability: PASSIVE
 [LEARN] ACCEPTED AUTH @ staging.rainbet.com: Access gap CLOSED (302); Access 302 reflects evil Origin + credentials:true — pre-auth, CORS-neutral.
 [LEARN] REJECTED (methodology) @ staging-chat.rainbet.com: post-close NS enum reads are invalid — /raffles /alerts "44/ACK" flip claims require enum-before-listen to be trusted.
 [RISK] RainBet: 42/100 — no escalation this round; chat anonymous session is finally getting a fair pong-sustained egress test but 0 event frames in 5 listens; CORS reflector latent (no 2xx); api 2-class WAF closed on GET with blanket CORS-neutral OPTIONS passthrough; Access gap closed; 17/20 inventory hosts dead; operator WAF/Access/monorepo churn signals continued hardening.
+## 2026-09-12 21:19:46 UTC [target] (model bigpickle)
