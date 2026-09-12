@@ -2345,3 +2345,64 @@ evidence_needed: any content GET returning non-403/non-challenge during a churn 
 verify_steps: repeat GET /robots.txt, /.well-known/security.txt, /health, /api/v1/public/config alongside the ping control each round; flag any non-403.
 impact: WAF bypass → origin API (wallet/auth/bets) enumerable; severity HIGH (window-conditional).
 testability: PASSIVE
+## 2026-09-12 05:07:22 UTC [target] (model bigpickle)
+[HYP] staging-chat root namespace anonymous socket session (WS transport) — business namespaces regressed
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 70
+reasoning: WS open packet `0{"sid":...,"upgrades":[]}` issues anonymous sid; bare `40` CONNECT ACKs `40{"sid":...}` unauthenticated this round on WS transport. Same-DO-app sibling staging-alerts rejects the identical CONNECT with 401 `er_auth_token_invalid`. `/raffles` + `/alerts` now return `44{"message":"Invalid namespace"}` — prior ack no longer reproducible on WS, either registry churn or transport-specific instance routing. No inbound `42` frames in 15-30s passive listens (root channel idle or events only fire on registered business namespaces).
+evidence_needed: anonymous session that yields ≥1 inbound `42` event frame, or discovery of a non-root namespace that ACKs `40{"sid":...}` without 44 and emits events.
+verify_steps: repeat WS connect + `40` root CONNECT, passive-listen ≥60s for `42` frames; enumerate candidate namespace names (`/chat`,`/wager`,`/live`,`/notifications`,`/wallet`,`/users`) via `40/<ns>,` and flag any that ACKs instead of `44 Invalid namespace`.
+impact: anonymous read of live wagering/chat bus on staging mirror (PII/email, draw data) — severity HIGH if egress proven; currently MEDIUM (staging, session-only).
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector unlocks on 2xx route mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 48
+reasoning: path-agnostic ACAO reflect of arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated confirmed on 6 probed paths (all 404/33B, x-powered-by Express, DO app 1ce4ff55). Any live unauthenticated 2xx route with these headers = credentialed cross-origin read.
+evidence_needed: one GET returning 2xx with ACAO-reflect + credentials headers present in same response.
+verify_steps: passive GET enum of /api/v1/public/*, /api/v1/config, /healthz, /ready with Origin: https://evil.example; grep for 2xx + ACAO reflect (<1 rps).
+impact: cross-origin credentialed read of authenticated data once a 2xx user route mounts; severity HIGH (conditional).
+testability: PASSIVE
+[HYP] api WAF per-path whitelist during operator churn window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: content GET state has flipped 110KB-managed-challenge ↔ 5KB-plain-block across rounds (currently 5482B block); OPTIONS blanket exemption stable. An edit cycle may transiently whitelist common paths (robots, health, ping) revealing origin responses.
+evidence_needed: any content GET returning non-403/non-challenge during a churn window proving per-path whitelist bypass.
+verify_steps: repeat GET /robots.txt, /.well-known/security.txt, /health, /api/v1/public/config alongside the ping control each round; flag any non-403.
+impact: WAF bypass → origin API (wallet/auth/bets) enumerable; severity HIGH (window-conditional).
+testability: PASSIVE
+[HYP] api WAF per-path whitelist during operator churn window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 42
+reasoning: content GET state has flipped 110KB-challenge ↔ 5KB-block across 16+ rounds (currently 5484B block, no cf-mitigated); OPTIONS blanket exemption stable. Operator edit cycles are live; a whitelist window may transiently pass common paths to origin.
+evidence_needed: any content GET returning non-403 (200/401/404-from-origin) during a churn round, proving per-path whitelist.
+verify_steps: repeat GET /robots.txt, /.well-known/security.txt, /health, /api/v1/public/config, /api/v1/public/ping at 0.5 rps each round; flag any non-403 + x-do-orig-status.
+impact: WAF bypass → origin API (wallet/auth/bets) enumerable; HIGH, window-conditional.
+testability: PASSIVE
+[HYP] api encoded-path preflight oracle reveals mounted routes when content window opens
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: `OPTIONS /openapi.json%2f..%2f` returns origin-404 (vs blanket 200 on plain paths) proving origin classifiers differ on encoded vs decoded paths; if the WAF ever reopens any content method, replayed encoded GETs on real v1 routes may evade the same decode gap.
+evidence_needed: content GET with encoded slashes/preflight-style path returning non-403 while plain GET stays 403.
+verify_steps: if/when GET 403 flips off 5484B-block (churn), immediately replay `GET /api/v1%2fpublic%2fping`, `GET /openapi.json%2f..%2f`, `GET /health%2f`; contrast with plain GET.
+impact: WAF evasion on content API → origin surface disclosure; HIGH, churn-gated.
+testability: PASSIVE
+[HYP] staging-chat anonymous socket plane yields live event egress (H1 missing link)
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 70
+reasoning: engine.io anonymous sid + `40`/`40/raffles,` CONNECT ACK proven unauth 15+ rounds on DO app 1ce4ff55; sibling staging-alerts rejects identical CONNECT 401 — per-hostname config. Triage validated session-establishment; **inbound `42` event frame remains the sole unverified link** (WS passive listens 15-60s were idle).
+evidence_needed: ≥1 inbound `42/raffles,<event>` frame on anonymous WS session, or a non-root namespace that ACKs without 44 and emits.
+verify_steps: EIO4 polling → WS upgrade w/ sid → `40/raffles,` CONNECT → passive-listen ≥60s; enumerate /chat,/wager,/live,/notifications,/wallet,/users; flag ACK-vs-44.
+impact: anonymous read of live wagering/chat bus (PII possible) on staging mirror; HIGH if egress proven.
+testability: AUTH_HELPED
+[NEXT] PROBE: api.rainbet.com churn-window sweep — GET /robots.txt, /.well-known/security.txt, /health, /api/v1/public/config, /api/v1/public/ping (0.5 rps, 5 requests); flag any non-403 or x-do-orig-status present; also re-run `OPTIONS /openapi.json%2f..%2f` to track the 404-oracle stability.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: `OPTIONS /openapi.json%2f..%2f` passes WAF to origin and returns 404 (`x-do-orig-status:404`) vs blanket 200 on plain preflights — origin preflight classifier is decode-dependent; CORS-neutral, non-exploitable.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: Allow header uniform (`HEAD,GET,POST,OPTIONS`) across 10 probed business/admin paths — no route-differential method fingerprint via OPTIONS exemption.
+[LEARN] REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants (double-encoded path, `%2e%2e`, trailing `%2f`, mixed-case) all 403@5484B — no content-method WAF bypass this round.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: WAF frozen at plain-block 5484B (no cf-mitigated) + OPTIONS exemption fully stable — no operator churn window observed this round.
+[RISK] RainBet: 45/100 — api.rainbet.com remains fully WAF-closed with only a CORS-neutral OPTIONS exemption; the program's exploited findings (staging origin JSON, engine.io plane, chat CONNECT asymmetry, services CORS reflector) are triaged VALID but confined to staging mirrors with latent severity (CORS reflector awaits a 2xx mount; socket egress unconfirmed). Active CF WAF/Access churn signals operator hardening; 17/20 inventory hosts dead.

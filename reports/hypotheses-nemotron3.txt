@@ -1,4 +1,4 @@
-## 2026-09-12 00:41:17 UTC [target] (model nemotron3)
+## 2026-09-12 05:08:31 UTC [target] (model nemotron3)
 [NEW] api.rainbet.com GET /api/v1/public/ping reverted to 5485B plain WAF block (no cf-mitigated header) from 110KB managed challenge — active operator WAF churn on DO app 53f39197 confirmed live
 [NEW] staging-chat.rainbet.com engine.io handshake flapped to HTTP 400 at 09:02 then REAPPEARED 200/116B at 13:31 — intermittent flapping persists on DO app 1ce4ff55 across 15+ rounds
 [CHANGED] staging-services.rainbet.com CORS reflector expanded to 6 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet) — all 404/33B, reflects arbitrary Origin + allow-credentials:true + expose Cf-Mitigated + x-powered-by:Express

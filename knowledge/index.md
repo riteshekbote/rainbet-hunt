@@ -289,3 +289,7 @@
 - 2026-09-12 ACCEPTED MISCONFIG @ staging-services.rainbet.com: x-powered-by changed to Express (was NestJS on 2026-09-07) — possible framework config change or downgrade on DO app 1ce4ff55
 - 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json STABLE (200 + Allow:POST,OPTIONS,HEAD,GET + x-do-orig-status:200 + x-do-app-origin:53f39197); content GET 403 fully blocked — WAF state frozen vs 2026-09-11
 - 2026-09-12 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (sid=aOncFcuyVOcVjyKVAAJi, maxPayload=20480) — plane persists, serves as control proving same-DO-app auth asymmetry with staging-chat
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: `OPTIONS /openapi.json%2f..%2f` passes WAF to origin and returns 404 (`x-do-orig-status:404`) vs blanket 200 on plain preflights — origin preflight classifier is decode-dependent; CORS-neutral, non-exploitable.
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: Allow header uniform (`HEAD,GET,POST,OPTIONS`) across 10 probed business/admin paths — no route-differential method fingerprint via OPTIONS exemption.
+- 2026-09-12 REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants (double-encoded path, `%2e%2e`, trailing `%2f`, mixed-case) all 403@5484B — no content-method WAF bypass this round.
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: WAF frozen at plain-block 5484B (no cf-mitigated) + OPTIONS exemption fully stable — no operator churn window observed this round.
