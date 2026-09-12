@@ -1165,3 +1165,55 @@
 - LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: x-powered-by changed to Express (was NestJS on 2026-09-07) — possible framework config change or downgrade on
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json STABLE (200 + Allow:POST,OPTIONS,HEAD,GET + x-do-orig-status:200 + x-do-app-origin:53f39197); conten
 - LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (sid=aOncFcuyVOcVjyKVAAJi, maxPayload=20480) — plane persists, serves as control provin
+
+## RANKED HYPOTHESES 2026-09-12 18:55:41 UTC
+- [95] staging-chat.rainbet.com/socket.io/: staging-chat socket.io root + business namespaces accept unauthenticated CONNECT enabling full session establishment and event emission (from art/lead_nemotron3.txt)
+- [65] staging-chat.rainbet.com/socket.io: staging-chat root namespace anonymous session yields live event egress (missing link) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: staging-chat.rainbet.com — capture fresh EIO4 sid via `GET /socket.io/?EIO=4&transport=polling`, WebSocket upgrade with that sid, send root `40` CONNECT 
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling to capture engine.io sid, then WebSocket upgrade to wss://staging-chat.rainbet.co
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS `/openapi.json%2f..%2f` passes WAF to origin (404, x-do-orig-status:404) vs blanket 200 on plain preflights — orig
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: Allow header uniform across 10 paths — no route-differential method fingerprint via OPTIONS exemption
+- LEARN: REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants all 403@5484B — no content-method WAF bypass this round
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: WAF frozen at plain-block 5484B + OPTIONS exemption fully stable — no churn window this round
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 Invalid namespace on WS transport — prior namespace join no longer reproducible; ro
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: root namespace anonymous session yields engine.io + socket.io CONNECT — egress remains unproven across 4+ listen round
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector persists on 6 paths (all 404/33B) — still no 2xx mount; conditional HIGH.
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: WAF churn confirmed live (110KB ↔ 5485B) + decode-dependent OPTIONS oracle — no exploit path; monitoring only.
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 on WS — namespace registry transport-dependent or instance-routed; polling sid → en
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS `/openapi.json%2f..%2f` passes WAF to origin (404, x-do-orig-status:404) vs blanket 200 on plain preflights — orig
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: Allow header uniform across 10 paths — no route-differential method fingerprint via OPTIONS exemption
+- LEARN: REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants all 403@5484B — no content-method WAF bypass this round
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: WAF frozen at plain-block 5484B + OPTIONS exemption fully stable — no churn window this round
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 Invalid namespace on WS transport — prior namespace join no longer reproducible; ro
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: root namespace anonymous session yields engine.io + socket.io CONNECT — egress remains unproven across 4+ listen round
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector persists on 6 paths (all 404/33B) — still no 2xx mount; conditional HIGH.
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: WAF churn confirmed live (110KB ↔ 5485B) + decode-dependent OPTIONS oracle — no exploit path; monitoring only.
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 on WS — namespace registry transport-dependent or instance-routed; polling sid → en
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: root namespace anonymous session yields engine.io + socket.io CONNECT — egress remains unproven across 4+ listen round
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector persists on 6 paths (all 404/33B) — still no 2xx mount; conditional HIGH.
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: WAF churn confirmed live (110KB ↔ 5485B) + decode-dependent OPTIONS oracle — no exploit path; monitoring only.
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 on WS — namespace registry transport-dependent or instance-routed; polling sid → en
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: root `40` CONNECT ACKs anonymous socket-level sid (u3zOZrESYiu_kKBCAAAE, 5th round) on fresh EIO4 sid; server sends en
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now on 6/6 incl `/` root — all 404/33B, no 2xx across 13+ rounds.
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: 2 template classes are block-FLAVORS (static=4545B pure block no JS; API=5483B block+challenge bootstrap; 110KB=full chall
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped 110KB challenge -> 5483B plain block (app bc240b8a) — front churn live.
+- LEARN: ACCEPTED AUTH @ staging.rainbet.com: Access gap CLOSED (302) this round; Access 302 block page reflects evil Origin + allow-credentials:true — pre-auth, CORS-ne
+- LEARN: REJECTED (methodology) @ staging-chat.rainbet.com: NS enum reads across rounds are invalid when performed after server close — /raffles /alerts "44/ACK" flip cl
+- LEARN: ACCEPTED AUTH @ staging.rainbet.com: Access gap CLOSED (302) this round; Access 302 block page reflects evil Origin + allow-credentials:true — pre-auth, CORS-ne
+- LEARN: REJECTED (methodology) @ staging-chat.rainbet.com: NS enum reads across rounds are invalid when performed after server close — /raffles /alerts "44/ACK" flip cl
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: root `40` CONNECT ACKs anonymous socket-sid (5th round); server pings then closes because client never pongs — all pri
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector on 6/6 incl `/` root, all 404/33B, no 2xx across 13+ rounds.
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: two template classes are block flavors (static 4545B pure block; API 5483B block+bootstrap; 110KB full challenge); both OP
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped to 5483B plain block (app bc240b8a) — front churn live.
+- LEARN: ACCEPTED AUTH @ staging.rainbet.com: Access gap CLOSED (302); Access 302 reflects evil Origin + credentials:true — pre-auth, CORS-neutral.
+- LEARN: REJECTED (methodology) @ staging-chat.rainbet.com: post-close NS enum reads are invalid — /raffles /alerts "44/ACK" flip claims require enum-before-listen to be
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to 5485B plain WAF block (no cf-mitigated header) from 110KB managed challenge — active o
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc
+- LEARN: ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with no auth — returns `40{"sid":"...","_placeholder":true}` esta
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts namespaces ack unauthenticated connect (`40{"sid":...}`, fresh socket-level sid each) on anonymous 
+- LEARN: REJECTED AUTH @ staging-alerts.rainbet.com: socket.io root namespace REJECTS unauthenticated CONNECT (`40{}` and `40{"token":"fake..."}`) with `44{"message":"er
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on 6 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile,
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: x-powered-by changed to Express (was NestJS on 2026-09-07) — possible framework config change or downgrade on
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json STABLE (200 + Allow:POST,OPTIONS,HEAD,GET + x-do-orig-status:200 + x-do-app-origin:53f39197); conten
+- LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (sid=aOncFcuyVOcVjyKVAAJi, maxPayload=20480) — plane persists, serves as control provin

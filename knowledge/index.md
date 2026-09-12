@@ -304,3 +304,17 @@
 - 2026-09-12 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector persists on 6 paths (all 404/33B) — still no 2xx mount; conditional HIGH.
 - 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: WAF churn confirmed live (110KB ↔ 5485B) + decode-dependent OPTIONS oracle — no exploit path; monitoring only.
 - 2026-09-12 ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 on WS — namespace registry transport-dependent or instance-routed; polling sid → enumerate candidate names.
+- 2026-09-12 ACCEPTED AUTH @ staging-chat.rainbet.com: root `40` CONNECT ACKs anonymous socket-level sid (u3zOZrESYiu_kKBCAAAE, 5th round) on fresh EIO4 sid; server sends engine.io ping `2` then closes — client never pongs, so all prior listens ended at pingTimeout ~25-45s; egress never fairly tested.
+- 2026-09-12 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now on 6/6 incl `/` root — all 404/33B, no 2xx across 13+ rounds.
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: 2 template classes are block-FLAVORS (static=4545B pure block no JS; API=5483B block+challenge bootstrap; 110KB=full challenge) — path-class-keyed rules confirmed; both classes OPTIONS-exempt (blanket); GET remains 403 both classes.
+- 2026-09-12 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped 110KB challenge -> 5483B plain block (app bc240b8a) — front churn live.
+- 2026-09-12 ACCEPTED AUTH @ staging.rainbet.com: Access gap CLOSED (302) this round; Access 302 block page reflects evil Origin + allow-credentials:true — pre-auth, CORS-neutral, not exploitable.
+- 2026-09-12 REJECTED (methodology) @ staging-chat.rainbet.com: NS enum reads across rounds are invalid when performed after server close — /raffles /alerts "44/ACK" flip claims need enum-before-listen to be trusted.
+- 2026-09-12 ACCEPTED AUTH @ staging.rainbet.com: Access gap CLOSED (302) this round; Access 302 block page reflects evil Origin + allow-credentials:true — pre-auth, CORS-neutral, not exploitable.
+- 2026-09-12 REJECTED (methodology) @ staging-chat.rainbet.com: NS enum reads across rounds are invalid when performed after server close — /raffles /alerts "44/ACK" flip claims need enum-before-listen to be trusted.
+- 2026-09-12 ACCEPTED AUTH @ staging-chat.rainbet.com: root `40` CONNECT ACKs anonymous socket-sid (5th round); server pings then closes because client never pongs — all prior listens truncated at pingTimeout; egress never fairly tested.
+- 2026-09-12 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector on 6/6 incl `/` root, all 404/33B, no 2xx across 13+ rounds.
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: two template classes are block flavors (static 4545B pure block; API 5483B block+bootstrap; 110KB full challenge); both OPTIONS-exempt, GET 403 on both.
+- 2026-09-12 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped to 5483B plain block (app bc240b8a) — front churn live.
+- 2026-09-12 ACCEPTED AUTH @ staging.rainbet.com: Access gap CLOSED (302); Access 302 reflects evil Origin + credentials:true — pre-auth, CORS-neutral.
+- 2026-09-12 REJECTED (methodology) @ staging-chat.rainbet.com: post-close NS enum reads are invalid — /raffles /alerts "44/ACK" flip claims require enum-before-listen to be trusted.

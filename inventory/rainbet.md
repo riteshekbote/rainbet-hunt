@@ -561,3 +561,27 @@ www.rainbet.com
 - CHANGED staging-chat.rainbet.com engine.io handshake flapping: 400 at 00:41 → 200/116B at 05:08 → 200/116B at 13:17 — intermittent persistence on DO app 1ce4ff55
 - CHANGED staging-raffles.rainbet.com /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — app 1ce4ff55 serves 6 hostnames
 - CHANGED staging-alerts.rainbet.com engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists as control proving same-DO-app auth asymmetry
+
+## 2026-09-12 18:55:41 UTC
+- CHANGED api.rainbet.com: GET content WAF in plain-block mode — API-class 403 len=5483B, static-class 403 len=4545B, both without cf-mitigated; 110KB challenge not observed this round.
+- NEW api.rainbet.com: template diff (skip byte vs diff) proves the 2 body classes are block FLAVORS not allow-classes — static class = pure CF block 4545B (no JS bootstrap), API class = 5483B block + chall
+- NEW api.rainbet.com: OPTIONS exemption observed on BOTH classes — OPTIONS /robots.txt -> 200 x-do-orig-status:200 (was only proven on API-class paths); blanket preflight passthrough irrespective of block-
+- CHANGED staging-chat.rainbet.com: EIO4 polling 200/116B (plane UP); WS upgrade 101 on fresh sid V8bfi8CbTzJMkzKfAAAD; root `40` CONNECT ACKs socket-level sid u3zOZrESYiu_kKBCAAAE (5th round); server then sent
+- CHANGED staging-services.rainbet.com: CORS reflector now also on `/` root (6/6 incl root) — all 404/33B, ACAO reflect evil Origin + allow-credentials + expose Cf-Mitigated; still no 2xx.
+- CHANGED staging-monorepo.rainbet.com: /docs flipped back to 5483B plain CF block (was 110KB challenge) — WAF front churn on app bc240b8a.
+- CHANGED staging.rainbet.com: /health -> 302 (Access gap CLOSED this round); Access 302 block page reflects evil Origin (ACAO + allow-credentials:true) — pre-auth, CORS-neutral.
+- CHANGED api.rainbet.com: content GET in plain-block mode — API-class 403 len=5483B, static-class 403 len=4545B, no cf-mitigated; 110KB challenge absent this round.
+- NEW api.rainbet.com: body diff proves the 2 size classes are block FLAVORS — static class = pure CF block (4545B, no JS bootstrap); API class = 5483B block + challenge-platform JS bootstrap; same ray/ct f
+- NEW api.rainbet.com: OPTIONS exemption now observed on BOTH classes (OPTIONS /robots.txt → 200 x-do-orig-status:200) — blanket preflight passthrough independent of block-class.
+- CHANGED staging-chat.rainbet.com: EIO4 200/116B; WS 101 on sid V8bfi8CbTzJMkzKfAAAD; root `40` CONNECT ACK (socket-sid u3zOZrESYiu_kKBCAAAE, 5th round); server sent engine.io ping `2` then close — client neve
+- CHANGED staging-services.rainbet.com: CORS reflector now on `/` root too (6/6 incl root), all 404/33B, no 2xx.
+- CHANGED staging-monorepo.rainbet.com: /docs flipped 110KB challenge → 5483B plain block.
+- CHANGED staging.rainbet.com: /health → 302 (Access gap CLOSED); Access 302 reflects evil Origin + allow-credentials:true (pre-auth, benign).
+- NEW staging-chat.rainbet.com/socket.io root + /raffles + /alerts namespaces accept unauthenticated CONNECT (`40`) with fresh socket-level sids on anonymous engine.io sid — full session establishment prove
+- NEW staging-alerts.rainbet.com WebSocket upgrade CONFIRMED WORKING with captured engine.io sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]) — socket plane hijack proven on DO app 1ce4ff55
+- NEW staging-services.rainbet.com CORS reflector expanded to 6 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet) — all reflect arbitrary Origin + allow-credent
+- CHANGED api.rainbet.com WAF churn live: GET /api/v1/public/ping flipped 110KB managed challenge ↔ 5485B plain block (no cf-mitigated) across rounds — active operator edit cycles on DO app 53f39197
+- CHANGED staging-monorepo.rainbet.com /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc240b8a
+- CHANGED staging-chat.rainbet.com engine.io handshake flapping: 400 at 00:41 → 200/116B at 05:08 → 200/116B at 13:17 — intermittent persistence on DO app 1ce4ff55
+- CHANGED staging-raffles.rainbet.com /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — app 1ce4ff55 serves 6 hostnames
+- CHANGED staging-alerts.rainbet.com engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists as control proving same-DO-app auth asymmetry
