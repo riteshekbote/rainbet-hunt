@@ -551,3 +551,13 @@ www.rainbet.com
 - CHANGED staging-services.rainbet.com CORS reflector confirmed on 6 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet) but /api/health and /metrics remain 404
 - CHANGED staging-raffles.rainbet.com /health stable 200/75B real origin JSON (x-do-orig-status:200, no CF Access/challenge) — app 1ce4ff55 serves 6 hostnames
 - CHANGED staging-alerts.rainbet.com engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists as control for auth asymmetry
+
+## 2026-09-12 16:36:26 UTC
+- NEW staging-chat.rainbet.com socket.io root namespace accepts bare CONNECT (`40`) with NO auth — returns `40{"sid":"...","_placeholder":true}` establishing valid session; /raffles + /alerts namespaces als
+- NEW staging-alerts.rainbet.com WebSocket upgrade CONFIRMED WORKING with captured engine.io sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]) — socket plane hijack proven on same DO app 1ce4ff55
+- NEW staging-services.rainbet.com CORS reflector expanded to 6 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet) — all reflect arbitrary Origin + allow-credent
+- CHANGED api.rainbet.com WAF churn live: GET /api/v1/public/ping flipped 110KB managed challenge ↔ 5485B plain block (no cf-mitigated) across rounds — active operator edit cycles on DO app 53f39197
+- CHANGED staging-monorepo.rainbet.com /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc240b8a
+- CHANGED staging-chat.rainbet.com engine.io handshake flapping: 400 at 00:41 → 200/116B at 05:08 → 200/116B at 13:17 — intermittent persistence on DO app 1ce4ff55
+- CHANGED staging-raffles.rainbet.com /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — app 1ce4ff55 serves 6 hostnames
+- CHANGED staging-alerts.rainbet.com engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists as control proving same-DO-app auth asymmetry

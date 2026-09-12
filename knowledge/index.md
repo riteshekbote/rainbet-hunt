@@ -300,3 +300,7 @@
 - 2026-09-12 ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 Invalid namespace on WS transport — prior namespace join no longer reproducible; root namespace still ACKs unauthenticated
 - 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to 5485B plain WAF block (no cf-mitigated header) from 110KB managed challenge — active operator WAF churn on DO app 53f39197 confirmed live
 - 2026-09-12 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc240b8a
+- 2026-09-12 ACCEPTED AUTH @ staging-chat.rainbet.com: root namespace anonymous session yields engine.io + socket.io CONNECT — egress remains unproven across 4+ listen rounds; strongest validated link in staging chain.
+- 2026-09-12 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector persists on 6 paths (all 404/33B) — still no 2xx mount; conditional HIGH.
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: WAF churn confirmed live (110KB ↔ 5485B) + decode-dependent OPTIONS oracle — no exploit path; monitoring only.
+- 2026-09-12 ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 on WS — namespace registry transport-dependent or instance-routed; polling sid → enumerate candidate names.

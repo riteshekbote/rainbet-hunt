@@ -1,30 +1,40 @@
-## 2026-09-12 13:11:17 UTC [target] (model bigpickle)
-[HYP] staging-chat root namespace anonymous session yields live event egress (missing link)
+## 2026-09-12 16:25:37 UTC [target] (model bigpickle)
+[PRIO] staging-chat.rainbet.com/socket.io, 7.2, attack_surface=9,business_value=7,gate_ease=9,cloud_surface=5,freshness=8
+[PRIO] staging-services.rainbet.com, 5.8, attack_surface=7,business_value=6,gate_ease=5,cloud_surface=6,freshness=7
+[PRIO] api.rainbet.com, 5.3, attack_surface=4,business_value=9,gate_ease=3,cloud_surface=5,freshness=7
+[HYP] staging-chat root namespace anonymous session yields live event egress
 class: AUTH
 asset: staging-chat.rainbet.com/socket.io
 confidence: 65
-reasoning: EIO4 poll → WS upgrade → ping-probe → root `40` CONNECT all succeed on fresh anonymous sid (uM1aCmbPWirJCU7CAAAl, maxPayload=10240); server closed connection after ~0 frames in a 25s listen; business namespaces regressed to 44 (Invalid namespace) since 2026-09-12 01:34.
-evidence_needed: ≥1 inbound `42[...event...]` frame on root namespace during passive WS listen, or a non-root namespace that ACKs and emits
-verify_steps: repeat EIO4 poll→WS upgrade→send exact `40` (no jsonrpc body)→listen 60s; earliest frames win; enumerate only ACKs (not emissions)
-impact: anonymous read/track of live chat/wager notifications (PII at staging) — HIGH; H1 blocking link: no egress observed in 4 listen rounds
+reasoning: EIO4 poll → WS upgrade → root `40` CONNECT ACKs (uM1aCmbPWirJCU7CAAAl, maxPayload=10240); server closes after ~0 frames in 25s listen; /raffles + /alerts regressed to 44 since 2026-09-12 01:34; 4 listen rounds with zero 42 frames observed.
+evidence_needed: ≥1 inbound `42[...event...]` frame on root namespace during passive WS listen, or a non-root namespace that ACKs and emits.
+verify_steps: EIO4 poll → capture sid → WS upgrade → send exact `40` (no jsonrpc body) → listen 60s; enumerate `/chat`, `/wager`, `/live`, `/notifications`, `/wallet`, `/users` via `40/<ns>`; flag ACK vs 44; passive listen ≥60s on any ACK'd namespace.
+impact: anonymous read/track of live chat/wager notifications (PII at staging) — HIGH.
 testability: AUTH_HELPED
-[HYP] api.rainbet.com stacked-knife: path-class 4548B vs 5486B block templates imply per-rule GET gaps that mirror the proven OPTIONS decode-dependency
-class: MISCONFIG
-asset: api.rainbet.com
-confidence: 40
-reasoning: OPTIONS oracle already proves CF classifier is decode-dependent (`%2f..%2f` origin-404 vs blanket 200). New body-size split shows ≥2 rules keyed on path class (static-file vs API). A GET mod-varying rule (one class allowed, other blocked) would show up as non-403 on that class.
-evidence_needed: any GET on /robots.txt|/.well-known/security.txt class returning non-403 with x-do-orig-status
-verify_steps: re-sweep the 4548B class paths 1x/round (0.3 rps) while WAF churns 110KB↔5486B; flag x-do-orig-status presence
-impact: origin reachable on static class → API surface probing — HIGH, churn-gated
-testability: PASSIVE
 [HYP] staging-services CORS reflector unlocks on 2xx route mount
 class: MISCONFIG
 asset: staging-services.rainbet.com
 confidence: 48
-reasoning: Path-agnostic ACAO-reflect of arbitrary Origin + allow-credentials:true + expose-headers:Cf-Mitigated confirmed on 6 paths, all 404/33B; 5 new paths probed this round also 404/33B — reflector is alive, waiting for a live route
-evidence_needed: a GET returning 2xx carrying the same ACAO-reflect+credentials headers
-verify_steps: 4-6 passive GETs/round against /api/v1/public/*, /healthz, /ready, /api/v1/health with Origin: evil.example; grep 2xx + ACAO reflect
-impact: credentialed cross-origin read of any mounted authenticated route — HIGH (conditional)
+reasoning: Path-agnostic ACAO reflect of arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated confirmed on 6 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet); all 404/33B; 5 additional paths also 404. Reflector is alive; any live 2xx route with these headers = credentialed cross-origin read.
+evidence_needed: one GET returning 2xx with ACAO-reflect + credentials headers present in same response.
+verify_steps: 4-6 passive GETs/round against /api/v1/public/*, /healthz, /ready, /api/v1/health with Origin: https://evil.example; grep 2xx + ACAO reflect.
+impact: cross-origin credentialed read of authenticated data once a 2xx route mounts — HIGH (conditional).
 testability: PASSIVE
-[NEXT] PROBE: staging-chat.rainbet.com — EIO4 poll sids → WS upgrade → exact `40` CONNECT (no jsonrpc body) → 60s passive listen on root namespace; log every frame and time-to-close; then re-run 1x sweep of api 4548B-class paths (/robots.txt, /.well-known/security.txt) for x-do-orig-status presence.
-[RISK] RainBet: 43/100 — api.rainbet.com fully WAF-closed with a stable decode-dependent OPTIONS oracle and now-visible 2-class rule template but zero exploit path; strongest validated findings (staging origin JSON, anonymous socket plane, chat root CONNECT asymmetry, services CORS reflector) all live but none escalated — socket egress unproven across 4 listens, CORS reflector awaits a 2xx mount, and WAF front churns harmlessly. 17/20 inventory hosts dead; operator hardening continues.
+[HYP] api.rainbet.com WAF churn window transient whitelist on common paths
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: Content GET flips 110KB-managed-challenge ↔ 5KB-plain-block across 16+ rounds; OPTIONS blanket exemption stable; decode-dependent classifier confirmed via `%2f..%2f` oracle. Operator edit cycles live — whitelist window may transiently pass /robots.txt, /health, /api/v1/public/config to origin.
+evidence_needed: any content GET returning non-403 (200/401/404-from-origin) with x-do-orig-status present.
+verify_steps: GET /robots.txt, /.well-known/security.txt, /health, /api/v1/public/config, /api/v1/public/ping at 0.5 rps each round; flag any non-403 + x-do-orig-status.
+impact: WAF bypass → origin API enumerable (wallet/auth/bets) — severity HIGH if window hit.
+testability: PASSIVE
+[FINAL] staging-chat root namespace anonymous session yields live event egress: confidence 65, AUTH class, 4 rounds without egress but protocol-level session proven. Keep — single egress frame escalates to HIGH. testability: AUTH_HELPED (requires WS capture + listen).
+[FINAL] staging-services CORS reflector unlocks on 2xx: confidence 48, near threshold. Survives because reflector is confirmed alive on 6 paths, latency depends on operator deploying a 2xx route. Conditional but not dismissible. testability: PASSIVE.
+[FINAL] api.rainbet.com WAF churn window: confidence 40, exactly at threshold. WAF churn is real (110KB ↔ 5485B across 16+ rounds) but no non-403 has ever been observed. Marginal. Keep as PASSIVE watch only.
+[NEXT] PROBE: staging-chat.rainbet.com — EIO4 poll sid → WS upgrade → send exact `40` → 60s passive listen on root namespace; log every frame and time-to-close; then enumerate `/chat`, `/wager`, `/live`, `/notifications`, `/wallet`, `/users` via `40/<ns>` on any ACK'd namespace. Concurrently sweep api.rainbet.com 4548B-class paths (/robots.txt, /.well-known/security.txt) for x-do-orig-status presence (0.3 rps).
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: root namespace anonymous session yields engine.io + socket.io CONNECT — egress remains unproven across 4+ listen rounds; strongest validated link in staging chain.
+[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector persists on 6 paths (all 404/33B) — still no 2xx mount; conditional HIGH.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: WAF churn confirmed live (110KB ↔ 5485B) + decode-dependent OPTIONS oracle — no exploit path; monitoring only.
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 on WS — namespace registry transport-dependent or instance-routed; polling sid → enumerate candidate names.
+[RISK] RainBet: 42/100 — api.rainbet.com fully WAF-closed with stable OPTIONS oracle but zero exploit path; staging-chat anonymous socket session is strongest lead (4 rounds, zero egress — missing link); staging-services CORS reflector confirmed alive but latent (no 2xx); origin JSON at staging-raffles is info-only; 17/20 inventory hosts dead; operator active WAF/Access churn signals ongoing hardening.
