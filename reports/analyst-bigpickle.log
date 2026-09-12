@@ -16543,3 +16543,140 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] RainBet: 45/100 — Top finding (staging-chat anonymous socket plane) is proven session establishment but unverified data egress, and its impact is confined to staging mirroring prod data. CORS reflector on staging-services is the strongest latent severity (credentialed cross-origin read) but awaits a 2xx mount. CF WAF/Access churn indicates active operator hardening; 17/20 inventory hosts dead. Overall exposure moderate, exploitation conditionally gated.
+===== ANALYST bigpickle 2026-09-12 00:41:24 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/eio_chat.txt -w "staging-chat EIO: %{http_code} len=%{size_download}\n" "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 15; cat /tmp/opencode/eio_chat.txt
+staging-chat EIO: 200 len=116
+0{"sid":"cytoWVDyUjHhCpdLAAAa","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/raffles_health.txt -w "staging-raffles /health: %{http_code} len=%{size_download}\n" "https://staging-raffles.rainbet.com/health" --max-time 15; cat /tmp/opencode/raffles_health.txt
+staging-raffles /health: 200 len=75
+{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/api_ping.txt -w "api GET ping: %{http_code} len=%{size_download}\n" "https://api.rainbet.com/api/v1/public/ping" --max-time 15
+api GET ping: 403 len=5482
+[0m
+[0m$ [0mcurl -s -o /dev/null -D /tmp/opencode/api_opt.txt -w "api OPTIONS openapi: %{http_code} len=%{size_download}\n" -X OPTIONS "https://api.rainbet.com/openapi.json" --max-time 15; head -20 /tmp/opencode/api_opt.txt
+api OPTIONS openapi: 200 len=0
+HTTP/2 200 
+date: Sat, 12 Sep 2026 00:37:52 GMT
+content-type: application/json
+content-length: 0
+server: cloudflare
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=FhVm1zIhey9WwDNSedq00IExirA5M3ibDjjmS3pbXtg-1789173472.251311-1.0.1.1-bZoayhkoXeb1yWDetGjleP_jN.W10v4o3DQXRylsbOHMl37AnNhHrkn2Ta0jkox6LnwI1OHn4Hs0BRdSVLAQ4YEBZW8koBYRA2TbZRwQO8WBffXqaNADToNw3Wt_IUcH; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 12 Sep 2026 01:07:52 GMT
+cf-ray: a39ad8999d9f9951-IAD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mpython3 -c "import websocket; print('websocket-client ok')" 2>&1 || python3 -c "import websockets; print('websockets ok')" 2>&1 || pip3 list 2>/dev/null | rg -i "websocket" || echo "no ws lib"; which node npx 2>/dev/null
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'websocket'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'websockets'
+/bin/bash: line 1: rg: command not found
+no ws lib
+/usr/local/bin/node
+/usr/local/bin/npx
+[0m
+[0m$ [0mnode --version
+v22.23.2
+[0m
+[0m← [0mWrite /tmp/opencode/ws_probe.js
+Wrote file successfully.
+[0m
+[0m$ [0mnode /tmp/opencode/ws_probe.js "wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket" "40/raffles," 30000 2>&1 | head -40
+RECV[105]: 0{"sid":"dhWrqwFJjN_7bpkvAAAb","upgrades":[],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+OPEN sid=dhWrqwFJjN_7bpkvAAAb upgrades=[] maxPayload=10240
+SEND: 40/raffles,
+RECV[42]: 44/raffles,{"message":"Invalid namespace"}
+RECV[1]: 2
+TIMEOUT: no frame for 30000ms after connect
+[0m
+[0m$ [0mnode /tmp/opencode/ws_probe.js "wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket" "40" 15000 2>&1 | head -30
+RECV[105]: 0{"sid":"llA8u5UjvvjTu3R_AAAc","upgrades":[],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+OPEN sid=llA8u5UjvvjTu3R_AAAc upgrades=[] maxPayload=10240
+SEND: 40
+RECV[32]: 40{"sid":"C5G0XAAcSk5to7mzAAAd"}
+NAMESPACE CONNECT ACK
+TIMEOUT: no frame for 15000ms after connect
+[0m
+[0m$ [0mnode /tmp/opencode/ws_probe.js "wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket" "40/alerts," 8000 2>&1 | head -20
+RECV[105]: 0{"sid":"7e3Wx-JGF1VZ3t0JAAAe","upgrades":[],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+OPEN sid=7e3Wx-JGF1VZ3t0JAAAe upgrades=[] maxPayload=10240
+SEND: 40/alerts,
+RECV[41]: 44/alerts,{"message":"Invalid namespace"}
+TIMEOUT: no frame for 8000ms after connect
+[0m
+[0m$ [0mnode /tmp/opencode/ws_probe.js "wss://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=websocket" "40" 8000 2>&1 | head -20
+RECV[105]: 0{"sid":"PCYnG1_Qb4ox8sdKAAQD","upgrades":[],"pingInterval":25000,"pingTimeout":20000,"maxPayload":20480}
+OPEN sid=PCYnG1_Qb4ox8sdKAAQD upgrades=[] maxPayload=20480
+SEND: 40
+RECV[59]: 44{"message":"er_auth_token_invalid","data":{"status":401}}
+TIMEOUT: no frame for 8000ms after connect
+[0m
+STEP 1 — DELTA
+- [CHANGED] staging-chat socket.io: `/raffles` + `/alerts` now return `44/raffles,{"message":"Invalid namespace"}` over WebSocket transport — previously ACKed anonymous `40{"sid":...}`; namespace-expansion finding regressed/changed (per-WS instance divergence)
+- [CHANGED] staging-chat root namespace anonymous CONNECT re-confirmed on WS transport: `40` → `40{"sid":"C5G0XAAcSk5to7mzAAAd"}` (fresh sid per connection)
+- [CHANGED] staging-alerts (same DO app 1ce4ff55): root CONNECT over WS returns `44{"message":"er_auth_token_invalid","data":{"status":401}}` — auth asymmetry control re-confirmed on WS
+- [STABLE] api.rainbet.com: GET /api/v1/public/ping → 403 len=5482 (plain WAF-block state); OPTIONS /openapi.json → 200 Allow: HEAD,GET,POST,OPTIONS + x-do-orig-status:200 + app 53f39197
+- [STABLE] staging-raffles /health → 200 len=75 real origin JSON
+
+STEP 2 — PRIORITIZE
+- [PRIO] api.rainbet.com,6.45 — (a6,b9,t5,g5,c6,f6) money API behind churning WAF; highest business value
+- [PRIO] staging-chat.rainbet.com/socket.io,6.40 — (a3,b7,t6,g10,c8,f7) gate_ease=10, no auth anywhere on WS plane
+- [PRIO] staging-services.rainbet.com,5.90 — (a5,b6,t5,g8,c7,f5) CORS reflector latent
+
+STEP 3 — HYPOTHESES
+[HYP] staging-chat root namespace anonymous socket session (WS transport) — business namespaces regressed
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 70
+reasoning: WS open packet `0{"sid":...,"upgrades":[]}` issues anonymous sid; bare `40` CONNECT ACKs `40{"sid":...}` unauthenticated this round on WS transport. Same-DO-app sibling staging-alerts rejects the identical CONNECT with 401 `er_auth_token_invalid`. `/raffles` + `/alerts` now return `44{"message":"Invalid namespace"}` — prior ack no longer reproducible on WS, either registry churn or transport-specific instance routing. No inbound `42` frames in 15-30s passive listens (root channel idle or events only fire on registered business namespaces).
+evidence_needed: anonymous session that yields ≥1 inbound `42` event frame, or discovery of a non-root namespace that ACKs `40{"sid":...}` without 44 and emits events.
+verify_steps: repeat WS connect + `40` root CONNECT, passive-listen ≥60s for `42` frames; enumerate candidate namespace names (`/chat`,`/wager`,`/live`,`/notifications`,`/wallet`,`/users`) via `40/<ns>,` and flag any that ACKs instead of `44 Invalid namespace`.
+impact: anonymous read of live wagering/chat bus on staging mirror (PII/email, draw data) — severity HIGH if egress proven; currently MEDIUM (staging, session-only).
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector unlocks on 2xx route mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 48
+reasoning: path-agnostic ACAO reflect of arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated confirmed on 6 probed paths (all 404/33B, x-powered-by Express, DO app 1ce4ff55). Any live unauthenticated 2xx route with these headers = credentialed cross-origin read.
+evidence_needed: one GET returning 2xx with ACAO-reflect + credentials headers present in same response.
+verify_steps: passive GET enum of /api/v1/public/*, /api/v1/config, /healthz, /ready with Origin: https://evil.example; grep for 2xx + ACAO reflect (<1 rps).
+impact: cross-origin credentialed read of authenticated data once a 2xx user route mounts; severity HIGH (conditional).
+testability: PASSIVE
+[HYP] api WAF per-path whitelist during operator churn window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: content GET state has flipped 110KB-managed-challenge ↔ 5KB-plain-block across rounds (currently 5482B block); OPTIONS blanket exemption stable. An edit cycle may transiently whitelist common paths (robots, health, ping) revealing origin responses.
+evidence_needed: any content GET returning non-403/non-challenge during a churn window proving per-path whitelist bypass.
+verify_steps: repeat GET /robots.txt, /.well-known/security.txt, /health, /api/v1/public/config alongside the ping control each round; flag any non-403.
+impact: WAF bypass → origin API (wallet/auth/bets) enumerable; severity HIGH (window-conditional).
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] staging-services CORS reflector: 48 < exploited-latency gate; no 2xx mount across 16+ rounds — keep, do not escalate.
+- [PARKED] api WAF whitelist window: 40; no non-403 content observed across 15+ rounds despite real churn — window never caught.
+- [FINAL] staging-chat root anonymous socket session (70; reduced from 95 — /raffles+/alerts namespace ack not reproducible this round, egress still unproven).
+
+STEP 5 — NEXT ACTION
+- [NEXT] PROBE: node /tmp/opencode/ws_probe.js "wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket" with candidate namespaces (/chat,/wager,/live,/notifications,/wallet,/users) to find one ACKing `40{"sid":...}` instead of `44 Invalid namespace`, then passive-listen ≥60s for `42` event frames on any ACKed namespace (read-only CONNECT + listen, ≤1 rps).
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: root namespace anonymous CONNECT re-confirmed on WebSocket transport (`40{"sid":...}`, fresh sid each) — root session establishment persists 16+ rounds.
+- [LEARN] ACCEPTED MISCONFIG @ staging-chat.rainbet.com: `/raffles` + `/alerts` return `44{"message":"Invalid namespace"}` over WS this round (previously ACKed) — namespace expansion regressed; transport-instance divergence possible; root-only claim re-scoped.
+- [LEARN] ACCEPTED AUTH @ staging-alerts.rainbet.com: root CONNECT over WS returns 401 `er_auth_token_invalid` — same-DO-app per-hostname auth asymmetry re-confirmed on WS transport.
+- [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /openapi.json stable 200 (Allow HEAD,GET,POST,OPTIONS, x-do-orig-status:200, app 53f39197); GET ping 403 5482B plain-block — WAF churn continues, no whitelist window observed.
+- [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: /health real origin JSON (75B, x-do-orig-status:200) stable; control healthy.
+
+STEP 7 — RISK
+- [RISK] RainBet: 42/100 — top finding (staging-chat anonymous socket session) re-confirmed but downgraded (namespace expansion regressed to root-only, data egress unverified, staging-only). Same-DO-app auth asymmetry (chat accepts, alerts rejects) is the strongest structural signal. CORS reflector and API WAF window remain latent/conditional. Operator WAF/Access churn indicates active hardening; most inventory dead.

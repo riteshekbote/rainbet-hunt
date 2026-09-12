@@ -485,3 +485,10 @@ https://www.rainbet.com/auth/callback` -> HTTP 403
 
 ## 2026-09-11 22:24:45 UTC
 
+
+## 2026-09-12 00:41:30 UTC
+https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling -> HTTP 400
+https://staging-raffles.rainbet.com/api/v1/public/config -> HTTP 404
+https://staging-raffles.rainbet.com/api/v1/health -> HTTP 404
+https://staging-services.rainbet.com/api/health -> HTTP 404
+https://staging-services.rainbet.com/metrics -> HTTP 404

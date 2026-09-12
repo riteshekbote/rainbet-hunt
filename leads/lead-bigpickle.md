@@ -2317,3 +2317,31 @@ impact: WAF bypass → origin API surface (wallets, auth, bets) enumerable. Seve
 testability: PASSIVE
 [NEXT] PROBE: staging-chat.rainbet.com — capture fresh EIO4 sid (`/socket.io/?EIO=4&transport=polling`), WebSocket-upgrade with that sid, send `40/raffles,` CONNECT (no token), then passive-listen for inbound engine.io `42/raffles,<event>` frames for >=30s. Single host, no mutations, verifies the final H1 link (AUTH_HELPED).
 [RISK] RainBet: 45/100 — Top finding (staging-chat anonymous socket plane) is proven session establishment but unverified data egress, and its impact is confined to staging mirroring prod data. CORS reflector on staging-services is the strongest latent severity (credentialed cross-origin read) but awaits a 2xx mount. CF WAF/Access churn indicates active operator hardening; 17/20 inventory hosts dead. Overall exposure moderate, exploitation conditionally gated.
+## 2026-09-12 00:40:01 UTC [target] (model bigpickle)
+[HYP] staging-chat root namespace anonymous socket session (WS transport) — business namespaces regressed
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 70
+reasoning: WS open packet `0{"sid":...,"upgrades":[]}` issues anonymous sid; bare `40` CONNECT ACKs `40{"sid":...}` unauthenticated this round on WS transport. Same-DO-app sibling staging-alerts rejects the identical CONNECT with 401 `er_auth_token_invalid`. `/raffles` + `/alerts` now return `44{"message":"Invalid namespace"}` — prior ack no longer reproducible on WS, either registry churn or transport-specific instance routing. No inbound `42` frames in 15-30s passive listens (root channel idle or events only fire on registered business namespaces).
+evidence_needed: anonymous session that yields ≥1 inbound `42` event frame, or discovery of a non-root namespace that ACKs `40{"sid":...}` without 44 and emits events.
+verify_steps: repeat WS connect + `40` root CONNECT, passive-listen ≥60s for `42` frames; enumerate candidate namespace names (`/chat`,`/wager`,`/live`,`/notifications`,`/wallet`,`/users`) via `40/<ns>,` and flag any that ACKs instead of `44 Invalid namespace`.
+impact: anonymous read of live wagering/chat bus on staging mirror (PII/email, draw data) — severity HIGH if egress proven; currently MEDIUM (staging, session-only).
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector unlocks on 2xx route mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 48
+reasoning: path-agnostic ACAO reflect of arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated confirmed on 6 probed paths (all 404/33B, x-powered-by Express, DO app 1ce4ff55). Any live unauthenticated 2xx route with these headers = credentialed cross-origin read.
+evidence_needed: one GET returning 2xx with ACAO-reflect + credentials headers present in same response.
+verify_steps: passive GET enum of /api/v1/public/*, /api/v1/config, /healthz, /ready with Origin: https://evil.example; grep for 2xx + ACAO reflect (<1 rps).
+impact: cross-origin credentialed read of authenticated data once a 2xx user route mounts; severity HIGH (conditional).
+testability: PASSIVE
+[HYP] api WAF per-path whitelist during operator churn window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: content GET state has flipped 110KB-managed-challenge ↔ 5KB-plain-block across rounds (currently 5482B block); OPTIONS blanket exemption stable. An edit cycle may transiently whitelist common paths (robots, health, ping) revealing origin responses.
+evidence_needed: any content GET returning non-403/non-challenge during a churn window proving per-path whitelist bypass.
+verify_steps: repeat GET /robots.txt, /.well-known/security.txt, /health, /api/v1/public/config alongside the ping control each round; flag any non-403.
+impact: WAF bypass → origin API (wallet/auth/bets) enumerable; severity HIGH (window-conditional).
+testability: PASSIVE
