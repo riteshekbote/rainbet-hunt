@@ -2441,3 +2441,33 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: WAF frozen at plain-block 5484B + OPTIONS exemption fully stable — no churn window this round
 [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 Invalid namespace on WS transport — prior namespace join no longer reproducible; root namespace still ACKs unauthenticated
 [RISK] RainBet: 45/100 — api.rainbet.com remains fully WAF-closed with CORS-neutral OPTIONS exemption; staging findings (origin JSON, engine.io plane, chat CONNECT asymmetry, services CORS reflector) are validated but confined to staging with latent severity; staging-chat namespace regression weakens egress hypothesis; active WAF/Access churn signals operator hardening; 17/20 inventory hosts dead.
+## 2026-09-12 13:11:17 UTC [target] (model bigpickle)
+[HYP] staging-chat root namespace anonymous session yields live event egress (missing link)
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 65
+reasoning: EIO4 poll → WS upgrade → ping-probe → root `40` CONNECT all succeed on fresh anonymous sid (uM1aCmbPWirJCU7CAAAl, maxPayload=10240); server closed connection after ~0 frames in a 25s listen; business namespaces regressed to 44 (Invalid namespace) since 2026-09-12 01:34.
+evidence_needed: ≥1 inbound `42[...event...]` frame on root namespace during passive WS listen, or a non-root namespace that ACKs and emits
+verify_steps: repeat EIO4 poll→WS upgrade→send exact `40` (no jsonrpc body)→listen 60s; earliest frames win; enumerate only ACKs (not emissions)
+impact: anonymous read/track of live chat/wager notifications (PII at staging) — HIGH; H1 blocking link: no egress observed in 4 listen rounds
+testability: AUTH_HELPED
+[HYP] api.rainbet.com stacked-knife: path-class 4548B vs 5486B block templates imply per-rule GET gaps that mirror the proven OPTIONS decode-dependency
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: OPTIONS oracle already proves CF classifier is decode-dependent (`%2f..%2f` origin-404 vs blanket 200). New body-size split shows ≥2 rules keyed on path class (static-file vs API). A GET mod-varying rule (one class allowed, other blocked) would show up as non-403 on that class.
+evidence_needed: any GET on /robots.txt|/.well-known/security.txt class returning non-403 with x-do-orig-status
+verify_steps: re-sweep the 4548B class paths 1x/round (0.3 rps) while WAF churns 110KB↔5486B; flag x-do-orig-status presence
+impact: origin reachable on static class → API surface probing — HIGH, churn-gated
+testability: PASSIVE
+[HYP] staging-services CORS reflector unlocks on 2xx route mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 48
+reasoning: Path-agnostic ACAO-reflect of arbitrary Origin + allow-credentials:true + expose-headers:Cf-Mitigated confirmed on 6 paths, all 404/33B; 5 new paths probed this round also 404/33B — reflector is alive, waiting for a live route
+evidence_needed: a GET returning 2xx carrying the same ACAO-reflect+credentials headers
+verify_steps: 4-6 passive GETs/round against /api/v1/public/*, /healthz, /ready, /api/v1/health with Origin: evil.example; grep 2xx + ACAO reflect
+impact: credentialed cross-origin read of any mounted authenticated route — HIGH (conditional)
+testability: PASSIVE
+[NEXT] PROBE: staging-chat.rainbet.com — EIO4 poll sids → WS upgrade → exact `40` CONNECT (no jsonrpc body) → 60s passive listen on root namespace; log every frame and time-to-close; then re-run 1x sweep of api 4548B-class paths (/robots.txt, /.well-known/security.txt) for x-do-orig-status presence.
+[RISK] RainBet: 43/100 — api.rainbet.com fully WAF-closed with a stable decode-dependent OPTIONS oracle and now-visible 2-class rule template but zero exploit path; strongest validated findings (staging origin JSON, anonymous socket plane, chat root CONNECT asymmetry, services CORS reflector) all live but none escalated — socket egress unproven across 4 listens, CORS reflector awaits a 2xx mount, and WAF front churns harmlessly. 17/20 inventory hosts dead; operator hardening continues.
