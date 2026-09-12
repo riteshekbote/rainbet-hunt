@@ -293,3 +293,10 @@
 - 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: Allow header uniform (`HEAD,GET,POST,OPTIONS`) across 10 probed business/admin paths — no route-differential method fingerprint via OPTIONS exemption.
 - 2026-09-12 REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants (double-encoded path, `%2e%2e`, trailing `%2f`, mixed-case) all 403@5484B — no content-method WAF bypass this round.
 - 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: WAF frozen at plain-block 5484B (no cf-mitigated) + OPTIONS exemption fully stable — no operator churn window observed this round.
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS `/openapi.json%2f..%2f` passes WAF to origin (404, x-do-orig-status:404) vs blanket 200 on plain preflights — origin preflight classifier is decode-dependent; CORS-neutral, non-exploitable
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: Allow header uniform across 10 paths — no route-differential method fingerprint via OPTIONS exemption
+- 2026-09-12 REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants all 403@5484B — no content-method WAF bypass this round
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: WAF frozen at plain-block 5484B + OPTIONS exemption fully stable — no churn window this round
+- 2026-09-12 ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts regressed to 44 Invalid namespace on WS transport — prior namespace join no longer reproducible; root namespace still ACKs unauthenticated
+- 2026-09-12 ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to 5485B plain WAF block (no cf-mitigated header) from 110KB managed challenge — active operator WAF churn on DO app 53f39197 confirmed live
+- 2026-09-12 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc240b8a

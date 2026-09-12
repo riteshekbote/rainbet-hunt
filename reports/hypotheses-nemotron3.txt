@@ -1,12 +1,11 @@
-## 2026-09-12 05:08:31 UTC [target] (model nemotron3)
-[NEW] api.rainbet.com GET /api/v1/public/ping reverted to 5485B plain WAF block (no cf-mitigated header) from 110KB managed challenge — active operator WAF churn on DO app 53f39197 confirmed live
-[NEW] staging-chat.rainbet.com engine.io handshake flapped to HTTP 400 at 09:02 then REAPPEARED 200/116B at 13:31 — intermittent flapping persists on DO app 1ce4ff55 across 15+ rounds
-[CHANGED] staging-services.rainbet.com CORS reflector expanded to 6 paths (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet) — all 404/33B, reflects arbitrary Origin + allow-credentials:true + expose Cf-Mitigated + x-powered-by:Express
-[CHANGED] staging-monorepo.rainbet.com /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc240b8a
-[CHANGED] staging-raffles.rainbet.com /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — app 1ce4ff55 serves 6 staging hostnames
-[CHANGED] staging-alerts.rainbet.com engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control proving same-DO-app auth asymmetry with staging-chat
+## 2026-09-12 09:29:26 UTC [target] (model nemotron3)
+[NEW] staging-chat.rainbet.com engine.io handshake REAPPEARED 200/116B at 05:08 (was 400 at 00:41) — intermittent flapping persists on DO app 1ce4ff55
+[CHANGED] staging-services.rainbet.com /api/health and /metrics remain 404 (CORS reflector on 6 paths per knowledge, but no 2xx mount)
+[CHANGED] staging-raffles.rainbet.com /health stable 200/75B real origin JSON (x-do-orig-status:200, no CF Access/challenge) — app 1ce4ff55 serves 6 hostnames
+[CHANGED] api.rainbet.com GET /api/v1/public/ping at 5485B plain WAF block (no cf-mitigated) per 05:08 knowledge — WAF churn 110KB↔5485B confirmed live
+[CHANGED] staging-monorepo.rainbet.com /docs flipped to full CF managed challenge (110KB) — WAF front fluctuates on app bc240b8a
 [PRIO] staging-chat.rainbet.com/socket.io/, 9.4, attack_surface=10 business_value=9 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=10
-[PRIO] staging-raffles.rainbet.com (and 5 sibling hostnames on app 1ce4ff55), 8.7, attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=7 freshness=10
+[PRIO] staging-raffles.rainbet.com (6 hostnames on app 1ce4ff55), 8.7, attack_surface=9 business_value=8 tech_exposure=9 gate_ease=10 cloud_surface=7 freshness=10
 [PRIO] staging-alerts.rainbet.com/socket.io/, 9.1, attack_surface=10 business_value=8 tech_exposure=10 gate_ease=10 cloud_surface=8 freshness=10
 [PRIO] staging-services.rainbet.com, 7.6, attack_surface=8 business_value=7 tech_exposure=8 gate_ease=10 cloud_surface=6 freshness=9
 [PRIO] api.rainbet.com, 6.3, attack_surface=7 business_value=9 tech_exposure=6 gate_ease=2 cloud_surface=8 freshness=8
@@ -45,8 +44,8 @@ testability: AUTH_HELPED
 [FINAL] 2. staging-raffles.rainbet.com (also staging-chat/alerts/socket/services/originals-history.rainbet.com): Staging pocket app (app 1ce4ff55) exposes full API contract via unprotected /health and /api/* endpoints on 6 hostnames (confidence 90)
 [FINAL] 3. api.rainbet.com: DigitalOcean App Platform direct-origin bypass via unproxied *.ondigitalocean.app FQDN (confidence 65)
 [NEXT] PROBE: GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling to capture engine.io sid, then WebSocket upgrade to wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<captured_sid>, send engine.io packet `40` (bare CONNECT to root namespace), then `40{"0":"/raffles"}` (namespace join), then `42["subscribe",{"channel":"raffles"}]` to test event subscription and server-push interception
-[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to full CF managed challenge (110KB) — active operator WAF churn on DO app 53f39197 (previously 5485B plain block without cf-mitigated)
-[LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs returns full CF managed challenge (not 5485B block) — WAF front state fluctuates on app bc240b8a
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to 5485B plain WAF block (no cf-mitigated header) from 110KB managed challenge — active operator WAF churn on DO app 53f39197 confirmed live
+[LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc240b8a
 [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 6 staging hostnames
 [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with no auth — returns `40{"sid":"...","_placeholder":true}` establishing valid session on DO app 1ce4ff55; staging-alerts on same app correctly rejects with `er_auth_token_invalid` (401); per-hostname auth inconsistency confirmed
 [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: /raffles + /alerts namespaces ack unauthenticated connect (`40{"sid":...}`, fresh socket-level sid each) on anonymous engine.io sid (connect requires sid from engine.io handshake); expanding root-only finding
