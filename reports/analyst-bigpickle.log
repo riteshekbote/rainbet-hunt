@@ -21769,3 +21769,13 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] RainBet: 32/100 — flat. api WAF in plain-block mode (both classes GET 403, OPTIONS CORS-neutral passthrough, 16+ rounds); chat anonymous plane up but zero egress across 16+ rounds — only live thread remains the WS+pong fair-egress test; services CORS reflector now 7/7 paths but still latent behind 404s; raffles /health route-less origin JSON; staging Access closed; monorepo route-less; 17/20 inventory dead. Standing findings unchanged (≤CVSS 7.3). Monitoring-only; no escalation.
+===== ANALYST bigpickle 2026-09-13 19:05:38 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u +%Y-%m-%dT%H:%M:%SZ
+2026-09-13T18:57:56Z
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -D /tmp/chat_eio_headers.txt -o /tmp/chat_eio_body.txt 'https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling' 2>&1; echo "---HEADERS---"; cat /tmp/chat_eio_headers.txt; echo "---BODY---"; cat /tmp/chat_eio_body.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

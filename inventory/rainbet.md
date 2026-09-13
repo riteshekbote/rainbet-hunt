@@ -667,3 +667,13 @@ www.rainbet.com
 - CHANGED staging-chat.rainbet.com/socket.io: engine.io polling flapped to HTTP 400 at 06:23 (was 200 at 01:14) — intermittent flapping persists on DO app 1ce4ff55 across 16+ rounds
 - CHANGED staging-raffles.rainbet.com: /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — 6 hostnames on app 1ce4ff55 confirmed
 - CHANGED staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; x-powered-by: Express; all 404/33B
+
+## 2026-09-13 19:05:38 UTC
+- CHANGED staging-chat.rainbet.com/socket.io: engine.io polling flapped to HTTP 400 at 06:23 (was 200 at 01:14) — intermittent flapping persists on DO app 1ce4ff55 across 16+ rounds
+- CHANGED staging-raffles.rainbet.com: /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — 6 hostnames on app 1ce4ff55 confirmed
+- CHANGED staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; x-powered-by: Express; all 404/33B
+- CHANGED api.rainbet.com: GET /api/v1/public/ping reverted to full CF managed challenge (110KB) from 5485B plain block — WAF churn 110KB↔5485B confirmed live on DO app 53f39197
+- CHANGED staging-monorepo.rainbet.com: /docs flipped to CF managed challenge (110KB) from 5483B plain block — WAF front fluctuates on app bc240b8a
+- CHANGED staging.rainbet.com: /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — gap CLOSED, pre-auth CORS-neutral
+- CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
+- NEW staging-services.rainbet.com: /docs/openapi.json and /docs/api-json both return 302→CF Access (143B) — Access now covers Swagger sub-paths; contract-leak vector closed
