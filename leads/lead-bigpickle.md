@@ -3100,3 +3100,31 @@ testability: PASSIVE
 [NEXT] PROBE: WS-upgrade egress listen on staging-chat — GET /socket.io/?EIO=4&transport=polling → sid; WS upgrade (101) wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>; socket.io `40` CONNECT root; reply `3` to every engine.io `2` ping; listen ≥60s for `42[...]` — listen-only, 1 connection, ≤1 rps (requires interactive WS client; POST pong is part of transport protocol, not a data mutation)
 [RISK] RainBet: 32/100 — flat. api WAF in plain-block mode (both classes GET 403, OPTIONS CORS-neutral passthrough, 16+ rounds); chat anonymous plane up but zero egress across 16+ rounds — only live thread remains the WS+pong fair-egress test; services CORS reflector now 7/7 paths but still latent behind 404s; raffles /health route-less origin JSON; staging Access closed; monorepo route-less; 17/20 inventory dead. Standing findings unchanged (≤CVSS 7.3). Monitoring-only; no escalation.
 ## 2026-09-13 18:58:12 UTC [target] (model bigpickle)
+## 2026-09-13 21:23:47 UTC [target] (model bigpickle)
+[HYP] staging-chat anonymous socket session delivers business events
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/
+confidence: 58
+reasoning: EIO4 polling 200/116B fresh anonymous sid across 17+ rounds (x-do-orig-status:200, app 1ce4ff55); root `40` CONNECT ACKs socket-level sid (5th+ round) while same-app staging-alerts rejects with `44 er_auth_token_invalid` — per-hostname asymmetry proven. Every prior WS listen died at pingTimeout (~25-45s) because the client never ponged `2`→`3`; egress was never fairly tested, so zero-business-frame evidence is inconclusive, not negative.
+evidence_needed: server-initiated `42[...]` frame (raffle draw/alert/win) reaching the anonymous session after answering engine.io `2` pings for ≥60s
+verify_steps: GET /socket.io/?EIO=4&transport=polling → sid; WS upgrade (101) ?EIO=4&transport=websocket&sid=<sid>; send `40` CONNECT root; reply `3` to every `2` ping; listen ≥60s for `42[...]`; listen-only, 1 connection, ≤1 rps (pong is transport ACK, not data emission)
+impact: unauthenticated read of live bet/raffle/wallet event stream on a production DO app — pre-auth intelligence/info disclosure; HIGH, egress-gated
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + expose-headers:Cf-Mitigated on 6/6 paths incl `/` root, all 404/33B, 13+ rounds; /docs zone Access-gated (302 on openapi.json/api-json) proves a protected data surface exists on same app 1ce4ff55; any future 2xx route inherits the reflector.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round on untested prefixes (/api/v1/wallet, /api/v1/profile, /api/v1/bets, /api/internal) with Origin: https://evil.example + Accept: application/json (≤1 rps); flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+testability: PASSIVE
+[HYP] api per-class GET gap during WAF churn window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: WAF flips 110KB managed challenge ↔ 5484B plain block (app 53f39197) across 17+ rounds with live operator edit cycles; both path classes OPTIONS-exempt (200 + x-do-orig-status:200, blanket preflight). GET uniformly 403 — churn could transiently open a content-method window on either class; monitoring cost ~1 req/round.
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either class during a churn window
+verify_steps: 1x/round class-pair watch: GET /api/v1/public/ping (API-class), GET /robots.txt (static-class), GET + OPTIONS /openapi.json (state marker) at 0.3 rps
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE

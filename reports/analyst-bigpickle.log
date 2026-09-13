@@ -21779,3 +21779,65 @@ STEP 7 — RISK
 [93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
 [0m✗ [0mcurl -s -D /tmp/chat_eio_headers.txt -o /tmp/chat_eio_body.txt 'https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling' 2>&1; echo "---HEADERS---"; cat /tmp/chat_eio_headers.txt; echo "---BODY---"; cat /tmp/chat_eio_body.txt failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-13 21:25:59 UTC =====
+[0m
+> build · big-pickle
+[0m
+STEP 1 — DELTA
+- NO_DELTA: no new probes executed this analysis round; surface identical to 2026-09-13 19:05 tail (chat egress untested, services reflector 404-only, api WAF churn, Access closed).
+
+STEP 2 — PRIORITIZE
+- [PRIO] staging-chat.rainbet.com/socket.io/,7.7,a=7,b=8,t=8,g=9,c=5,f=9
+- [PRIO] staging-services.rainbet.com,6.8,a=5,b=9,t=6,g=8,c=4,f=8
+- [PRIO] staging-raffles.rainbet.com,6.0,a=3,b=7,t=4,g=10,c=5,f=9
+- [PRIO] api.rainbet.com,5.7,a=3,b=10,t=5,g=2,c=6,f=8
+
+STEP 3 — HYPOTHESES
+[HYP] staging-chat anonymous socket session delivers business events
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/
+confidence: 58
+reasoning: EIO4 polling 200/116B fresh anonymous sid across 17+ rounds (x-do-orig-status:200, app 1ce4ff55); root `40` CONNECT ACKs socket-level sid (5th+ round) while same-app staging-alerts rejects with `44 er_auth_token_invalid` — per-hostname asymmetry proven. Every prior WS listen died at pingTimeout (~25-45s) because the client never ponged `2`→`3`; egress was never fairly tested, so zero-business-frame evidence is inconclusive, not negative.
+evidence_needed: server-initiated `42[...]` frame (raffle draw/alert/win) reaching the anonymous session after answering engine.io `2` pings for ≥60s
+verify_steps: GET /socket.io/?EIO=4&transport=polling → sid; WS upgrade (101) ?EIO=4&transport=websocket&sid=<sid>; send `40` CONNECT root; reply `3` to every `2` ping; listen ≥60s for `42[...]`; listen-only, 1 connection, ≤1 rps (pong is transport ACK, not data emission)
+impact: unauthenticated read of live bet/raffle/wallet event stream on a production DO app — pre-auth intelligence/info disclosure; HIGH, egress-gated
+testability: AUTH_HELPED
+
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + expose-headers:Cf-Mitigated on 6/6 paths incl `/` root, all 404/33B, 13+ rounds; /docs zone Access-gated (302 on openapi.json/api-json) proves a protected data surface exists on same app 1ce4ff55; any future 2xx route inherits the reflector.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round on untested prefixes (/api/v1/wallet, /api/v1/profile, /api/v1/bets, /api/internal) with Origin: https://evil.example + Accept: application/json (≤1 rps); flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+testability: PASSIVE
+
+[HYP] api per-class GET gap during WAF churn window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: WAF flips 110KB managed challenge ↔ 5484B plain block (app 53f39197) across 17+ rounds with live operator edit cycles; both path classes OPTIONS-exempt (200 + x-do-orig-status:200, blanket preflight). GET uniformly 403 — churn could transiently open a content-method window on either class; monitoring cost ~1 req/round.
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either class during a churn window
+verify_steps: 1x/round class-pair watch: GET /api/v1/public/ping (API-class), GET /robots.txt (static-class), GET + OPTIONS /openapi.json (state marker) at 0.3 rps
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] staging.rainbet.com CF Access JWT parsing (45): no progression path; Access drift CLOSED since 2026-09-12.
+- [PARKED] rainbet.com challenge-bypass client-side (40): active challenge-solving exceeds passive mandate.
+- [PARKED] api encoded-GET bypass (35): 6/6 variants 403 across 3 rounds; downgraded below threshold, subsumed into H3 churn watch.
+- [FINAL] 1. staging-chat anonymous session egress (58)
+- [FINAL] 2. staging-services CORS 2xx unlock (45)
+- [FINAL] 3. api per-class GET churn gap (40)
+
+STEP 5 — NEXT ACTION
+- [NEXT] PROBE: WS-upgrade egress listen on staging-chat — GET /socket.io/?EIO=4&transport=polling → sid; WS upgrade (101) wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>; socket.io `40` CONNECT root; reply `3` to every engine.io `2` ping; listen ≥60s for `42[...]`; listen-only, 1 connection, ≤1 rps. Prior rounds never completed this correctly (clients did not pong → truncated at pingTimeout) — this is the decisive un-run test across 17 rounds.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED (methodology) @ staging-chat.rainbet.com: zero egress across 17+ rounds is NOT negative evidence — every prior WS listen ended at engine.io pingTimeout because the client never answered `2` with `3`; fair egress test (with pong) remains unrun.
+- [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to full CF managed challenge (110KB) — WAF churn 110KB↔5484B live again on app 53f39197; per-class GET watch remains valid.
+- [LEARN] ACCEPTED MISCONFIG @ staging-chat.rainbet.com: engine.io polling flapped to 400 at 2026-09-13 06:23 (was 200 at 01:14) — intermittent flapping continues across 16+ rounds; plane persists (recovery per prior rounds).
+
+STEP 7 — RISK
+- [RISK] RainBet: 32/100 — flat. No new surface since 2026-09-13; api WAF closed both classes (OPTIONS passthrough is CORS-neutral, 17+ rounds); chat anonymous plane up but egress untested (fair WS+pong listen is the only live thread); services reflector latent behind 404s; raffles route-less origin JSON; Access closed; monorepo route-less. Standing findings unchanged (≤CVSS 7.3). Monitoring-only; no escalation.
