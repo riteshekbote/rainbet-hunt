@@ -3024,3 +3024,48 @@ impact: origin API reachable → wallet/auth/bets route enumeration — HIGH, ch
 testability: PASSIVE
 [NEXT] PROBE: api.rainbet.com class-pair watch at 0.3 rps — GET /api/v1/public/ping + GET /robots.txt + GET /openapi.json + OPTIONS /openapi.json (state marker), flag non-403+x-do-orig-status; then immediately GET https://staging-services.rainbet.com/docs/openapi.json and /docs/api-json with Origin: https://evil.example (<1 rps total) — flag 200 contract or 200+ACAO.
 [RISK] RainBet: 32/100 — flat-to-down. api WAF in closed plain-block mode (both classes GET 403, OPTIONS CORS-neutral passthrough); chat anonymous session persists with zero egress across 9+ rounds; services CORS reflector latent behind 404s (15+ rounds, only fresh vector is the /docs sub-path Access-gap sweep); raffles /health origin JSON stable but route-less; staging Access closed; monorepo route-less; 17/20 inventory dead. Standing inventory unchanged (4 findings ≤CVSS 7.3). No escalation; monitoring-only.
+## 2026-09-13 12:09:22 UTC [target] (model bigpickle)
+[NEW] staging-services.rainbet.com: GET /docs/openapi.json AND /docs/api-json both → 302 (143B, Access login) — Cloudflare Access covers Swagger sub-paths; contract-leak vector closed
+[CHANGED] api.rainbet.com: GET /api/v1/public/ping → 403 len=5484B plain block (no cf-mitigated) at probe time; OPTIONS /openapi.json still 200 + Allow:HEAD,GET,POST,OPTIONS + x-do-orig-status:200 — plain-block mode + blanket exemption both confirmed stable
+[CHANGED] staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid (x-do-orig-status:200) — anonymous socket plane persists
+[PRIO] staging-chat.rainbet.com,8.8,attack_surface=8,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
+[PRIO] api.rainbet.com,6.8,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=2,cloud_surface=8,freshness=8
+[PRIO] staging-services.rainbet.com,5.4,attack_surface=6,business_value=8,tech_exposure=7,gate_ease=8,cloud_surface=7,freshness=2
+[HYP] staging-chat anonymous socket session delivers business events
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/
+confidence: 55
+reasoning: EIO4 handshake issues fresh anonymous sid (200/116B confirmed this round, x-do-orig-status:200); root namespace bare `40` CONNECT ACKs `40{"sid":...}` across 10+ rounds; KB notes all prior egress listens died at pingTimeout ~25-45s because client never ponged — egress never fairly tested.
+evidence_needed: after answering engine.io ping with pong, any server-initiated packet/business event on stub (raffle draw, alert, win) delivered to anonymous session
+verify_steps: GET EIO4 polling handshake → capture sid → WS upgrade (101) → send socket.io `40` → on server `2` send `42["pong"]`/engine.io pong `3` → listen ≥60s for `42[...]` server events; NO event emission (read-only listen)
+impact: unauthenticated read of live bet/raffle/wallet event stream on a production-grade DO app → info disclosure / pre-auth intelligence; HIGH-gated on egress
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + expose-headers:Cf-Mitigated observed on 6/6 probed paths incl `/` root (all 404/33B); /docs Access-gated zone proven to exist (302 on sub-paths this round) — an authenticated data surface exists behind it
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials in same response
+verify_steps: 1-2 probes/round on unstested prefixes (/api/v1/raffles, /api/v1/bets, /api/internal) with Origin: https://evil.example + Accept: application/json (≤1 rps); flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+testability: PASSIVE
+[HYP] api per-class GET gap during WAF churn window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: WAF flip-flops 110KB managed challenge ↔ 5484B plain block (DO app 53f39197); both path classes proven OPTIONS-exempt (200 + x-do-orig-status:200); GET uniformly 403 across 15+ rounds but churn is operator-driven and could open a content-method window
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either class during a churn window
+verify_steps: 1x/round class-pair watch: GET /api/v1/public/ping (API), GET /robots.txt (static), GET + OPTIONS /openapi.json (state marker) at 0.3 rps
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+[PARKED] staging.rainbet.com CF Access JWT parsing weakness (45): no progression path; Access drift currently CLOSED (302)
+[PARKED] rainbet.com challenge-bypass client-side exposure (40): active challenge solving, exceeds passive mandate
+[PARKED] staging-services /docs sub-path contract leak: REJECTED this round by live probe (302 on openapi.json and api-json) — absorbed into H2 reflector hypothesis
+[FINAL] 1. staging-chat anonymous session egress (55)
+[FINAL] 2. staging-services CORS 2xx unlock (45)
+[FINAL] 3. api per-class GET churn gap (40)
+[NEXT] PROBE: WS-upgrade egress test on staging-chat — GET /socket.io/?EIO=4&transport=polling for sid, WS upgrade (101), socket.io `40` CONNECT on root, answer every engine.io `2` ping with pong, listen ≥60s for server-initiated `42[...]` events (listen-only, no emission, 1 connection, ≤1 rps)
+[LEARN] REJECTED MISCONFIG @ staging-services.rainbet.com: /docs/openapi.json and /docs/api-json both 302→Access (143B) — Access covers Swagger sub-paths; contract-leak hypothesis closed, reflector hypothesis unchanged
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: content GET 403 len=5484B plain block (no cf-mitigated) at probe time; OPTIONS /openapi.json 200 + Allow:HEAD,GET,POST,OPTIONS + x-do-orig-status:200 — plain-block mode + blanket preflight passthrough both stable
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid (x-do-orig-status:200) — anonymous plane persists; makes fair egress test (with pong) the decisive remaining step
+[RISK] RainBet: 32/100 — flat. docs contract-leak vector closed by live probe; api/prod WAF closed (OPTIONS exempt is CORS-neutral, 15+ rounds); chat anonymous session persists but egress never fairly tested; services CORS reflector latent behind 404s; standing findings unchanged (≤CVSS 7.3). Only live thread: chat egress test; monitoring-only otherwise.

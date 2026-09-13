@@ -579,3 +579,13 @@ https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/` -
 https://api.rainbet.com/.well-known/security.txt` -> HTTP 403
 https://api.rainbet.com/robots.txt` -> HTTP 403
 https://api.rainbet.com/v1/auth` -> HTTP 403
+
+## 2026-09-13 12:24:11 UTC
+https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 len=116
+https://staging-raffles.rainbet.com/api/v1/public/config -> HTTP 404
+https://staging-raffles.rainbet.com/api/v1/health -> HTTP 404
+https://staging-services.rainbet.com/api/health -> HTTP 404
+https://staging-services.rainbet.com/metrics -> HTTP 404
+https://staging-services.rainbet.com/api/v1/users -> HTTP 404
+https://staging-services.rainbet.com/api/v1/profile -> HTTP 404
+https://staging-services.rainbet.com/api/v1/wallet -> HTTP 404

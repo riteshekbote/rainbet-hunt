@@ -341,3 +341,6 @@
 - 2026-09-13 REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of path-based policy gaps
 - 2026-09-13 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively
 - 2026-09-13 ACCEPTED MISCONFIG @ api.rainbet.com: API subdomain exists and resolves but returns uniform 403 challenge; high-value target if any endpoint allows unauthenticated access (health, version, public config)
+- 2026-09-13 REJECTED MISCONFIG @ staging-services.rainbet.com: /docs/openapi.json and /docs/api-json both 302→Access (143B) — Access covers Swagger sub-paths; contract-leak hypothesis closed, reflector hypothesis unchanged
+- 2026-09-13 ACCEPTED MISCONFIG @ api.rainbet.com: content GET 403 len=5484B plain block (no cf-mitigated) at probe time; OPTIONS /openapi.json 200 + Allow:HEAD,GET,POST,OPTIONS + x-do-orig-status:200 — plain-block mode + blanket preflight passthrough both stable
+- 2026-09-13 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid (x-do-orig-status:200) — anonymous plane persists; makes fair egress test (with pong) the decisive remaining step

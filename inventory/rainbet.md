@@ -641,3 +641,18 @@ www.rainbet.com
 - CHANGED files.rainbet.com, media.rainbet.com — both 403 CF managed challenge — no unchallenged surface
 - CHANGED staging-raffles.rainbet.com/health — real origin JSON stable 200/75B, x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge — **6 hostnames on app 1ce4ff55 confirmed**
 - CHANGED staging-services.rainbet.com — CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; x-powered-by: Express; all 404/33B `{"er
+
+## 2026-09-13 12:24:02 UTC
+- NEW staging-services.rainbet.com: GET /docs/openapi.json AND /docs/api-json both → 302 (143B, Access login) — Cloudflare Access covers Swagger sub-paths; contract-leak vector closed
+- CHANGED api.rainbet.com: GET /api/v1/public/ping → 403 len=5484B plain block (no cf-mitigated) at probe time; OPTIONS /openapi.json still 200 + Allow:HEAD,GET,POST,OPTIONS + x-do-orig-status:200 — plain-block
+- CHANGED staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid (x-do-orig-status:200) — anonymous socket plane persists
+- NEW api.rainbet.com: probed `/v1/auth`, `/v1/auth/login`, `/robots.txt`, `/.well-known/security.txt` — all HTTP 403 (CF managed challenge); no new surface
+- NEW staging.rainbet.com: `/.well-known/cloudflare-access-protected-resource/` returns HTTP 404 (was unprobed at depth)
+- CHANGED staging-chat.rainbet.com/socket.io: engine.io polling flapped to HTTP 400 at 06:23 (was 200 at 01:14) — intermittent flapping persists on DO app 1ce4ff55 across 16+ rounds
+- CHANGED staging-raffles.rainbet.com: `/health` stable 200/75B real origin JSON (`x-do-orig-status:200`, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — 6 hostnames on app 1ce4ff55 confirmed
+- CHANGED staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin + `allow-credentials:true` + `expose-headers:Cf-Mitigated`; `x-powered-by: Express`; all 
+- CHANGED api.rainbet.com: GET `/api/v1/public/ping` reverted to full CF managed challenge (110KB HTML, no `cf-mitigated`) from 5485B plain block — WAF churn 110KB↔5485B confirmed live on DO app 53f39197
+- CHANGED staging-monorepo.rainbet.com: `/docs` flipped to CF managed challenge (110KB) from 5483B plain block — WAF front fluctuates on app bc240b8a
+- CHANGED staging.rainbet.com: `/health` → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + `allow-credentials:true` — gap CLOSED, pre-auth CORS-neutral
+- CHANGED files.rainbet.com, media.rainbet.com: both 403 CF managed challenge — no unchallenged surface
+- CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, serves as control proving same-DO-app auth asymmetry with staging-chat
