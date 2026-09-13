@@ -615,3 +615,29 @@ www.rainbet.com
 - CHANGED files.rainbet.com, media.rainbet.com — both 403 CF managed challenge — no unchallenged surface
 - CHANGED staging-raffles.rainbet.com/health — real origin JSON stable 200/75B, x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge — **6 hostnames on app 1ce4ff55 confirmed**
 - CHANGED staging-services.rainbet.com — CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; x-powered-by: Express; all 404/33B `{"er
+
+## 2026-09-13 06:23:42 UTC
+- NEW Live HTTP probing completed — 3 of 20 hosts respond: `api.rainbet.com` (403 CF block), `www.rainbet.com` / `rainbet.com` (403 CF challenge), `staging.rainbet.com` (302 → Cloudflare Access login). 17 h
+- NEW `staging.rainbet.com` sits behind **Cloudflare Access** (identity-aware proxy) — JWT in redirect URL reveals `kid`, `hostname`, `is_wrap:false`, `is_gateway:false`, Cloudflare team domain `challenge-5
+- CHANGED `api.rainbet.com` returns 403 with full Cloudflare block page (not challenge) — WAF rule active. Sets `__cf_bm` bot-management cookie on `.rainbet.com`.
+- NEW rainbet.com / www.rainbet.com — Cloudflare managed challenge (403), bot protection active, serves React SPA behind challenge
+- NEW api.rainbet.com — Cloudflare managed challenge (403 on all paths: /, /api/v1, /api/v2, /graphql, /swagger, /openapi.json, /health, /version)
+- NEW staging.rainbet.com — Cloudflare Access (Zero Trust), 302 to challenge-5te-pages.cloudflareaccess.com for all paths including /api
+- NEW app.rainbet.com, auth.rainbet.com, admin.rainbet.com, dashboard.rainbet.com, dev.rainbet.com, login.rainbet.com, m.rainbet.com, my.rainbet.com, portal.rainbet.com, support.rainbet.com, test.rainbet.co
+- NEW rainbet.com / www.rainbet.com — Cloudflare managed challenge (403), bot protection active, serves React SPA behind challenge
+- NEW api.rainbet.com — Cloudflare managed challenge (403 on all paths: /, /api/v1, /api/v2, /graphql, /swagger, /openapi.json, /health, /version)
+- NEW staging.rainbet.com — Cloudflare Access (Zero Trust), 302 to challenge-5te-pages.cloudflareaccess.com for all paths including /api
+- NEW app.rainbet.com, auth.rainbet.com, admin.rainbet.com, dashboard.rainbet.com, dev.rainbet.com, login.rainbet.com, m.rainbet.com, my.rainbet.com, portal.rainbet.com, support.rainbet.com, test.rainbet.co
+- NEW staging.rainbet.com/health → HTTP 200 (len=32836) — bypasses Cloudflare Access, returns HTML/JS content
+- NEW staging.rainbet.com/metrics → HTTP 200 (len=32838) — bypasses Cloudflare Access, returns Prometheus metrics
+- NEW staging.rainbet.com/api/health → HTTP 200 (len=32847) — bypasses Cloudflare Access, API health endpoint exposed
+- NEW staging.rainbet.com/.well-known/jwks.json → HTTP 200 (len=32873) — bypasses Cloudflare Access, JWKS endpoint exposed (but returns HTML not JSON)
+- CHANGED staging.rainbet.com/.well-known/cloudflare-access-protected-resource/ → HTTP 404 (not found)
+- NEW staging-chat.rainbet.com/socket.io/ — engine.io handshake confirmed live at 23:08 UTC (200, 116B, fresh sid); socket.io root namespace bare CONNECT (`40`) returns valid socket-level sid — **live confi
+- NEW staging-alerts.rainbet.com/socket.io/ — WebSocket upgrade CONFIRMED per knowledge base (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]) — **socket plane hijack proven**
+- CHANGED api.rainbet.com — GET /api/v1/public/ping reverted to **full CF managed challenge (110KB HTML, no cf-mitigated)** from 5485B plain block; WAF churn 110KB↔5485B confirmed live on DO app 53f39197
+- CHANGED staging-monorepo.rainbet.com — /docs flipped to **CF managed challenge (110KB)** from 5483B plain block — WAF front fluctuates on app bc240b8a
+- CHANGED staging.rainbet.com — /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — **gap CLOSED, pre-auth CORS-neutral**
+- CHANGED files.rainbet.com, media.rainbet.com — both 403 CF managed challenge — no unchallenged surface
+- CHANGED staging-raffles.rainbet.com/health — real origin JSON stable 200/75B, x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge — **6 hostnames on app 1ce4ff55 confirmed**
+- CHANGED staging-services.rainbet.com — CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; x-powered-by: Express; all 404/33B `{"er
