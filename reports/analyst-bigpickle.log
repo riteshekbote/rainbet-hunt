@@ -20179,3 +20179,581 @@ testability: PASSIVE
 
 === STEP 7 — RISK ===
 [RISK] RainBet: 36/100 — the program's strongest link (anonymous chat session → live egress) failed its first fair pong-sustained egress test with zero frames and all business namespaces `44`; surviving valid surface is static: per-hostname socket-auth asymmetry (chat CONNECT=ACK vs alerts=401) with no observed data plane, services CORS reflector latent behind 404s (14+ rounds), api WAF closed on GET with CORS-neutral blanket OPTIONS passthrough, Access gap closed, monorepo 403. Operator hardening visible (WAF churn, instahard ents, maxPayload/namespace config drift). 17/20 inventory dead. No escalation; monitoring-only posture.
+===== ANALYST bigpickle 2026-09-13 01:14:17 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && echo "---" && ls scripts/ 2>/dev/null; ls tools/ 2>/dev/null; ls notes/ 2>/dev/null; ls art/ 2>/dev/null | head -50
+total 420
+drwxr-xr-x 12 runner runner   4096 Sep 13 01:09 .
+drwxr-xr-x  3 runner runner   4096 Sep 13 01:08 ..
+drwxr-xr-x  7 runner runner   4096 Sep 13 01:09 .git
+drwxr-xr-x  3 runner runner   4096 Sep 13 01:08 .github
+-rw-r--r--  1 runner runner   1696 Sep 13 01:08 README.md
+-rw-r--r--  1 runner runner     32 Sep 13 01:09 analyst-out.txt
+-rw-r--r--  1 runner runner 157430 Sep 13 01:09 analyst-prompt.txt
+-rw-r--r--  1 runner runner 153645 Sep 13 01:09 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 13 01:08 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 13 01:08 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 13 01:08 leads
+-rw-r--r--  1 runner runner  28067 Sep 13 01:08 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 13 01:08 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 13 01:08 reports
+drwxr-xr-x  2 runner runner   4096 Sep 13 01:08 reposcan-raw
+-rw-r--r--  1 runner runner   3198 Sep 13 01:08 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 13 01:08 scripts
+-rw-r--r--  1 runner runner     33 Sep 13 01:08 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 13 01:08 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 13 01:08 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 13 01:08 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 13 01:08 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 13 01:08 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 13 01:08 triage
+---
+sync-issues.py
+[0m
+[0m✱ [0mGlob "**/*.{py,sh,md}"[90m 89 matches[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead triage/run-2026-09-12-23-05.md
+[0m→ [0mRead triage/run-2026-09-13-01-07.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead probe-results.md[90m [offset=400][0m
+I'll run the passive probe sweep per my [NEXT] action, paced at ~1 rps. Starting with the target api.rainbet.com, then staging-services CORS watch, socket planes, and Access-gap checks.
+[0m
+[0m$ [0mcat > /tmp/opencode/probe.sh <<'EOF'
+#!/bin/bash
+UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+EVIL="https://evil.example"
+probe() {
+  local label="$1"; local url="$2"; local method="$3"; local origin="$4"
+  local hdr=(-s -m 15 -o /tmp/body -w '%{http_code}' -A "$UA" -X "$method" -D /tmp/hdr)
+  if [ -n "$origin" ]; then hdr+=(-H "Origin: $origin"); fi
+  local code
+  code=$(curl "${hdr[@]}" "$url")
+  local bytes ctype allow doorig doapp cfmit a cao cac vary loc server pw
+  bytes=$(wc -c </tmp/body)
+  ctype=$(awk 'tolower($1)=="content-type:"{gsub("\r","");print $2}' /tmp/hdr | head -1)
+  allow=$(awk 'tolower($1)=="allow:"{gsub("\r","");sub("^ ","");print $0}' /tmp/hdr | head -1)
+  doorig=$(grep -i '^x-do-orig-status:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  doapp=$(grep -i '^x-do-app-origin:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  cfmit=$(grep -i '^cf-mitigated:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  a=$(grep -i '^access-control-allow-origin:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  cac=$(grep -i '^access-control-allow-credentials:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  vary=$(grep -i '^vary:' /tmp/hdr | tr -d '\r' | sed 's/^[Vv]ary: //' | head -1)
+  loc=$(grep -i '^location:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  server=$(grep -i '^server:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  pw=$(grep -i '^x-powered-by:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  printf '%-46s %s %s | %5sB | ct=%s | %s\n' "$label" "$code" "$bytes" "$bytes" "$ctype" \
+    "orig=$doorig app=$doapp cf=$cfmit acao=$a cac=$cac allow=[$allow] vary=[$vary] loc=[$loc] srv=$server pw=$pw"
+}
+probe "api GET /openapi.json"        "https://api.rainbet.com/openapi.json"           GET ""
+probe "api OPTIONS /openapi.json"    "https://api.rainbet.com/openapi.json"           OPTIONS ""
+probe "api OPTIONS /robots.txt"      "https://api.rainbet.com/robots.txt"             OPTIONS ""
+probe "api GET /robots.txt"          "https://api.rainbet.com/robots.txt"             GET ""
+probe "api GET /api/v1/public/ping"  "https://api.rainbet.com/api/v1/public/ping"      GET ""
+probe "api OPTIONS /api/v1/public/ping" "https://api.rainbet.com/api/v1/public/ping"    OPTIONS ""
+probe "api GET /"                    "https://api.rainbet.com/"                        GET ""
+probe "api GET /docs"                "https://api.rainbet.com/docs"                    GET ""
+EOF
+bash /tmp/opencode/probe.sh
+api GET /openapi.json                          403 5484 |  5484B | ct=text/html; | orig= app= cf= acao= cac= allow=[] vary=[] loc=[] srv=cloudflare pw=
+api OPTIONS /openapi.json                      200 0 |     0B | ct=application/json | orig=200 app=53f39197-6fd5-4e93-8a3b-b8177a4bd079 cf= acao= cac= allow=[allow: HEAD,GET,POST,OPTIONS] vary=[] loc=[] srv=cloudflare pw=
+api OPTIONS /robots.txt                        200 0 |     0B | ct=text/plain | orig=200 app=53f39197-6fd5-4e93-8a3b-b8177a4bd079 cf= acao= cac= allow=[allow: HEAD,GET,POST,OPTIONS] vary=[] loc=[] srv=cloudflare pw=
+api GET /robots.txt                            403 4546 |  4546B | ct=text/html; | orig= app= cf= acao= cac= allow=[] vary=[] loc=[] srv=cloudflare pw=
+api GET /api/v1/public/ping                    403 5484 |  5484B | ct=text/html; | orig= app= cf= acao= cac= allow=[] vary=[] loc=[] srv=cloudflare pw=
+api OPTIONS /api/v1/public/ping                200 0 |     0B | ct= | orig=200 app=53f39197-6fd5-4e93-8a3b-b8177a4bd079 cf= acao= cac= allow=[allow: HEAD,GET,POST,OPTIONS] vary=[] loc=[] srv=cloudflare pw=
+api GET /                                      403 5484 |  5484B | ct=text/html; | orig= app= cf= acao= cac= allow=[] vary=[] loc=[] srv=cloudflare pw=
+api GET /docs                                  403 5484 |  5484B | ct=text/html; | orig= app= cf= acao= cac= allow=[] vary=[] loc=[] srv=cloudflare pw=
+[0m
+api.rainbet.com: WAF in plain-block mode (both classes call it, API=5484B, static=4546B), GET fully closed, OPTIONS exemption stable on both classes. Now the staging sweep.
+[0m$ [0mcat > /tmp/opencode/probe2.sh <<'EOF'
+#!/bin/bash
+UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+EVIL="https://evil.example"
+probe() {
+  local label="$1"; local url="$2"; local method="$3"; local origin="$4"
+  local hdr=(-s -m 15 -o /tmp/body -w '%{http_code}' -A "$UA" -X "$method" -D /tmp/hdr)
+  if [ -n "$origin" ]; then hdr+=(-H "Origin: $origin"); fi
+  local code
+  code=$(curl "${hdr[@]}" "$url")
+  local bytes doorig doapp cfmit a cao vary loc pw nsnssid
+  bytes=$(wc -c </tmp/body)
+  doorig=$(grep -i '^x-do-orig-status:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  doapp=$(grep -i '^x-do-app-origin:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  cfmit=$(grep -i '^cf-mitigated:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  a=$(grep -i '^access-control-allow-origin:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  cac=$(grep -i '^access-control-allow-credentials:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  caex=$(grep -i '^access-control-expose-headers:' /tmp/hdr | tr -d '\r' | sed 's/^[Aa][Cc][Cc][Ee][Ss][Ss]-[Cc][Oo][Nn][Tt][Rr][Oo][Ll]-[Ee][Xx][Pp][Oo][Ss][Ee]-[Hh][Ee][Aa][Dd][Ee][Rr][Ss]: //' | head -1)
+  vary=$(grep -i '^vary:' /tmp/hdr | tr -d '\r' | sed 's/^[Vv]ary: //' | head -1)
+  loc=$(grep -i '^location:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  pw=$(grep -i '^x-powered-by:' /tmp/hdr | tr -d '\r' | awk '{print $2}' | head -1)
+  printf '%-48s %s | %5sB | orig=%s app=%s cf=%s acao=%s cac=%s exp=[%s] vary=[%s] loc=[%s] pw=%s\n' "$label" "$code" "$bytes" "$doorig" "$doapp" "$cfmit" "$a" "$cac" "$caex" "$vary" "$loc" "$pw"
+  if [ -f /tmp/body ] && [ -n "$label" ]; then
+    body=$(tr -d '\r' </tmp/body | head -c 200)
+    case "$body" in *'"sid"'*|*'sid'*) printf '    body-snippet: %.160s\n' "$body";; esac
+  fi
+}
+probe "svc GET /api/v1/public/config"  "https://staging-services.rainbet.com/api/v1/public/config"  GET "$EVIL"
+probe "svc GET /api/v1/health"         "https://staging-services.rainbet.com/api/v1/health"         GET "$EVIL"
+probe "svc GET /api/v1/public/ping"    "https://staging-services.rainbet.com/api/v1/public/ping"    GET "$EVIL"
+probe "svc GET /healthz"               "https://staging-services.rainbet.com/healthz"               GET "$EVIL"
+probe "svc GET /ready"                 "https://staging-services.rainbet.com/ready"                 GET "$EVIL"
+probe "svc GET /swagger"               "https://staging-services.rainbet.com/swagger"               GET "$EVIL"
+probe "svc GET /graphql"               "https://staging-services.rainbet.com/graphql"               GET "$EVIL"
+probe "svc GET /docs"                  "https://staging-services.rainbet.com/docs"                  GET "$EVIL"
+EOF
+bash /tmp/opencode/probe2.sh
+svc GET /api/v1/public/config                    404 |    33B | orig=404 app=1ce4ff55-e85f-4c30-8033-5129a1812504 cf= acao=https://evil.example cac=true exp=[Cf-Mitigated] vary=[Accept-Encoding] loc=[] pw=Express
+svc GET /api/v1/health                           404 |    33B | orig=404 app=1ce4ff55-e85f-4c30-8033-5129a1812504 cf= acao=https://evil.example cac=true exp=[Cf-Mitigated] vary=[Accept-Encoding] loc=[] pw=Express
+svc GET /api/v1/public/ping                      404 |    33B | orig=404 app=1ce4ff55-e85f-4c30-8033-5129a1812504 cf= acao=https://evil.example cac=true exp=[Cf-Mitigated] vary=[Accept-Encoding] loc=[] pw=Express
+svc GET /healthz                                 404 |    33B | orig=404 app=1ce4ff55-e85f-4c30-8033-5129a1812504 cf= acao=https://evil.example cac=true exp=[Cf-Mitigated] vary=[Accept-Encoding] loc=[] pw=Express
+svc GET /ready                                   404 |    33B | orig=404 app=1ce4ff55-e85f-4c30-8033-5129a1812504 cf= acao=https://evil.example cac=true exp=[Cf-Mitigated] vary=[Accept-Encoding] loc=[] pw=Express
+svc GET /swagger                                 404 |    33B | orig=404 app=1ce4ff55-e85f-4c30-8033-5129a1812504 cf= acao=https://evil.example cac=true exp=[Cf-Mitigated] vary=[Accept-Encoding] loc=[] pw=Express
+svc GET /graphql                                 404 |    33B | orig=404 app=1ce4ff55-e85f-4c30-8033-5129a1812504 cf= acao=https://evil.example cac=true exp=[Cf-Mitigated] vary=[Accept-Encoding] loc=[] pw=Express
+svc GET /docs                                    302 |   143B | orig= app= cf= acao=https://evil.example cac=true exp=[Cf-Mitigated] vary=[] loc=[https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging-services.rainbet.com?kid=31d4206e72536db899ef756ebdc817b58776ed784288564e4d7e4e48af49ef28&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6IjMxZDQyMDZlNzI1MzZkYjg5OWVmNzU2ZWJkYzgxN2I1ODc3NmVkNzg0Mjg4NTY0ZTRkN2U0ZTQ4YWY0OWVmMjgiLCJob3N0bmFtZSI6InN0YWdpbmctc2VydmljZXMucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvZG9jcyIsInNlcnZpY2VfdG9rZW5fc3RhdHVzIjpmYWxzZSwiaXNfd2FycCI6ZmFsc2UsImlzX2dhdGV3YXkiOmZhbHNlLCJleHAiOjE3ODkyNjIxMDYsIm5iZiI6MTc4OTI2MTgwNiwiaWF0IjoxNzg5MjYxODA2LCJhdXRoX3N0YXR1cyI6Ik5PTkUiLCJtdGxzX2F1dGgiOnsiY2VydF9pc3N1ZXJfZG4iOiIiLCJjZXJ0X3NlcmlhbCI6IiIsImNlcnRfaXNzdWVyX3NraSI6IiIsImNlcnRfcHJlc2VudGVkIjpmYWxzZSwiY29tbW9uX25hbWUiOiIiLCJhdXRoX3N0YXR1cyI6Ik5PTkUifSwicmVhbF9jb3VudHJ5IjoiVVMiLCJhcHBfc2Vzc2lvbl9oYXNoIjoiNGE0M2ViMGU2YTk3ODEyNGJmODFiMjI0OGQ2MmViYzY1NDQyM2JkN2JlNWRlNzNmNmY5YTgzZDAyNTUxNDU5YiJ9.DdqpG-wC3gKCZfAgF2CGPPc5hjPSWnUsOaD_Q6ndjXzcXy1IrFM25aC_4wE3e5_E_pKkr3cJ1365u6P6ET8v2_534Xb7EQJqCKVndA3BoDbMj8Wvc6CK_yMIYGPlsI-KHOZz8a6JDsAo5OWZT3Ct2Eu6u6mEeSRuTs_nAa7HUILUYicXciO5FJUPhhKiJXbPd1g3Aiw8fNXOJqBv9azA1bOrcY8-NGt2173-trk8H3Nz9c9JjgEWsrFc6CjpiEqoyGjyhSRfiKTym0DDKwS7jTi_b-kgqDMB1I7J0x3JPhiI2VbV_hXKoRAqt2gsSckuku24PrSKt3vMlKzJXK9Gjg&redirect_url=%2Fdocs] pw=
+[0m
+staging-services: CORS reflector persists on 7/7 paths (all 404/33B, no 2xx), `/docs` still 302→Access (JWT leak repeats, CORS-neutral pre-auth). Now the rest of the fleet.
+[0m$ [0mcat > /tmp/opencode/probe3.sh <<'EOF'
+#!/bin/bash
+UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+probe() {
+  local label="$1"; local url="$2"
+  local code; code=$(curl -s -m 15 -o /tmp/body -w '%{http_code}' -A "$UA" "$url")
+  local bytes; bytes=$(wc -c </tmp/body)
+  local doorig doapp cfmit
+  doorig=$(grep -i '^x-do-orig-status:' /tmp/hdr 2>/dev/null | tr -d '\r' | awk '{print $2}' | head -1)
+  doapp=$(grep -i '^x-do-app-origin:' /tmp/hdr 2>/dev/null | tr -d '\r' | awk '{print $2}' | head -1)
+  cfmit=$(grep -i '^cf-mitigated:' /tmp/hdr 2>/dev/null | tr -d '\r' | awk '{print $2}' | head -1)
+  local snippet; snippet=$(tr -d '\r' </tmp/body | head -c 120 | tr '\n' ' ')
+  printf '%-46s %s | %5sB | orig=%s app=%s cf=%s | %s\n' "$label" "$code" "$bytes" "$doorig" "$doapp" "$cfmit" "$snippet"
+}
+probe "chat EIO4 poll"              "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"
+probe "alerts EIO4 poll"            "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling"
+probe "raffles /health"             "https://staging-raffles.rainbet.com/health"
+probe "staging /health"             "https://staging.rainbet.com/health"
+probe "monorepo /docs"              "https://staging-monorepo.rainbet.com/docs"
+probe "monorepo /openapi.json"      "https://staging-monorepo.rainbet.com/openapi.json"
+probe "www /"                       "https://www.rainbet.com/"
+EOF
+bash /tmp/opencode/probe3.sh
+chat EIO4 poll                                 200 |   116B | orig= app= cf= | 0{"sid":"53eITmh2KfLMUTnVAAAb","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+alerts EIO4 poll                               200 |   116B | orig= app= cf= | 0{"sid":"J225EOe04qD5CjopAAAb","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":20480}
+raffles /health                                200 |    75B | orig= app= cf= | {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}
+staging /health                                302 |   143B | orig= app= cf= | <html> <head><title>302 Found</title></head> <body> <center><h1>302 Found</h1></center> <hr><center>cloudflare</center> 
+monorepo /docs                                 403 |  5484B | orig= app= cf= | <!DOCTYPE html> <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]--> <!--[if IE 7]>    <html class
+monorepo /openapi.json                         404 |    75B | orig= app= cf= | {"message":"Cannot GET /openapi.json","error":"Not Found","statusCode":404}
+www /                                          403 |  5484B | orig= app= cf= | <!DOCTYPE html> <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]--> <!--[if IE 7]>    <html class
+[0m
+[0m$ [0mpython3 -c "import websocket; print('websocket-client OK')" 2>&1; python3 -c "import websockets; print('websockets OK')" 2>&1; python3 --version
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'websocket'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'websockets'
+Python 3.12.3
+[0m
+[0m$ [0mcat > /tmp/opencode/wsprobe.py <<'EOF'
+import socket, ssl, base64, os, json, time, sys, re
+
+HOST = sys.argv[1] if len(sys.argv) > 1 else "staging-chat.rainbet.com"
+LISTEN = float(sys.argv[2]) if len(sys.argv) > 2 else 45.0
+NAMESPACES = ["/chat", "/wager", "/live", "/raffles", "/alerts", "/notifications", "/wallet", "/users"]
+
+def poll_sid(host):
+    import http.client
+    c = http.client.HTTPSConnection(host, 443, timeout=10)
+    c.request("GET", "/socket.io/?EIO=4&transport=polling",
+              headers={"User-Agent": "Mozilla/5.0 Chrome/126.0",
+                       "Origin": "https://evil.example"})
+    r = c.getresponse(); body = r.read().decode(errors="replace")
+    c.close()
+    m = re.search(r'"sid":"([^"]+)"', body)
+    return m.group(1) if m else None, body[:80], r.status
+
+def ws_connect(host, sid):
+    sock = socket.create_connection((host, 443), timeout=10)
+    ctx = ssl.create_default_context()
+    s = ctx.wrap_socket(sock, server_hostname=host)
+    key = base64.b64encode(os.urandom(16)).decode()
+    req = (f"GET /socket.io/?EIO=4&transport=websocket&sid={sid} HTTP/1.1\r\n"
+           f"Host: {host}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"
+           f"Sec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n"
+           f"Origin: https://evil.example\r\nUser-Agent: Mozilla/5.0 Chrome/126.0\r\n\r\n")
+    s.sendall(req.encode())
+    buf = b""
+    while b"\r\n\r\n" not in buf:
+        buf += s.recv(4096)
+    head, _, rest = buf.partition(b"\r\n\r\n")
+    status = head.decode(errors="replace").split("\r\n")[0]
+    return s, rest, status
+
+def read_frame(s):
+    hdr = s.recv(2)
+    if len(hdr) < 2: return None
+    b0, b1 = hdr[0], hdr[1]
+    opcode = b0 & 0x0F
+    ln = b1 & 0x7F
+    if ln == 126:
+        ln = int.from_bytes(s.recv(2), "big")
+    elif ln == 127:
+        ln = int.from_bytes(s.recv(8), "big")
+    mask = b1 & 0x80
+    if mask:
+        mk = s.recv(4)
+    payload = s.recv(ln)
+    while len(payload) < ln:
+        payload += s.recv(ln - len(payload))
+    if mask:
+        payload = bytes(c ^ mk[i % 4] for i, c in enumerate(payload))
+    return opcode, payload
+
+def send_text(s, text):
+    p = text.encode()
+    mask = os.urandom(4)
+    header = bytes([0x81])
+    ln = len(p)
+    if ln < 126:
+        header += bytes([0x80 | ln])
+    elif ln < 65536:
+        header += bytes([0x80 | 126]) + ln.to_bytes(2, "big")
+    else:
+        header += bytes([0x80 | 127]) + ln.to_bytes(8, "big")
+    header += mask
+    masked = bytes(c ^ mask[i % 4] for i, c in enumerate(p))
+    s.sendall(header + masked)
+
+sid, snippet, st = poll_sid(HOST)
+print(f"[{HOST}] poll sid={sid} status={st} snippet={snippet}")
+if not sid:
+    sys.exit(0)
+
+s, rest, status = ws_connect(HOST, sid)
+print(f"[{HOST}] WS upgrade: {status}")
+if rest:
+    opc, pay = (1, rest)
+    if opc == 1: print(f"[{HOST}] pre-frame: {pay.decode(errors='replace')[:100]}")
+
+connected = False
+end = time.time() + LISTEN
+pongs = 0
+out = []
+# send root CONNECT right away
+send_text(s, "40")
+print(f"[{HOST}] sent CONNECT 40")
+s.settimeout(2)
+start_listen = time.time()
+while time.time() < end:
+    try:
+        f = read_frame(s)
+    except socket.timeout:
+        continue
+    except (ConnectionResetError, BrokenPipeError) as e:
+        print(f"[{HOST}] closed: {e}"); break
+    if f is None:
+        print(f"[{HOST}] closed: EOF"); break
+    opc, pay = f
+    if opc == 8:
+        print(f"[{HOST}] close frame rcvd"); break
+    if opc == 9:
+        send_text(s, bytes([0x0A])[:0].decode() if False else "")  # noop guard
+        continue
+    if opc in (1, 2):
+        txt = pay.decode(errors="replace")
+        if txt == "2":
+            pongs += 1
+            send_text(s, "3")
+            print(f"[{HOST}] pong#{pongs} sent")
+        elif txt.startswith("40"):
+            connected = True
+            print(f"[{HOST}] CONNECT-ACK: {txt[:120]}")
+            # enum candidates BEFORE waiting (methodology fix)
+            for ns in NAMESPACES + ["/originals", "/bonuses"]:
+                send_text(s, f"40{ns},")
+            print(f"[{HOST}] sent {len(NAMESPACES)+2} namespace joins")
+        elif txt.startswith("44"):
+            print(f"[{HOST}] CONNECT-ERR: {txt[:120]}")
+        else:
+            out.append(txt[:120])
+            print(f"[{HOST}] frame: {txt[:120]}")
+    elif opc == 0:
+        print(f"[{HOST}] continu...")
+print(f"[{HOST}] DONE listen={time.time()-start_listen:.1f}s pongs={pongs} connected={connected}")
+print(f"[{HOST}] frames after ns-join: {out}")
+s.close()
+EOF
+python3 /tmp/opencode/wsprobe.py staging-chat.rainbet.com 46
+[staging-chat.rainbet.com] poll sid=9l398YCNNSyM9elwAAAc status=200 snippet=0{"sid":"9l398YCNNSyM9elwAAAc","upgrades":["websocket"],"pingInterval":25000,"pi
+[staging-chat.rainbet.com] WS upgrade: HTTP/1.1 101 Switching Protocols
+[staging-chat.rainbet.com] sent CONNECT 40
+[staging-chat.rainbet.com] close frame rcvd
+[staging-chat.rainbet.com] DONE listen=0.1s pongs=0 connected=False
+[staging-chat.rainbet.com] frames after ns-join: []
+[0m
+Got a 101 then immediate server close on `40` — different from prior rounds. Let me capture the close code/reason and retry to check consistency.
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+# patch: print close payload, retry up to 3x
+src = open('wsprobe.py').read()
+src = src.replace('''    if opc == 8:
+        print(f"[{HOST}] close frame rcvd"); break''',
+'''    if opc == 8:
+        print(f"[{HOST}] close frame rcvd: code={int.from_bytes(pay[:2],'big') if len(pay)>=2 else '?'} reason={pay[2:].decode(errors='replace')!r}"); break''')
+open('wsprobe2.py','w').write(src)
+EOF
+for i in 1 2 3; do
+  echo "=== run $i ==="
+  python3 /tmp/opencode/wsprobe2.py staging-chat.rainbet.com 12
+  sleep 2
+done
+=== run 1 ===
+[staging-chat.rainbet.com] poll sid=lE1MhlF8c3AMUvmTAAAd status=200 snippet=0{"sid":"lE1MhlF8c3AMUvmTAAAd","upgrades":["websocket"],"pingInterval":25000,"pi
+[staging-chat.rainbet.com] WS upgrade: HTTP/1.1 101 Switching Protocols
+[staging-chat.rainbet.com] sent CONNECT 40
+[staging-chat.rainbet.com] close frame rcvd: code=? reason=''
+[staging-chat.rainbet.com] DONE listen=0.1s pongs=0 connected=False
+[staging-chat.rainbet.com] frames after ns-join: []
+=== run 2 ===
+[staging-chat.rainbet.com] poll sid=AxMG6LBhDbovEgYNAAAe status=200 snippet=0{"sid":"AxMG6LBhDbovEgYNAAAe","upgrades":["websocket"],"pingInterval":25000,"pi
+[staging-chat.rainbet.com] WS upgrade: HTTP/1.1 101 Switching Protocols
+[staging-chat.rainbet.com] sent CONNECT 40
+[staging-chat.rainbet.com] close frame rcvd: code=? reason=''
+[staging-chat.rainbet.com] DONE listen=0.1s pongs=0 connected=False
+[staging-chat.rainbet.com] frames after ns-join: []
+=== run 3 ===
+[staging-chat.rainbet.com] poll sid=21TDEKA3tyrYUkclAAAf status=200 snippet=0{"sid":"21TDEKA3tyrYUkclAAAf","upgrades":["websocket"],"pingInterval":25000,"pi
+[staging-chat.rainbet.com] WS upgrade: HTTP/1.1 101 Switching Protocols
+[staging-chat.rainbet.com] sent CONNECT 40
+[staging-chat.rainbet.com] close frame rcvd: code=? reason=''
+[staging-chat.rainbet.com] DONE listen=0.1s pongs=0 connected=False
+[staging-chat.rainbet.com] frames after ns-join: []
+[0m
+The WS closure is the missing engine.io upgrade probe (`2probe/3probe/5`). Prior ACKs used the **polling** transport — I'll use that (GET→POST `40`→GET) for a clean CONNECT test on both chat and alerts.
+[0m$ [0mcat > /tmp/opencode/pollconn.py <<'EOF'
+import http.client, re, sys, time
+
+def eio(host, sid=None, body=None, extra=""):
+    c = http.client.HTTPSConnection(host, 443, timeout=12)
+    path = f"/socket.io/?EIO=4&transport=polling&sid={sid}{extra}" if sid else "/socket.io/?EIO=4&transport=polling"
+    if body is None:
+        c.request("GET", path, headers={"User-Agent": "Mozilla/5.0 Chrome/126.0", "Origin": "https://evil.example"})
+    else:
+        c.request("POST", path, body=body, headers={"User-Agent": "Mozilla/5.0 Chrome/126.0", "Origin": "https://evil.example", "Content-Type": "text/plain;charset=UTF-8"})
+    r = c.getresponse()
+    data = r.read().decode(errors="replace")
+    out = (r.status, len(data), data[:160])
+    c.close()
+    return out
+
+def main(host):
+    st, ln, data = eio(host)
+    print(f"[{host}] poll: {st} {ln}B {data}")
+    m = re.search(r'"sid":"([^"]+)"', data)
+    if not m:
+        print(f"[{host}] no sid"); return
+    sid = m.group(1)
+    st, ln, data = eio(host, sid=sid, body="40")
+    print(f"[{host}] POST 40: {st} {ln}B {data!r}")
+    time.sleep(1)
+    st, ln, data = eio(host, sid=sid)
+    print(f"[{host}] poll-after: {st} {ln}B {data!r}")
+    time.sleep(1)
+    st, ln, data = eio(host, sid=sid)
+    print(f"[{host}] poll-after2: {st} {ln}B {data!r}")
+
+main(sys.argv[1])
+EOF
+echo "----- staging-chat -----"; python3 /tmp/opencode/pollconn.py staging-chat.rainbet.com
+echo "----- staging-alerts -----"; python3 /tmp/opencode/pollconn.py staging-alerts.rainbet.com
+----- staging-chat -----
+[staging-chat.rainbet.com] poll: 200 116B 0{"sid":"0lGxIT1ItoMGCJniAAAg","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+[staging-chat.rainbet.com] POST 40: 200 2B 'ok'
+[staging-chat.rainbet.com] poll-after: 200 32B '40{"sid":"1gTyjOcJUOJ6WXh9AAAh"}'
+Traceback (most recent call last):
+  File "/tmp/opencode/pollconn.py", line 32, in <module>
+    main(sys.argv[1])
+  File "/tmp/opencode/pollconn.py", line 29, in main
+    st, ln, data = eio(host, sid=sid)
+                   ^^^^^^^^^^^^^^^^^^
+  File "/tmp/opencode/pollconn.py", line 10, in eio
+    r = c.getresponse()
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 1457, in getresponse
+    response.begin()
+  File "/usr/lib/python3.12/http/client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 297, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 707, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1252, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1104, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
+----- staging-alerts -----
+[staging-alerts.rainbet.com] poll: 200 116B 0{"sid":"g12F25umOE9MUXQ1AAAc","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":20480}
+[staging-alerts.rainbet.com] POST 40: 200 2B 'ok'
+[staging-alerts.rainbet.com] poll-after: 200 59B '44{"message":"er_auth_token_invalid","data":{"status":401}}'
+Traceback (most recent call last):
+  File "/tmp/opencode/pollconn.py", line 32, in <module>
+    main(sys.argv[1])
+  File "/tmp/opencode/pollconn.py", line 29, in main
+    st, ln, data = eio(host, sid=sid)
+                   ^^^^^^^^^^^^^^^^^^
+  File "/tmp/opencode/pollconn.py", line 10, in eio
+    r = c.getresponse()
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 1457, in getresponse
+    response.begin()
+  File "/usr/lib/python3.12/http/client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 297, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 707, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1252, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1104, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
+[0m
+[0m$ [0mcat >> /home/runner/work/rainbet-hunt/rainbet-hunt/probe-results.md <<'EOF'
+
+## 2026-09-13 01:40:00 UTC
+https://api.rainbet.com/openapi.json -> 403 len=5484B plain block (no cf-mitigated)
+https://api.rainbet.com/robots.txt -> 403 len=4546B pure block (static class)
+https://api.rainbet.com/api/v1/public/ping -> 403 len=5484B
+https://api.rainbet.com/ -> 403 len=5484B
+https://api.rainbet.com/docs -> 403 len=5484B
+https://api.rainbet.com OPTIONS /openapi.json -> 200 Allow:HEAD,GET,POST,OPTIONS x-do-orig-status:200 x-do-app-origin:53f39197
+https://api.rainbet.com OPTIONS /robots.txt -> 200 x-do-orig-status:200 (static-class also OPTIONS-exempt)
+https://api.rainbet.com OPTIONS /api/v1/public/ping -> 200 x-do-orig-status:200
+https://staging-services.rainbet.com -> CORS reflector on 7/7 paths (/api/v1/public/config,/api/v1/health,/api/v1/public/ping,/healthz,/ready,/swagger,/graphql all 404/33B ACAO:evil+credentials+expose:Cf-Mitigated+x-powered-by:Express); /docs 302->Access  (kid 31d4206e) also reflects ACAO
+https://staging-chat.rainbet.com/socket.io EIO4 poll -> 200 len=116 sid=9l398YCNNSyM9elwAAAc maxPayload=10240
+https://staging-chat.rainbet.com POST EIO4 40 (polling) -> 40{"sid":"1gTyjOcJUOJ6WXh9AAAh"} root CONNECT anonymous ACK
+https://staging-alerts.rainbet.com/socket.io EIO4 poll -> 200 len=116 maxPayload=20480 (control)
+https://staging-alerts.rainbet.com POST EIO4 40 -> 44{"message":"er_auth_token_invalid","data":{"status":401}}
+https://staging-raffles.rainbet.com/health -> 200 len=75 {"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}
+https://staging.rainbet.com/health -> 302 CF Access (gap CLOSED)
+https://staging-monorepo.rainbet.com/docs -> 403 len=5484B plain block (was 110KB at 23:16)
+https://staging-monorepo.rainbet.com/openapi.json -> 404 75B express
+https://www.rainbet.com/ -> 403 len=5484B plain block (WAF front now plain-block mode)
+EOF
+echo appended
+appended
+[0m
+Polling CONNECT captured the decisive frames (trailing long-poll timeout is expected engine.io holding behavior):
+- **chat**: `40` → `40{"sid":"1gTyjOcJUOJ6WXh9AAAh"}` — anonymous root CONNECT **ACKs**
+- **alerts**: `40` → `44{"message":"er_auth_token_invalid"}` (401) — control confirms the per-hostname auth asymmetry persists
+
+Let me record this round's probe results.
+The chat/alerts asymmetry is resuming the known lead. One new anomaly worth zooming: **monorepo `/openapi.json` → 404 Express origin while `/docs` → 403 WAF** — the WAF challenge is path-conditional on app bc240b8a, meaning other paths pass through to the live Express origin. Let me breadth-sweep monorepo routes (passive GET).
+[0m$ [0mUA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+for p in /api /api/v1 /api/v1/ /api/v1/public /api/v1/health /api/v1/public/ping /graphql /status /version /admin /swagger /redoc /config /ping /docs/ /docs/index.html /robots.txt /favicon.ico /assets/.git/config /.git/config /healthz /metrics; do
+  out=$(curl -s -m 12 -o /tmp/b -w '%{http_code} %{size_download}' -A "$UA" "https://staging-monorepo.rainbet.com$p")
+  snip=$(tr -d '\r' </tmp/b | head -c 70 | tr '\n' ' ')
+  echo "$p -> $out | $snip"
+  sleep 1
+done
+/api -> 404 66 | {"message":"Cannot GET /api","error":"Not Found","statusCode":404}
+/api/v1 -> 404 69 | {"message":"Cannot GET /api/v1","error":"Not Found","statusCode":404}
+/api/v1/ -> 404 70 | {"message":"Cannot GET /api/v1/","error":"Not Found","statusCode":404}
+/api/v1/public -> 404 76 | {"message":"Cannot GET /api/v1/public","error":"Not Found","statusCode
+/api/v1/health -> 404 76 | {"message":"Cannot GET /api/v1/health","error":"Not Found","statusCode
+/api/v1/public/ping -> 404 81 | {"message":"Cannot GET /api/v1/public/ping","error":"Not Found","statu
+/graphql -> 404 70 | {"message":"Cannot GET /graphql","error":"Not Found","statusCode":404}
+/status -> 404 69 | {"message":"Cannot GET /status","error":"Not Found","statusCode":404}
+/version -> 404 70 | {"message":"Cannot GET /version","error":"Not Found","statusCode":404}
+/admin -> 404 68 | {"message":"Cannot GET /admin","error":"Not Found","statusCode":404}
+/swagger -> 404 70 | {"message":"Cannot GET /swagger","error":"Not Found","statusCode":404}
+/redoc -> 404 68 | {"message":"Cannot GET /redoc","error":"Not Found","statusCode":404}
+/config -> 404 69 | {"message":"Cannot GET /config","error":"Not Found","statusCode":404}
+/ping -> 404 67 | {"message":"Cannot GET /ping","error":"Not Found","statusCode":404}
+/docs/ -> 403 5484 | <!DOCTYPE html> <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="
+/docs/index.html -> 403 5484 | <!DOCTYPE html> <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="
+/robots.txt -> 404 73 | {"message":"Cannot GET /robots.txt","error":"Not Found","statusCode":4
+/favicon.ico -> 404 74 | {"message":"Cannot GET /favicon.ico","error":"Not Found","statusCode":
+/assets/.git/config -> 403 5484 | <!DOCTYPE html> <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="
+/.git/config -> 403 5484 | <!DOCTYPE html> <!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="
+/healthz -> 404 70 | {"message":"Cannot GET /healthz","error":"Not Found","statusCode":404}
+/metrics -> 404 70 | {"message":"Cannot GET /metrics","error":"Not Found","statusCode":404}
+[0m
+Monorepo sweep: every guessable route → 404 Express; only `/docs*`, `/.git`-ish paths hit the 403 WAF block — a path-pattern WAF rule, but the Express origin behind it has **no mounted content routes** (dead origin, no data plane to enumerate). Not a new lead.
+
+Composing the analysis.
+
+---
+
+## STEP 1 — DELTA
+- [CHANGED] www.rainbet.com `/` → 403 5484B plain block (was 110KB managed challenge) — production WAF front flipped to plain-block mode, same template family as api/monorepo.
+- [CHANGED] staging-monorepo `/docs` → 403 5484B plain block (was 110KB at 23:16) — churn continues on app bc240b8a; path-pattern WAF (docs/.git challenged, all else origins to a route-less Express 404).
+- [CHANGED] staging-chat WS-transport direct `40` now close-on-connect (engine.io upgrade-probe not performed) — but **polling-transport** root CONNECT still ACKs anonymously (`40{"sid":"1gTyjOcJUOJ6WXh9AAAh"}`, fresh socket sid); alerts control rejects (`44 er_auth_token_invalid`). Asymmetry live-confirmed.
+- [CHANGED] api.rainbet.com: WAF in plain-block mode this round, API-class 5484B / static-class 4546B (1B jitter), GET `/`-and-`/docs` also 403; both classes OPTIONS-exempt (x-do-orig-status:200), app 53f39197.
+- [NO_DELTA] staging-services CORS reflector 7/7 paths (all 404/33B), `/docs` 302→Access — no 2xx mount, 15+ rounds.
+- [NO_DELTA] staging.rainbet.com `/health` 302 (Access gap CLOSED); raffles `/health` 200/75B stable; chat/alerts EIO4 planes up.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] api.rainbet.com,6.9,cloud_surface+business_value — only WAF-gated origin; OPTIONS reaches it; churn gates a possible GET window.
+- [PRIO] staging-chat.rainbet.com/socket.io,6.6,gate_ease+tech_exposure — anonymous socket plane, per-hostname auth asymmetry live.
+- [PRIO] staging-services.rainbet.com,6.35,gate_ease+tech_exposure — credentialed CORS reflector latent on 404s.
+
+## STEP 3 — HYPOTHESES
+[HYP] api per-class GET gap during WAF churn window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: Both path-classes WAF-closed on GET this round (API 5484B, static 4546B plain blocks, no cf-mitigated); OPTIONS exemption stable on BOTH classes (x-do-orig-status:200 → origin 53f39197 live); operator churns 110KB↔plain-block across rounds (www flipped same template). A GET or content-method gap surfaces as non-403+x-do-orig-status on one class.
+evidence_needed: any content-method request (GET/HEAD/POST) returning non-403 while x-do-orig-status present on the loosened class.
+verify_steps: 1x/round GET /openapi.json, /robots.txt, /api/v1/public/ping + OPTIONS /openapi.json state marker at 0.3 rps; flag non-403+x-do-orig-status.
+impact: origin API reachable → wallet/auth/bets route enumeration — HIGH, churn-gated.
+testability: PASSIVE
+
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 48
+reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated + x-powered-by:Express on 7/7 probed paths, all 404/33B this round; reflected again on the /docs 302 Access page; alive 15+ rounds.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials in the same response.
+verify_steps: 4-6 GETs/round with Origin:https://evil.example (already swept: /api/v1/health, /api/v1/public/config, /healthz, /ready, /swagger, /graphql) — flag 2xx+ACAO.
+impact: credentialed cross-origin read of any mounted data route — HIGH (conditional on deploy).
+testability: PASSIVE
+
+[HYP] anonymous chat root session reaches an event plane on pong-sustained polling
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 15
+reasoning: Root CONNECT still ACKs anonymously via polling (this round); alerts rejects (401) — asymmetry held. Across 5+ WS listens with correct pongs, ZERO `42` frames and all 8 business namespaces `44 Invalid namespace`. WS transport now closes on bare `40` (probe handshake missing). The polling-transport long-poll egress cycle (hold GET ≥ pingInterval, auto-pong each `2`) has never been cleanly run — only the WS transport was; the ~25s ping kills 12s-timeout polls, truncating logs.
+evidence_needed: any `42` event or namespace ACK on a pong-sustained polling session.
+verify_steps: poll sid → POST 40 → hold long-poll GET 35s auto-ponging via POST 3 → re-poll 90s; log frames/close.
+impact: anonymous tap of live staging chat/notifications (PII) — HIGH if real; currently no data plane in 9 rounds.
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] chat egress over WS: 5+ fair pong-sustained WS listens, zero `42`, all namespaces `44` — WS transport is closed; only untested transport is the long-poll cycle. confidence 15.
+- [PARKED] monorepo route enumeration: path-pattern WAF confirmed (/docs, .git challenged) but origin is a route-less Express 404 on 22 paths — no data plane to mount. Dead.
+- [FINAL] staging-services CORS reflector (48): KEEP — path-agnostic incl `/docs` 302, gated on 2xx mount. PASSIVE.
+- [FINAL] api per-class GET gap (40): KEEP as PASSIVE watch — two path-class rules confirmed, zero non-403 in 15+ rounds, churn live.
+- [FINAL] chat anonymous root CONNECT (auth asymmetry) (15): KEEP as already-VALID finding; no escalation this round.
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: api.rainbet.com class-pair watch at 0.3 rps — GET /openapi.json (API-class), GET /robots.txt (static-class), GET /api/v1/public/ping, OPTIONS /openapi.json (state marker); flag any content-method non-403 carrying x-do-orig-status (GET-gap = origin reachable → HIGH). Secondary: one polling long-poll egress cycle on staging-chat (hold GET ≥30s, auto-pong `3`, log frames) — the never-fairly-tested transport.
+
+## STEP 6 — LEARNING
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: anonymous root CONNECT ACK persists via polling (fresh socket sid 1gTyjOcJUOJ6WXh9AAAh, live 2026-09-13) while staging-alerts rejects `44 er_auth_token_invalid` — per-hostname auth asymmetry re-confirmed (same DO app 1ce4ff55).
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough now proven class-independent; GET remains 403 both classes.
+[LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin reachable but route-less; no enumerable surface.
+[LEARN] ACCEPTED MISCONFIG @ www.rainbet.com: production front also flipped to 5484B plain-block template — the plain-block mode is now fleet-wide (api/www/monorepo), consistent with a managed-rule template family, not per-host drift.
+[LEARN] REJECTED (methodology) @ staging-chat.rainbet.com: WS-transport `40` close-on-connect is the missing `2probe/3probe/5` upgrade exchange, NOT an auth closure — prior WS ACKs and current polling ACK both valid; transport must not be confused with policy.
+
+## STEP 7 — RISK
+[RISK] RainBet: 34/100 — no escalation. Fleet-state flat: chat anonymous session persists but exhibits zero data plane across 9 rounds (WS closed to direct CONNECT; polling ACK only); services CORS reflector remains latent behind 404s (15+ rounds); api WAF closed on GET both classes with blanket CORS-neutral OPTIONS passthrough; Access gap closed; monorepo origin route-less; plain-block WAF template now fleet-wide indicates coordinated hardening/rule uniformity. Standing valid inventory unchanged (4 findings, CVSS ≤7.3). Monitoring-only posture; the api GET-gap watch remains the only live vector with upside.

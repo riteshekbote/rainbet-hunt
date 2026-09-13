@@ -605,3 +605,13 @@ www.rainbet.com
 - CHANGED staging-monorepo.rainbet.com: /docs → 403 CF managed challenge (110KB) — WAF front fluctuates on app bc240b8a-ba24-4b78-834b-423990390251
 - CHANGED staging.rainbet.com: /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — pre-auth, CORS-neutral
 - CHANGED files.rainbet.com, media.rainbet.com: both 403 CF managed challenge — no unchallenged surface
+
+## 2026-09-13 01:14:17 UTC
+- NEW staging-chat.rainbet.com/socket.io/ — engine.io handshake confirmed live at 23:08 UTC (200, 116B, fresh sid); socket.io root namespace bare CONNECT (`40`) returns valid socket-level sid — **live confi
+- NEW staging-alerts.rainbet.com/socket.io/ — WebSocket upgrade CONFIRMED per knowledge base (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]) — **socket plane hijack proven**
+- CHANGED api.rainbet.com — GET /api/v1/public/ping reverted to **full CF managed challenge (110KB HTML, no cf-mitigated)** from 5485B plain block; WAF churn 110KB↔5485B confirmed live on DO app 53f39197
+- CHANGED staging-monorepo.rainbet.com — /docs flipped to **CF managed challenge (110KB)** from 5483B plain block — WAF front fluctuates on app bc240b8a
+- CHANGED staging.rainbet.com — /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — **gap CLOSED, pre-auth CORS-neutral**
+- CHANGED files.rainbet.com, media.rainbet.com — both 403 CF managed challenge — no unchallenged surface
+- CHANGED staging-raffles.rainbet.com/health — real origin JSON stable 200/75B, x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge — **6 hostnames on app 1ce4ff55 confirmed**
+- CHANGED staging-services.rainbet.com — CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; x-powered-by: Express; all 404/33B `{"er

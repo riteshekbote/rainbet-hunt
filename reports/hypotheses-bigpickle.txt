@@ -1,30 +1,35 @@
-## 2026-09-12 23:16:17 UTC [target] (model bigpickle)
-[HYP] staging-chat root anonymous session yields live event egress
-class: AUTH
-asset: staging-chat.rainbet.com/socket.io
-confidence: 20
-reasoning: 8th round root `40` CONNECT ACK (fresh socket-sids Al37gRaD5BjhwO1LAAAN/ZoPlOqZZUosZHKWJAAAS/JGTmuRgDY1YvjB4gAAAW via polling+WS). Correct-pong 60s listen ×2: server pings at 25.2s/50.2s, session survives, ZERO `42` frames; all 8 business namespaces `44 Invalid namespace` on 3 independent WS instances. Prior `/raffles`/`/alerts` ACKs were artifact/non-instance reads.
-evidence_needed: any `42` event or any namespace ACK (`40{"sid"…}` join) on a pong-sustained session.
-verify_steps: sid-less WS + root `40`; if alive, `40/<ns>,` for 30 candidate names; then 90s listen with `3` pong on each `2`; log frames/close.
-impact: anonymous tap of live chat/notification events at staging (PII) — would be HIGH; currently NO data plane observed in 8 rounds.
-testability: AUTH_HELPED
-[HYP] staging-services CORS reflector unlocks on 2xx route mount
-class: MISCONFIG
-asset: staging-services.rainbet.com
-confidence: 48
-reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + expose-headers:Cf-Mitigated + x-powered-by:Express on every probed path (/health, /api/v1/*, OPTIONS /api/v1), all 404/33B, mirrored again this round; alive 14+ rounds. A 2xx carrying these headers = credentialed cross-origin read.
-evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials in the same response.
-verify_steps: 5-6 passive GETs/round with Origin: https://evil.example at 1 rps (/api/v1/public/health, /ready, /healthz, /api/v1/health, /swagger, /graphql); flag 2xx+ACAO.
-impact: credentialed cross-origin read of any mounted authenticated data route — HIGH (conditional on deploy).
-testability: PASSIVE
-[HYP] api.rainbet.com per-class GET gap during WAF churn
+## 2026-09-13 01:13:48 UTC [target] (model bigpickle)
+[HYP] api per-class GET gap during WAF churn window
 class: MISCONFIG
 asset: api.rainbet.com
 confidence: 40
-reasoning: Two path-class rules confirmed (static pure-block 4546B CL; API plain-block no-CL; 110KB challenge as 3rd flavor); operator flips 110KB↔plain-block live; BOTH classes OPTIONS-exempt to origin (x-do-orig-status:200 confirms origin reach). A GET-class gap shows as non-403 + x-do-orig-status.
-evidence_needed: any GET (either class) returning non-403 with x-do-orig-status during a churn window.
-verify_steps: 1x/round GET `/openapi.json`, `/api/v1/public/ping`, `/robots.txt` at 0.3 rps; flag non-403+x-do-orig-status; OPTIONS /openapi.json as state marker.
-impact: origin reachable on one class → origin API enumerable (wallet/auth/bets) — HIGH, churn-gated.
+reasoning: Both path-classes WAF-closed on GET this round (API 5484B, static 4546B plain blocks, no cf-mitigated); OPTIONS exemption stable on BOTH classes (x-do-orig-status:200 → origin 53f39197 live); operator churns 110KB↔plain-block across rounds (www flipped same template). A GET or content-method gap surfaces as non-403+x-do-orig-status on one class.
+evidence_needed: any content-method request (GET/HEAD/POST) returning non-403 while x-do-orig-status present on the loosened class.
+verify_steps: 1x/round GET /openapi.json, /robots.txt, /api/v1/public/ping + OPTIONS /openapi.json state marker at 0.3 rps; flag non-403+x-do-orig-status.
+impact: origin API reachable → wallet/auth/bets route enumeration — HIGH, churn-gated.
 testability: PASSIVE
-[NEXT] PROBE: staging-services.rainbet.com — passive GET sweep with `Origin: https://evil.example` at ~1 rps over /api/v1/public/config, /api/v1/health, /api/v1/public/ping, /ready, /healthz, /swagger, /graphql, /docs, /api — flag any 2xx carrying access-control-allow-origin+credentials (CORS-unlock trigger); concurrently 1× GET /openapi.json + OPTIONS /openapi.json on api.rainbet.com (state marker) and 1× sid-less WS root-CONNECT pulse on staging-chat.
-[RISK] RainBet: 36/100 — the program's strongest link (anonymous chat session → live egress) failed its first fair pong-sustained egress test with zero frames and all business namespaces `44`; surviving valid surface is static: per-hostname socket-auth asymmetry (chat CONNECT=ACK vs alerts=401) with no observed data plane, services CORS reflector latent behind 404s (14+ rounds), api WAF closed on GET with CORS-neutral blanket OPTIONS passthrough, Access gap closed, monorepo 403. Operator hardening visible (WAF churn, instahard ents, maxPayload/namespace config drift). 17/20 inventory dead. No escalation; monitoring-only posture.
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 48
+reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated + x-powered-by:Express on 7/7 probed paths, all 404/33B this round; reflected again on the /docs 302 Access page; alive 15+ rounds.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials in the same response.
+verify_steps: 4-6 GETs/round with Origin:https://evil.example (already swept: /api/v1/health, /api/v1/public/config, /healthz, /ready, /swagger, /graphql) — flag 2xx+ACAO.
+impact: credentialed cross-origin read of any mounted data route — HIGH (conditional on deploy).
+testability: PASSIVE
+[HYP] anonymous chat root session reaches an event plane on pong-sustained polling
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 15
+reasoning: Root CONNECT still ACKs anonymously via polling (this round); alerts rejects (401) — asymmetry held. Across 5+ WS listens with correct pongs, ZERO `42` frames and all 8 business namespaces `44 Invalid namespace`. WS transport now closes on bare `40` (probe handshake missing). The polling-transport long-poll egress cycle (hold GET ≥ pingInterval, auto-pong each `2`) has never been cleanly run — only the WS transport was; the ~25s ping kills 12s-timeout polls, truncating logs.
+evidence_needed: any `42` event or namespace ACK on a pong-sustained polling session.
+verify_steps: poll sid → POST 40 → hold long-poll GET 35s auto-ponging via POST 3 → re-poll 90s; log frames/close.
+impact: anonymous tap of live staging chat/notifications (PII) — HIGH if real; currently no data plane in 9 rounds.
+testability: AUTH_HELPED
+[NEXT] PROBE: api.rainbet.com class-pair watch at 0.3 rps — GET /openapi.json (API-class), GET /robots.txt (static-class), GET /api/v1/public/ping, OPTIONS /openapi.json (state marker); flag any content-method non-403 carrying x-do-orig-status (GET-gap = origin reachable → HIGH). Secondary: one polling long-poll egress cycle on staging-chat (hold GET ≥30s, auto-pong `3`, log frames) — the never-fairly-tested transport.
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: anonymous root CONNECT ACK persists via polling (fresh socket sid 1gTyjOcJUOJ6WXh9AAAh, live 2026-09-13) while staging-alerts rejects `44 er_auth_token_invalid` — per-hostname auth asymmetry re-confirmed (same DO app 1ce4ff55).
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough now proven class-independent; GET remains 403 both classes.
+[LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin reachable but route-less; no enumerable surface.
+[LEARN] ACCEPTED MISCONFIG @ www.rainbet.com: production front also flipped to 5484B plain-block template — the plain-block mode is now fleet-wide (api/www/monorepo), consistent with a managed-rule template family, not per-host drift.
+[LEARN] REJECTED (methodology) @ staging-chat.rainbet.com: WS-transport `40` close-on-connect is the missing `2probe/3probe/5` upgrade exchange, NOT an auth closure — prior WS ACKs and current polling ACK both valid; transport must not be confused with policy.
+[RISK] RainBet: 34/100 — no escalation. Fleet-state flat: chat anonymous session persists but exhibits zero data plane across 9 rounds (WS closed to direct CONNECT; polling ACK only); services CORS reflector remains latent behind 404s (15+ rounds); api WAF closed on GET both classes with blanket CORS-neutral OPTIONS passthrough; Access gap closed; monorepo origin route-less; plain-block WAF template now fleet-wide indicates coordinated hardening/rule uniformity. Standing valid inventory unchanged (4 findings, CVSS ≤7.3). Monitoring-only posture; the api GET-gap watch remains the only live vector with upside.

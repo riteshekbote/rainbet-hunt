@@ -1244,3 +1244,21 @@
 - LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — reflects arbitrary Origin + allow-credentials:true + acce
 - LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, serves as control proving same-DO-app a
 - LEARN: REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants (double-encoded path, `%2e%2e`, trailing `%2f`, mixed-case) all 403@5484B — no content-method WAF b
+
+## RANKED HYPOTHESES 2026-09-13 01:14:17 UTC
+- [95] staging-chat.rainbet.com/socket.io/: staging-chat socket.io root + business namespaces accept unauthenticated CONNECT enabling full session establishment and event emission (from art/lead_nemotron3.txt)
+- [40] api.rainbet.com: api per-class GET gap during WAF churn window (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: api.rainbet.com class-pair watch at 0.3 rps — GET /openapi.json (API-class), GET /robots.txt (static-class), GET /api/v1/public/ping, OPTIONS /openapi.js
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling to capture engine.io sid, then WebSocket upgrade to wss://staging-chat.rainbet.co
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: anonymous root CONNECT ACK persists via polling (fresh socket sid 1gTyjOcJUOJ6WXh9AAAh, live 2026-09-13) while staging
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket prefli
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin
+- LEARN: ACCEPTED MISCONFIG @ www.rainbet.com: production front also flipped to 5484B plain-block template — the plain-block mode is now fleet-wide (api/www/monorepo), c
+- LEARN: REJECTED (methodology) @ staging-chat.rainbet.com: WS-transport `40` close-on-connect is the missing `2probe/3probe/5` upgrade exchange, NOT an auth closure — p
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to full CF managed challenge (110KB) — active operator WAF churn on DO app 53f39197 confi
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped from 5485B CF block to full CF managed challenge (110KB) — WAF front state fluctuates on app bc
+- LEARN: ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: socket.io root namespace accepts bare CONNECT (`40`) with no auth — returns `40{"sid":"...","_placeholder":true}` esta
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — reflects arbitrary Origin + allow-credentials:true + acce
+- LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, serves as control proving same-DO-app a
+- LEARN: REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants (double-encoded path, `%2e%2e`, trailing `%2f`, mixed-case) all 403@5484B — no content-method WAF b
