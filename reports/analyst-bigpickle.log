@@ -21524,3 +21524,248 @@ testability: PASSIVE
 === STEP 7 — RISK ===
 [RISK] RainBet: 32/100 — flat. docs contract-leak vector closed by live probe; api/prod WAF closed (OPTIONS exempt is CORS-neutral, 15+ rounds); chat anonymous session persists but egress never fairly tested; services CORS reflector latent behind 404s; standing findings unchanged (≤CVSS 7.3). Only live thread: chat egress test; monitoring-only otherwise.
 ```
+===== ANALYST bigpickle 2026-09-13 16:36:30 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "### api GET /api/v1/public/ping"; curl -s -m 12 -D - -o /dev/null "https://api.rainbet.com/api/v1/public/ping" -w "HTTP %{http_code} size=%{size_download}\n"; sleep 2
+echo; echo "### api GET /robots.txt"; curl -s -m 12 -D - -o /dev/null "https://api.rainbet.com/robots.txt" -w "HTTP %{http_code} size=%{size_download}\n"; sleep 2
+echo; echo "### api GET /openapi.json"; curl -s -m 12 -D - -o /dev/null "https://api.rainbet.com/openapi.json" -w "HTTP %{http_code} size=%{size_download}\n"; sleep 2
+echo; echo "### api OPTIONS /openapi.json (Origin evil)"; curl -s -m 12 -D - -o /dev/null -X OPTIONS "https://api.rainbet.com/openapi.json" -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET" -w "HTTP %{http_code} size=%{size_download}\n"; sleep 2
+### api GET /api/v1/public/ping
+HTTP/2 403 
+date: Sun, 13 Sep 2026 16:29:25 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=yuvhUUhxvG9CTVk1sBaz2IrJeLBkVJKT2fLoGOvtb2o-1789316965.9164755-1.0.1.1-Gl524N1gptPKupNKZNfp69.HxJBWIihdlbjSBbyJRkjVypHzzdFZuqv7V39q.8s1eW_2m7X05qA1iOSdOv5WocAl.bWLxASJnFbIdN8nK87iXNNNT98GaxK65CqHT0_O; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sun, 13 Sep 2026 16:59:25 GMT
+server: cloudflare
+cf-ray: a3a887dcfdd1f835-LAX
+alt-svc: h3=":443"; ma=86400
+
+HTTP 403 size=5483
+
+### api GET /robots.txt
+HTTP/2 403 
+date: Sun, 13 Sep 2026 16:29:27 GMT
+content-type: text/html; charset=UTF-8
+content-length: 4545
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=JFjzwIB6cnhr6lLJ.H1sRADSjkP.kzCwBL6TBAHT2Qs-1789316967.9687216-1.0.1.1-AAZ4djnaAz3TSGYHv5vmJQnG3GzpJFX2wdmofwbpkJmqXslofOZfEzuXasXESfTzU2sRPxNw32bZrGkyERqNA0cxJtY.RvVHNSKyUOMZv28DGDZo0mey_DMP.tYfMtz3; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sun, 13 Sep 2026 16:59:27 GMT
+server: cloudflare
+cf-ray: a3a887e9c8f92606-LAX
+alt-svc: h3=":443"; ma=86400
+
+HTTP 403 size=4545
+
+### api GET /openapi.json
+HTTP/2 403 
+date: Sun, 13 Sep 2026 16:29:30 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=.00HRheqcKqmzCCmZNT2AyXogTxoRndEcYrVGm8CeIk-1789316970.021643-1.0.1.1-E56CAbfm9tPPL75vyQky7UEoEbL0.g2IBKVx2DoDLUEZHq2l_1Qpm42vnXTBiVuzJSAEy218MyzpZJ.bQ5_FrGgWMAPCjDPiMDvwiAxU28TsTXmROGYGBtDZZaeoA61g; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sun, 13 Sep 2026 16:59:30 GMT
+server: cloudflare
+cf-ray: a3a887f699f608b0-LAX
+alt-svc: h3=":443"; ma=86400
+
+HTTP 403 size=5483
+
+### api OPTIONS /openapi.json (Origin evil)
+HTTP/2 200 
+date: Sun, 13 Sep 2026 16:29:32 GMT
+content-type: application/json
+content-length: 0
+server: cloudflare
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=cNbW3npoYyHDw3RYZZWoYIugAgAP24dHikqDo0ClQLo-1789316972.1027641-1.0.1.1-cKSUInb0NWXGCvRwvktyeJd_ligj.qThWzwuzt6KSzQGmwtZ6EUtcKaqd_TW_jugMBdJzgNJx2eXF71VVRejjdtw9JOpSyYIX0WDjE6ACJ4RQyz0YcIp96AoHLolY4.W; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sun, 13 Sep 2026 16:59:32 GMT
+cf-ray: a3a8880388ebf835-LAX
+alt-svc: h3=":443"; ma=86400
+
+HTTP 200 size=0
+[0m
+[0m$ [0mecho "### chat EIO4 polling"; curl -s -m 12 -D - "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" -w "\nHTTP %{http_code} size=%{size_download}\n"; sleep 2
+echo; echo "### services /api/v1/raffles (Origin evil)"; curl -s -m 12 -D - -o /dev/null -H "Origin: https://evil.example" -w "HTTP %{http_code} size=%{size_download}\n" "https://staging-services.rainbet.com/api/v1/raffles"; sleep 2
+echo; echo "### raffles /health"; curl -s -m 12 -D - "https://staging-raffles.rainbet.com/health" -w "\nHTTP %{http_code} size=%{size_download}\n"; sleep 2
+echo; echo "### monorepo /docs"; curl -s -m 12 -D - -o /dev/null "https://staging-monorepo.rainbet.com/docs" -w "HTTP %{http_code} size=%{size_download}\n"
+### chat EIO4 polling
+HTTP/2 200 
+date: Sun, 13 Sep 2026 16:29:41 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 116
+vary: Origin
+access-control-allow-credentials: true
+cache-control: no-store
+cf-cache-status: DYNAMIC
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 200
+server: cloudflare
+accept-ranges: bytes
+set-cookie: __cf_bm=DGZktfz1JmQodquj55n9LBKcaQ_jfOyEFmdnTdWjREM-1789316980.8403285-1.0.1.1-5iKDjczoMRVylAnmLyRghk34O.RnVqP04KuLPjrqiSyrb3vv3EHeRM_ciH54fd2lrRdUdMDS2ULp._RQXJVnxlOyxmI8toQqBznt2RqZaq0kMpPRjcIUZsLMtVvo8Gi0; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sun, 13 Sep 2026 16:59:41 GMT
+cf-ray: a3a8883a3f9c2606-LAX
+alt-svc: h3=":443"; ma=86400
+
+0{"sid":"leOnw84GDSEcXAu7AABi","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+HTTP 200 size=116
+
+### services /api/v1/raffles (Origin evil)
+HTTP/2 404 
+date: Sun, 13 Sep 2026 16:29:43 GMT
+content-type: application/json; charset=utf-8
+content-length: 33
+x-powered-by: Express
+etag: W/"21-dcnYZsBeejUuJVu2GyrMii6G4vU"
+vary: Accept-Encoding
+server: cloudflare
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 404
+cf-cache-status: DYNAMIC
+access-control-expose-headers: Cf-Mitigated
+set-cookie: __cf_bm=TVl9II.iB8FJRFjb5PL.7klOzJZ.T7AZjfmkS20zIGE-1789316983.2540967-1.0.1.1-.vSezMWyeV.R.32DzmvhKWeIbESiRZppkbdAgjDnlsz28Fshy.ue2gEo3hPyCN_M3eSdHTr7gDAMSSjd0O55PuGDFN7LBhWEH44N0Z861laYSSZEeZ3RZxGi4KKFws4s; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sun, 13 Sep 2026 16:59:43 GMT
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil.example
+cf-ray: a3a888494d5b8535-LAX
+alt-svc: h3=":443"; ma=86400
+
+HTTP 404 size=33
+
+### raffles /health
+HTTP/2 200 
+date: Sun, 13 Sep 2026 16:29:45 GMT
+content-type: application/json; charset=utf-8
+content-length: 75
+vary: Origin
+access-control-allow-credentials: true
+content-security-policy: default-src 'self';script-src 'self' 'unsafe-inline';style-src 'self' 'unsafe-inline';img-src 'self' data: https:;base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';upgrade-insecure-requests
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+origin-agent-cluster: ?1
+referrer-policy: no-referrer
+strict-transport-security: max-age=31536000; includeSubDomains
+x-content-type-options: nosniff
+x-dns-prefetch-control: off
+x-download-options: noopen
+x-frame-options: DENY
+x-permitted-cross-domain-policies: none
+x-xss-protection: 1; mode=block
+etag: W/"4b-rXtkeLa41atkCQYvEmzgGV3syF8"
+cf-cache-status: DYNAMIC
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+cache-control: private
+x-do-orig-status: 200
+server: cloudflare
+accept-ranges: bytes
+set-cookie: __cf_bm=CaRDxXvj0cDmQ5uX33D9DQSlucxxAtO4p7C8VafBtoY-1789316985.6612556-1.0.1.1-PPoTOLo_GgasVufgC6p9ULx.czFEed.7_ltZWBnfDEbV5q7KOv2azHPJFVP8ldY5Ic1vCqYzkSb.I9fzGP6uesV4SD2FQlKaPc_uS3hHFHTtacEf1asCMvaxA8p5CCDj; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sun, 13 Sep 2026 16:59:45 GMT
+cf-ray: a3a888585af01d3e-LAX
+alt-svc: h3=":443"; ma=86400
+
+{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}
+HTTP 200 size=75
+
+### monorepo /docs
+HTTP/2 403 
+date: Sun, 13 Sep 2026 16:29:48 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=AD_qh.G0l9ZI0lMiwjXZmzM78toq7GPbKA823rLNMSQ-1789316988.0151472-1.0.1.1-2w2LpLUJSL1sCzynlaVHqVe.IvP7yPiw1UqXS99BN7xovI8pjHAJ4UHpssFK3Bg9nL5P0S2I.8TuvuocKGPngAawEVzXuptpYzOfxhDjobnwttJcOJabBxcsjYI1Faoq; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sun, 13 Sep 2026 16:59:48 GMT
+server: cloudflare
+cf-ray: a3a888671b7e08b0-LAX
+alt-svc: h3=":443"; ma=86400
+
+HTTP 403 size=5483
+[0m
+[0m$ [0msid=$(curl -s -m 12 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" | sed -E 's/.*"sid":"([^"]+)".*/\1/'); echo "sid=$sid"; echo "### chat long-poll read on fresh anonymous sid (no pong)"; curl -s -m 30 -D - "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling&sid=$sid" -w "\nHTTP %{http_code} size=%{size_download}\n"
+sid=L0f68o553v_GBSyxAABj
+### chat long-poll read on fresh anonymous sid (no pong)
+HTTP/2 200 
+date: Sun, 13 Sep 2026 16:30:51 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 1
+vary: Origin
+access-control-allow-credentials: true
+cache-control: no-store
+cf-cache-status: DYNAMIC
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 200
+server: cloudflare
+accept-ranges: bytes
+set-cookie: __cf_bm=TuQYYjrYORgQBtsVZP4i9yBeGYs.BtgB3WbD7mlxd_Y-1789317026.0696297-1.0.1.1-RefOUbUMihGbUPjlyySXgwniP1iiL5dDwEvM0k5uaDD64cEKAHlSZlGMUbGp_SAVUg47X82Qe2XGFsKJmLBz2Zrs08Pa2p1I0LTvWBTpAtTT8bUAxeXsdFXvSHSPVOkC; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sun, 13 Sep 2026 17:00:51 GMT
+cf-ray: a3a88954e8da8535-LAX
+alt-svc: h3=":443"; ma=86400
+
+2
+HTTP 200 size=1
+[0m
+STEP 1 — DELTA
+- [CHANGED] api.rainbet.com: WAF flipped back to plain-block mode — GET /api/v1/public/ping 403/5483B, GET /robots.txt 403/4545B, GET /openapi.json 403/5483B (none with cf-mitigated); OPTIONS /openapi.json 200 + Allow:HEAD,GET,POST,OPTIONS + x-do-orig-status:200 + x-do-app-origin:53f39197 — churn 110KB↔plain-block confirmed live again (was 110KB at 12:24)
+- [CHANGED] staging-chat.rainbet.com: EIO4 polling back UP — 200/116B fresh anonymous sid `leOnw84GDSEcXAu7AABi` (maxPayload=10240, x-do-orig-status:200) after 400 at 06:23; post-handshake long-poll read on fresh sid returns only engine.io ping `2` (1B) — no socket.io events buffered pre-CONNECT, egress still unproven
+- [CHANGED] staging-services.rainbet.com: CORS reflector observed on 7th path /api/v1/raffles — 404/33B, ACAO-reflect `https://evil.example` + allow-credentials:true + expose-headers:Cf-Mitigated + x-powered-by:Express + x-do-orig-status:404; no 2xx
+- [CHANGED] staging-monorepo.rainbet.com: /docs 403/5483B plain CF block (flipped from 110KB challenge at 12:24) — WAF front churn on app bc240b8a
+- [CHANGED] staging-raffles.rainbet.com: /health 200/75B origin JSON stable (x-do-orig-status:200, full Helmet CSP+HSTS+XFO)
+
+STEP 2 — PRIORITIZE
+- [PRIO] staging-chat.rainbet.com,8.8,attack_surface=8,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
+- [PRIO] api.rainbet.com,7.0,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=2,cloud_surface=8,freshness=9
+- [PRIO] staging-services.rainbet.com,6.8,attack_surface=6,business_value=8,tech_exposure=7,gate_ease=8,cloud_surface=7,freshness=3
+
+STEP 3 — HYPOTHESES
+[HYP] staging-chat anonymous socket session delivers business events
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/
+confidence: 55
+reasoning: EIO4 handshake 200/116B fresh anonymous sid this round (x-do-orig-status:200, app 1ce4ff55); post-handshake polling read on fresh sid yields only engine.io `2` ping (1B) — zero socket.io frames buffered pre-CONNECT; socket.io CONNECT requires POST (outside passive GET/HEAD/OPTIONS mandate), so egress can only be fairly tested via WS+pong which prior rounds never completed (clients never ponged → died at pingTimeout; KB 2026-09-12 methodology note).
+evidence_needed: after answering engine.io `2` with pong `3`, any server-initiated `42[...]` business frame (raffle draw, alert, win) delivered to the anonymous session within ≥60s listen
+verify_steps: GET /socket.io/?EIO=4&transport=polling → capture sid → WS upgrade (101) wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid> → socket.io `40` CONNECT root → reply `3` to every `2` ping → listen ≥60s for `42[...]`; listen-only, 1 connection, ≤1 rps
+impact: unauthenticated read of live bet/raffle/wallet event stream on production-grade DO app — pre-auth intelligence / info disclosure; HIGH-gated on egress
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + expose-headers:Cf-Mitigated observed on 7/7 probed paths this round (/api/v1/raffles added, all 404/33B); /docs zone Access-gated (302 on sub-paths) proves a protected mounted surface exists on same DO app 1ce4ff55; any future 2xx route inherits the reflector.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round on untested prefixes (/api/v1/wallet, /api/v1/profile, /api/v1/bets, /api/internal) with Origin: https://evil.example + Accept: application/json (≤1 rps); flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data — HIpected GH, deploy-gated
+testability: PASSIVE
+[HYP] api per-class GET gap during WAF churn window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: WAF flip confirmed live again (110KB at 12:24 → plain-block 5483/4545B now, no cf-mitigated); both path classes proven OPTIONS-exempt blanket (200 + x-do-orig-status:200 + app 53f39197 this round); GET uniformly 403 across 16+ rounds but churn is operator-driven and could open a content-method window on either class.
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either class during a churn window
+verify_steps: 1x/round class-pair watch: GET /api/v1/public/ping (API-class), GET /robots.txt (static-class), GET + OPTIONS /openapi.json (state marker) at 0.3 rps; flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+STEP 4 — SELF-CRITIQUE
+- [PARKED] staging.rainbet.com CF Access JWT parsing weakness (45): Access drift CLOSED (302, kid a89d8b80) — no progression path
+- [PARKED] rainbet.com challenge-bypass client-side exposure (40): active challenge solving exceeds passive mandate
+- [FINAL] 1. staging-chat anonymous session egress (55)
+- [FINAL] 2. staging-services CORS 2xx unlock (45)
+- [FINAL] 3. api per-class GET churn gap (40)
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: WS-upgrade egress listen on staging-chat — GET /socket.io/?EIO=4&transport=polling → sid; WS upgrade (101) wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>; socket.io `40` CONNECT root; reply `3` to every engine.io `2` ping; listen ≥60s for `42[...]` — listen-only, 1 connection, ≤1 rps (requires interactive WS client; POST pong is part of transport protocol, not a data mutation)
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: plain-block mode + blanket OPTIONS exemption re-confirmed live (GET 403 5483/4545B two classes no cf-mitigated; OPTIONS /openapi.json 200 + Allow + x-do-orig-status:200 + app 53f39197) — churn 110KB↔plain-block active, still no content-method gap
+- [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: plane UP this round (200/116B, fresh sid); post-handshake poll read returns only `2` (1B) — zero events buffered pre-CONNECT; egress remains untestable passively (CONNECT/pong need POST/WS)
+- [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector extends to 7th path /api/v1/raffles (404/33B, ACAO-reflect+credentials+expose) — still no 2xx mount across 16+ rounds
+- [LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs 403/5483B plain block (was 110KB at 12:24) — WAF front continues to oscillate on app bc240b8a
+
+STEP 7 — RISK
+[RISK] RainBet: 32/100 — flat. api WAF in plain-block mode (both classes GET 403, OPTIONS CORS-neutral passthrough, 16+ rounds); chat anonymous plane up but zero egress across 16+ rounds — only live thread remains the WS+pong fair-egress test; services CORS reflector now 7/7 paths but still latent behind 404s; raffles /health route-less origin JSON; staging Access closed; monorepo route-less; 17/20 inventory dead. Standing findings unchanged (≤CVSS 7.3). Monitoring-only; no escalation.
