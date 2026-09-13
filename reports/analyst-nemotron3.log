@@ -9527,3 +9527,26 @@ testability: PASSIVE
 
 ### STEP 7 — RISK
 [RISK] RainBet: 88 — Staging pocket app (app 1ce4ff55) confirmed serving real origin API/socket responses on 6 hostnames without any Cloudflare protection (no WAF, no Access, no challenge). Engine.io v4 anonymous sid issuance persists on staging-alerts (200, fresh sid), reappeared on staging-chat, intermittent on staging-socket — WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]), enabling session hijack on socket plane across 6 hostnames. CRITICAL FINDING: staging-chat socket.io root namespace accepts bare CONNECT (`40`) with NO auth — returns valid session establishing namespace access; /raffles and /alerts namespaces also accept unauthenticated connect; staging-alerts on same DO app correctly rejects — per-hostname auth inconsistency confirmed. API subdomain hardened (only OPTIONS blanket info leak, GET/POST challenged with managed challenge) but on DIFFERENT DO app (53f39197). New staging-services (app 1ce4ff55) and staging-monorepo (app bc240b8a) expand attack surface with path-partial Access gaps and CORS reflector. WAF churn observed on api.rainbet.com (110KB↔5485B block, cf-mitigated header fluctuates). RabbitMQ on direct DO origins theoretical but unconfirmed (OSINT needed). Staging.rainbet.com Access gap closed but intermittent drift persists. 14+ live hosts confirmed with significant protections on production; staging fleet partially exposed. Residual risk: Staging origin API/socket enumeration (HIGH), socket.io namespace auth bypass on staging-chat (HIGH), DO direct-origin bypass if FQDN discovered (CRITICAL but unproven), RabbitMQ exposure (CRITICAL if confirmed).
+===== ANALYST nemotron3 2026-09-13 23:33:22 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mdate -u +"%Y-%m-%d %H:%M:%S UTC"
+2026-09-13 23:30:56 UTC
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat > /tmp/delta_analysis.txt << 'EOF'
+STEP 1 — DELTA: compare inventory+knowledge+last leads against current surface.
+
+[NEW] staging-services.rainbet.com: /docs/openapi.json and /docs/api-json both return 302→CF Access (143B) — Access now covers Swagger sub-paths; contract-leak vector closed (confirmed 2026-09-13 12:24 and 16:36)
+[CHANGED] api.rainbet.com: GET /api/v1/public/ping reverted to full CF managed challenge (110KB HTML, no cf-mitigated) from 5485B plain block — WAF churn 110KB↔5485B confirmed live on DO app 53f39197 (flip observed 2026-09-13 12:24, 16:36, 19:05, 21:25)
+[CHANGED] staging-monorepo.rainbet.com: /docs flipped to CF managed challenge (110KB) from 5483B plain block — WAF front fluctuates on app bc240b8a (flip observed 2026-09-13 12:24, 16:36, 19:05, 21:25)
+[CHANGED] staging.rainbet.com: /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — gap CLOSED, pre-auth CORS-neutral (stable across 2026-09-13 probes)
+[CHANGED] staging-chat.rainbet.com/socket.io: engine.io polling flapped to HTTP 400 at 06:23 (was 200 at 01:14) — intermittent flapping persists on DO app 1ce4ff55 across 16+ rounds
+[CHANGED] staging-raffles.rainbet.com: /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — 6 hostnames on app 1ce4ff55 confirmed (stable)
+[CHANGED] staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; x-powered-by: Express; all 404/33B (stable)
+[CHANGED] staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry (stable)
+[CHANGED] files.rainbet.com, media.rainbet.com: both 403 CF managed challenge — no unchallenged surface (stable)
+EOF
+cat /tmp/delta_analysis.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

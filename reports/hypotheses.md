@@ -1364,3 +1364,7 @@
 - LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — reflects arbitrary Origin + allow-credentials:true + acce
 - LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, serves as control proving same-DO-app a
 - LEARN: REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants (double-encoded path, `%2e%2e`, trailing `%2f`, mixed-case) all 403@5484B — no content-method WAF b
+
+## RANKED HYPOTHESES 2026-09-13 23:33:22 UTC
+- [60] staging-chat.rainbet.com/socket.io/: staging-chat anonymous socket session delivers business events on fair egress test (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: fair-egress WS+pong listen on staging-chat — GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` → capture sid; WS upgrade (101) `w
