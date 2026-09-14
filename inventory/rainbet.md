@@ -698,3 +698,5 @@ www.rainbet.com
 - CHANGED staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — all reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; x-powered-by: Express; all 404/33B (stabl
 - CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry (stable)
 - CHANGED files.rainbet.com, media.rainbet.com: both 403 CF managed challenge — no unchallenged surface (stable)
+
+## 2026-09-14 01:45:46 UTC

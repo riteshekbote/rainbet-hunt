@@ -1,30 +1,30 @@
-## 2026-09-13 23:31:01 UTC [target] (model bigpickle)
-[HYP] staging-chat anonymous socket session delivers business events on fair egress test
+## 2026-09-14 01:43:55 UTC [target] (model bigpickle)
+[HYP] staging-chat business-namespace join without token ACKs and yields events
 class: AUTH
 asset: staging-chat.rainbet.com/socket.io/
-confidence: 60
-reasoning: EIO4 polling 200/116B fresh anonymous sid this round (VnbcE6gC0O_8IkeuAABn, x-do-orig-status:200, app 1ce4ff55); root `40` CONNECT has ACKed socket-level sids on 5+ prior rounds while same-app staging-alerts rejects `44 er_auth_token_invalid` — per-hostname auth asymmetry proven. All prior WS listens died at pingTimeout (~25-45s) because the client never ponged `2`→`3`; zero business frames is inconclusive, not negative.
-evidence_needed: server-initiated `42[...]` frame (raffle draw/alert/win) delivered to the anonymous session after ≥60s of answering engine.io pings
-verify_steps: GET /socket.io/?EIO=4&transport=polling → capture sid → WS upgrade 101 wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid> → send `40` CONNECT root → reply `3` to every `2` ping → listen ≥60s for `42[...]`; listen-only, 1 connection, ≤1 rps (pong/CONNECT are transport protocol, not data mutations)
-impact: unauthenticated read of live bet/raffle/wallet event stream on production DO app — pre-auth intelligence/info disclosure; HIGH, egress-gated
+confidence: 45
+reasoning: Root namespace ACKs anonymous CONNECT (confirmed this round, ACK + 75s stable with pongs) while same-app staging-alerts rejects at namespace layer (`44 er_auth_token_invalid`); earlier /raffles+/alerts ACK claims were methodologically invalid (enum-after-close), never re-tested enum-before-listen. Root delivered zero business frames on fair egress — data may be gated behind business namespaces.
+evidence_needed: `40/raffles,{}` and `40/alerts,{}` (empty/anon token, enum-before-listen) each ACKing socket-level sid, then ≥1 server-initiated `42[...]` on that namespace within 60s pong-kept session
+verify_steps: GET /socket.io/?EIO=4&transport=polling → sid; WS upgrade ?EIO=4&transport=websocket&sid=<sid>; `2probe`→`3probe`→`5`; `40` root; after root ack send `40/raffles,{}` then `40/alerts,{}`; pong every `2`; listen 60s per namespace for `42`; ~5 frames total, ≤1 rps
+impact: anonymous read of raffle/alert channel; informational-to-HIGH depending on frame content, currently UNproven — HIGH, namespace-gated
 testability: AUTH_HELPED
 [HYP] staging-services CORS reflector unlocks on any 2xx mount
 class: MISCONFIG
 asset: staging-services.rainbet.com
 confidence: 45
-reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated reconfirmed on /api/v1/raffles (7th path, all 404/33B); /docs Access-gated (302 on openapi.json/api-json) proves a protected data surface exists on same app 1ce4ff55; any future 2xx route inherits the reflector.
-evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
-verify_steps: 1-2 probes/round on untested prefixes (/api/v1/wallet, /api/v1/profile, /api/v1/bets, /api/internal, /api/v2/) with Origin: https://evil.example + Accept: application/json (≤1 rps); flag 2xx+ACAO on any
-impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + expose Cf-Mitigated reconfirmed this round on /health (404/33B, x-powered-by:Express, app 1ce4ff55); /docs Access-gated (302, kid a89d8b80) proves a protected data surface on same app; 18+ rounds, no 2xx mount yet.
+evidence_needed: one GET 2xx with ACAO-reflect + allow-credentials in same response
+verify_steps: 1-2 probes/round on untested prefixes (/api/v1/wallet, /api/v1/bets, /api/v2/, /api/internal) Origin https://evil.example + Accept: application/json (≤1 rps); flag any 2xx+ACAO
+impact: credentialed cross-origin read of wallet/bet data if mounted; HIGH, deploy-gated
 testability: PASSIVE
 [HYP] api per-class GET gap opens during WAF churn window
 class: MISCONFIG
 asset: api.rainbet.com
 confidence: 40
-reasoning: GET /api/v1/public/ping flipped 110KB challenge → 5483B plain block between 21:25 and this round's probe — churn is operator-driven and live (17+ rounds); both path classes OPTIONS-exempt (200 + x-do-orig-status:200 on /openapi.json and /robots.txt reconfirmed). GET remains uniformly 403; a content-method window on either class could transiently open.
-evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either class during a churn window
-verify_steps: 1x/round class-pair watch at 0.3 rps: GET /api/v1/public/ping (API-class), GET /robots.txt (static-class), OPTIONS /openapi.json (state marker); flag non-403 + x-do-orig-status
-impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+reasoning: 18+ rounds of 110KB↔5485B flips prove live operator rule edits; this round both classes plain-blocked 5482B/4544B (static class 2B smaller than last round's 4545B → template still mutating); OPTIONS blanket-exempt both classes; GET uniformly 403.
+evidence_needed: any non-403 method-class response with x-do-orig-status during churn
+verify_steps: 0.3 rps class-pair watch: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json state marker
+impact: origin API reachable → route enumeration; HIGH, churn-gated
 testability: PASSIVE
-[NEXT] PROBE: fair-egress WS+pong listen on staging-chat — GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` → capture sid; WS upgrade (101) `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>`; send socket.io `40` CONNECT (root); reply `3` to every engine.io `2` ping; keep alive ≥60s while watching for server-initiated `42[...]` business frame. Listen-only, 1 connection. Requires interactive WS client — do NOT run from passive curl.
-[RISK] RainBet: 32/100 — flat, no escalation. api WAF in plain-block mode, GET 403 both classes, OPTIONS CORS-neutral (17+ rounds); only live thread is the chat WS+pong fair-egress test (once proven: staging-chat returns live published events, else entire socket finding stays theoretical); services CORS reflector now 7/7 paths but still latent behind 404s; raffles /health version-only; staging Access closed; monorepo route-less; 17/20 inventory dead. Standing findings ≤CVSS 7.3, all previously reported. Monitoring-only.
+[NEXT] PROBE: namespace enum-before-listen on staging-chat — polling sid → WS upgrade → `2probe/3probe/5` → `40` root → on ACK send `40/raffles,{}` then `40/alerts,{}`; pong every `2`; 60s listen per namespace for `42[...]`. Interactive WS client (node /tmp/opencode/egress_ws.mjs pattern), ~5 frames total, ≤1 rps, listen-only.
+[RISK] RainBet: 30/100 — flat-to-down. Decisive thread weakened: chat anonymous plane proved data-inert on fair egress (session ACK but 0 frames), so highest-confidence HIGH downgrades to medium config-asymmetry (alerts 401 vs chat ACK, same DO app). Remaining live threads all gated: chat business-namespace join (unproven), services CORS reflector behind 404s, api WAF churn GET gap (18+ rounds unobserved). Standings ≤CVSS 7.3, all previously reported. Monitoring-only; no escalation.
