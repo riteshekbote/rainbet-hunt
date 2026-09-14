@@ -1,5 +1,5 @@
-## 2026-09-14 07:10:46 UTC [target] (model nemotron3)
-[PRIO] staging-chat.rainbet.com/socket.io,9.55,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
+## 2026-09-14 14:25:21 UTC [target] (model nemotron3)
+[PRIO] staging-chat.rainbet.com/socket.io/,9.55,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
 [PRIO] staging-raffles.rainbet.com (6 hostnames on app 1ce4ff55),9.0,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=8,freshness=10
 [PRIO] staging-services.rainbet.com,8.3,attack_surface=7,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
 [PRIO] api.rainbet.com,6.3,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=3,cloud_surface=7,freshness=10
@@ -26,7 +26,7 @@ testability: PASSIVE
 class: MISCONFIG
 asset: staging-services.rainbet.com
 confidence: 75
-reasoning: Path-agnostic CORS reflector confirmed on 6 endpoints (/health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet, /) — all reflect arbitrary Origin in ACAO + allow-credentials:true + access-control-expose-headers:Cf-Mitigated; x-powered-by: Express; all currently return 404 (33B JSON {"error":"er_resource_not_found"}); impact latent until a data-bearing route returns 2xx; same DO app 1ce4ff55 as staging-chat/alerts/raffles
+reasoning: Path-agnostic CORS reflector confirmed on 7 endpoints (/, /health, /api/v1/users, OPTIONS /api/v1, /api/v1/games, /api/v1/profile, /api/v1/wallet) — all reflect arbitrary Origin in ACAO + allow-credentials:true + access-control-expose-headers:Cf-Mitigated; x-powered-by: Express; all currently return 404 (33B JSON {"error":"er_resource_not_found"}); impact latent until a data-bearing route returns 2xx; same DO app 1ce4ff55 as staging-chat/alerts/raffles
 evidence_needed: Discovery of any 2xx response on staging-services (or sibling hostnames on app 1ce4ff55) that returns sensitive data (user PII, wallet, betting state)
 verify_steps: GET https://staging-services.rainbet.com/api/v1/users -H "Origin: https://evil.com" -H "Accept: application/json"; GET https://staging-services.rainbet.com/api/v1/profile -H "Origin: https://evil.com" -H "Accept: application/json"; GET https://staging-services.rainbet.com/api/v1/wallet -H "Origin: https://evil.com" -H "Accept: application/json"; monitor for any 2xx response; if found, test credentialed cross-origin fetch from attacker-controlled origin
 impact: If any authenticated/data endpoint mounts at 2xx, arbitrary origin can read responses with credentials → account takeover, wallet drainage, PII theft. Severity: MEDIUM-HIGH (latent, depends on future route deployment, but reflector is confirmed stable)

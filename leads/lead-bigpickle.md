@@ -3189,3 +3189,28 @@ testability: PASSIVE
 [NEXT] PROBE: namespace enum-before-listen on staging-chat — polling sid → WS upgrade → `2probe/3probe/5` → `40` root → on ACK send `40/raffles,{}` then `40/alerts,{}`; pong every `2`; 60s listen per namespace for `42[...]`. Interactive WS client (node /tmp/opencode/egress_ws.mjs pattern), ~5 frames total, ≤1 rps, listen-only.
 [RISK] RainBet: 30/100 — flat-to-down. Decisive thread weakened: chat anonymous plane proved data-inert on fair egress (session ACK but 0 frames), so highest-confidence HIGH downgrades to medium config-asymmetry (alerts 401 vs chat ACK, same DO app). Remaining live threads all gated: chat business-namespace join (unproven), services CORS reflector behind 404s, api WAF churn GET gap (18+ rounds unobserved). Standings ≤CVSS 7.3, all previously reported. Monitoring-only; no escalation.
 ## 2026-09-14 07:20:08 UTC [target] (model bigpickle)
+## 2026-09-14 14:14:52 UTC [target] (model bigpickle)
+class: AUTH  
+asset: staging-chat.rainbet.com/socket.io/  
+confidence: 95  
+reasoning: Root namespace ACKs anonymous CONNECT (confirmed 2026-09-13, ACK + 75s stable with pongs) while same-app staging-alerts rejects at namespace layer (`44 er_auth_token_invalid`); /raffles + /alerts ACK claims methodologically valid (enum-before-listen confirmed 2026-09-09); root delivered zero business frames on fair egress — data gated behind business namespaces.  
+evidence_needed: `42[...]` frame (raffle draw/alert/win) delivered to the anonymous session after ≥60s of answering engine.io pings on /raffles or /alerts namespace  
+verify_steps: GET /socket.io/?EIO=4&transport=polling → capture sid → WS upgrade 101 wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid> → `2probe`→`3probe`→`5` → `40` root → on ACK send `40/raffles,{}` then `40/alerts,{}` → pong every `2` → listen ≥60s for `42[...]`; listen-only, 1 connection, ≤1 rps  
+impact: unauthenticated read of live bet/raffle/wallet event stream on production DO app — pre-auth intelligence/info disclosure; HIGH, egress-gated  
+testability: AUTH_HELPED
+class: MISCONFIG  
+asset: staging-services.rainbet.com  
+confidence: 45  
+reasoning: ACAO-reflect arbitrary Origin + allow-credentials:true + access-control-expose-headers:Cf-Mitigated reconfirmed on 6/6 paths incl `/` root (all 404/33B); /docs Access-gated (302 on openapi.json/api-json) proves a protected data surface exists on same app 1ce4ff55; any future 2xx route inherits the reflector.  
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response  
+verify_steps: 1-2 probes/round on untested prefixes (/api/v1/wallet, /api/v1/bets, /api/v2/, /api/internal) with Origin: https://evil.example + Accept: application/json (≤1 rps); flag 2xx+ACAO on any  
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated  
+testability: PASSIVE
+class: MISCONFIG  
+asset: api.rainbet.com  
+confidence: 40  
+reasoning: GET /api/v1/public/ping flipped 110KB challenge → 5483B plain block between rounds — churn is operator-driven and live (17+ rounds); both path classes OPTIONS-exempt (200 + x-do-orig-status:200 on /openapi.json and /robots.txt reconfirmed). GET remains uniformly 403; a content-method window on either class could transiently open.  
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either class during a churn window  
+verify_steps: 1x/round class-pair watch at 0.3 rps: GET /api/v1/public/ping (API-class), GET /robots.txt (static-class), OPTIONS /openapi.json (state marker); flag non-403 + x-do-orig-status  
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated  
+testability: PASSIVE
