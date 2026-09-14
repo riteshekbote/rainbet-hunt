@@ -3188,3 +3188,4 @@ impact: origin API reachable → route enumeration; HIGH, churn-gated
 testability: PASSIVE
 [NEXT] PROBE: namespace enum-before-listen on staging-chat — polling sid → WS upgrade → `2probe/3probe/5` → `40` root → on ACK send `40/raffles,{}` then `40/alerts,{}`; pong every `2`; 60s listen per namespace for `42[...]`. Interactive WS client (node /tmp/opencode/egress_ws.mjs pattern), ~5 frames total, ≤1 rps, listen-only.
 [RISK] RainBet: 30/100 — flat-to-down. Decisive thread weakened: chat anonymous plane proved data-inert on fair egress (session ACK but 0 frames), so highest-confidence HIGH downgrades to medium config-asymmetry (alerts 401 vs chat ACK, same DO app). Remaining live threads all gated: chat business-namespace join (unproven), services CORS reflector behind 404s, api WAF churn GET gap (18+ rounds unobserved). Standings ≤CVSS 7.3, all previously reported. Monitoring-only; no escalation.
+## 2026-09-14 07:20:08 UTC [target] (model bigpickle)
