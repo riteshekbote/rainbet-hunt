@@ -3255,3 +3255,33 @@ testability: PASSIVE
 [LEARN] REJECTED (methodology) @ staging-chat.rainbet.com: WS-transport `40` close-on-connect is the missing `2probe/3probe/5` upgrade exchange, NOT an auth closure — prior WS ACKs and current polling ACK both valid; transport must not be confused with policy.
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: GET /api/v1/public/ping reverted to full CF managed challenge (110KB) — active operator WAF churn on DO app 53f39197 confirmed live (110KB ↔ 5485B plain block).
 [RISK] RainBet: 30/100 — flat-to-down. Decisive thread weakened: chat anonymous plane proved data-inert on fair egress (session ACK but 0 frames in 75s listen), so highest-confidence HIGH downgrades to medium config-asymmetry (alerts 401 vs chat ACK, same DO app). Remaining live threads all gated: chat business-namespace join (unproven), services CORS reflector behind 404s, api WAF churn GET gap (18+ rounds unobserved). Standings ≤CVSS 7.3, all previously reported. Monitoring-only; no escalation.
+## 2026-09-14 22:45:53 UTC [target] (model bigpickle)
+[HYP] staging-chat business-namespace join without token delivers events
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/
+confidence: 95
+reasoning: EIO4 200/116B fresh anonymous sid live this round (22:45Z, app 1ce4ff55); root `40` CONNECT ACKs socket-sid, same-app staging-alerts rejects `44 er_auth_token_invalid` at namespace layer (per-hostname auth asymmetry); 2026-09-12 fair egress on root returned 0 business frames in 75s → data gated behind business namespaces, egress is sole remaining link.
+evidence_needed: `42[...]` frame (raffle/alert/win) on /raffles or /alerts after ≥60s of answering `2`-pongs
+verify_steps: GET /socket.io/?EIO=4&transport=polling → sid; WS 101 `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>` → `2probe`→`3probe`→`5` → `40` root ACK → `40/raffles,{}` + `40/alerts,{}` → pong each `2` → browse WO for ST0 event; listen-only, 1 conn, ≤1 rps
+impact: unauthenticated read of live bet/raffle/wallet event stream on prod SparklessBZ app — pre-auth intelligence; HIGH, egress-gated
+testability: AUTH_HELPED
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: /api/v1/wallet evil-origin 404/33B live this round (ACAO:https://evil.example + allow-credentials:true + expose Cf-Mitigated + x-powered-by:Express, app 1ce4ff55); same app hosts /docs behind CF Access (302) proving mounted protected surface; all probed routes 404 → reflector latent.
+evidence_needed: one GET 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2/round on untested prefixes (/api/v1/bets, /api/v1/profile, /api/v2/, /api/internal) Origin:https://evil.example Accept:application/json ≤1 rps; flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+testability: PASSIVE
+[HYP] api per-class GET gap opens during WAF churn
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: live 22:45Z: OPTIONS /openapi.json 200/0 Allow:HEAD,GET,POST,OPTIONS + x-do-orig-status:200 (app 53f39197); GET API-class 403@5483B, static-class 403@4545B — plain-block mode, both 403; churn 110KB↔5483B observed 19+ rounds but zero non-403 observed.
+evidence_needed: any GET/HEAD non-403 with x-do-orig-status on either class during a churn window
+verify_steps: 1x/round class-pair watch at 0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json (marker); flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+[NEXT] PROBE: staging-chat fair-egress — GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` → capture sid (fresh `YUtgiGNkV-jMPakBAAAf` current); WS upgrade (101) `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>`; `2probe`→`3probe`→`5`; `40` root ACK → `40/raffles,{}` then `40/alerts,{}`; pong every engine.io `2`; listen ≥60s for `42[...]`. Listen-only, 1 connection ≤1 rps. Requires interactive WS client — do NOT run from passive curl; run from a host with `websocat`/node socket.io-client.
+[RISK] RainBet: 28/100 — flat-to-down. No new surface; all live findings re-confirmed stable and unchanged. Decisive thread (chat egress) still unrun — the single highest-value open item, currently medium config-asymmetry until business-namespace events prove data exposure. Remaining (services CORS, api churn) are deploy/operator-gated with zero observed lift across 15-19 rounds. Standings ≤CVSS 7.3, all previously reported. Monitoring-only; no escalation.

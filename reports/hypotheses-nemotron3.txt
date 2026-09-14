@@ -1,4 +1,4 @@
-## 2026-09-14 19:34:28 UTC [target] (model nemotron3)
+## 2026-09-14 22:49:14 UTC [target] (model nemotron3)
 [NEW] api.rainbet.com: GET /api/v1/public/ping reverted to full CF managed challenge (110KB) from 5485B plain block — active operator WAF churn confirmed live on DO app 53f39197 (flip observed 2026-09-14)
 [NEW] www.rainbet.com: production front flipped to 5484B plain-block template — plain-block mode now fleet-wide (api/www/monorepo), managed-rule template family not per-host drift
 [NEW] api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough proven class-independent
@@ -10,11 +10,11 @@
 [CHANGED] api.rainbet.com: WAF frozen at plain-block 5484B (no cf-mitigated) + OPTIONS exemption fully stable — no operator churn window observed this round
 [PRIO] staging-chat.rainbet.com/socket.io/,9.55,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
 [PRIO] staging-raffles.rainbet.com (6 hostnames on app 1ce4ff55),9.0,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=8,freshness=10
-[PRIO] staging-services.rainbet.com,8.3,attack_surface=7,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
 [PRIO] staging-alerts.rainbet.com/socket.io/,8.8,attack_surface=8,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=10
+[PRIO] staging-services.rainbet.com,8.3,attack_surface=7,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
 [PRIO] api.rainbet.com,6.3,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=3,cloud_surface=7,freshness=10
 [PRIO] staging-monorepo.rainbet.com,5.8,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=5,cloud_surface=6,freshness=9
-[HYP] staging-chat.rainbet.com socket.io root + /raffles + /alerts namespaces accept unauthenticated CONNECT enabling full session establishment and event emission
+[HYP] staging-chat.rainbet.com socket.io root + business namespaces accept unauthenticated CONNECT enabling full session establishment and event emission
 class: AUTH
 asset: staging-chat.rainbet.com/socket.io/
 confidence: 95
