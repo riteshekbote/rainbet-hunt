@@ -255,3 +255,12 @@ reasoning: RainBet does not maintain a public GitHub org. No candidate repos exi
 impact: none
 verify_steps: N/A — no candidates to verify
 TARGET_ORG not configured for rainbet; skipping public-org deep scan.
+## REPOSCAN 2026-09-14 22:16:42 UTC
+[HYP] No source-code findings — zero public repos in rainbet GitHub org
+class: OTHER
+asset: github.com/rainbet (org)
+confidence: 100
+reasoning: |
+impact: N/A — cannot produce findings from non-existent source code
+verify_steps: |
+TARGET_ORG not configured for rainbet; skipping public-org deep scan.
