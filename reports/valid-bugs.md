@@ -55,3 +55,9 @@
   - | 2 | rainbet-com-rabbitmq internet-exposed brokers (management 15672 + AMQP 5672) | 7.3 | VALID |
   - | 3 | Staging pocket app (DO app 1ce4ff55) unprotected origin | 5.3 | VALID |
   - | 4 | staging-services reflected CORS (credentials:true on 4+ paths) | 5.3 | VALID |
+
+- 4 lead(s) marked VALID at 2026-09-14 13:21:13 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID (Low)**
+  - | 1 | staging-chat unauthenticated socket.io | **VALID** | 5.3 (Medium) | Real unauthenticated session on staging |
+  - | 3 | staging-raffles /health origin leak | **VALID** (Low) | 3.7 (Low) | Version + DO infra info disclosure |
