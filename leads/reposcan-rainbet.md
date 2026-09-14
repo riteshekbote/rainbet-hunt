@@ -237,3 +237,12 @@ TARGET_ORG not configured for rainbet; skipping public-org deep scan.
 TARGET_ORG not configured for rainbet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-14 06:26:41 UTC
 TARGET_ORG not configured for rainbet; skipping public-org deep scan.
+## REPOSCAN 2026-09-14 13:19:12 UTC
+[HYP] <none>
+class: N/A
+asset: N/A
+confidence: N/A
+reasoning: No org candidate repos were provided in cands.txt ("no org candidates"). scope.yml also lists github_orgs as "none-configured". There is nothing to clone or grep.
+impact: N/A
+verify_steps: N/A
+TARGET_ORG not configured for rainbet; skipping public-org deep scan.
