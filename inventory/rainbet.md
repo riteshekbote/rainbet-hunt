@@ -763,3 +763,5 @@ www.rainbet.com
 - CHANGED staging-chat.rainbet.com/socket.io: engine.io polling 200/116B fresh anonymous sid (x-do-orig-status:200) — anonymous plane persists; fair egress test (with pong) remains decisive step
 - CHANGED staging-monorepo.rainbet.com: /docs flipped to CF managed challenge (110KB) from 5483B plain block — WAF front fluctuates on app bc240b8a
 - CHANGED staging.rainbet.com: /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — gap CLOSED, pre-auth CORS-neutral
+
+## 2026-09-15 12:01:03 UTC

@@ -23435,3 +23435,259 @@ testability: PASSIVE
 ## STEP 7 — RISK
 
 [RISK] RainBet: 28/100 — flat-to-down. No new surface; all live findings reconfirmed stable. Decisive thread (chat fair-egress with pong) is the single highest-value open item — chat plane is UP (200/116B) so window is open. Remaining threads (services CORS, api churn) are deploy/operator-gated with zero observed lift across 20+ rounds. Standings ≤CVSS 7.3, all previously reported. Monitoring-only; no escalation.
+===== ANALYST bigpickle 2026-09-15 12:01:03 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u +%Y-%m-%dT%H:%M:%SZ
+2026-09-15T11:56:31Z
+[0m
+[0m$ [0mls -la /home/runner/work/rainbet-hunt/rainbet-hunt/
+total 508
+drwxr-xr-x 12 runner runner   4096 Sep 15 11:55 .
+drwxr-xr-x  3 runner runner   4096 Sep 15 11:55 ..
+drwxr-xr-x  7 runner runner   4096 Sep 15 11:55 .git
+drwxr-xr-x  3 runner runner   4096 Sep 15 11:55 .github
+-rw-r--r--  1 runner runner   1696 Sep 15 11:55 README.md
+-rw-r--r--  1 runner runner     96 Sep 15 11:56 analyst-out.txt
+-rw-r--r--  1 runner runner 198614 Sep 15 11:55 analyst-prompt.txt
+-rw-r--r--  1 runner runner 194829 Sep 15 11:55 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 15 11:55 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 15 11:55 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 15 11:55 leads
+-rw-r--r--  1 runner runner  35858 Sep 15 11:55 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 15 11:55 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 15 11:55 reports
+drwxr-xr-x  2 runner runner   4096 Sep 15 11:55 reposcan-raw
+-rw-r--r--  1 runner runner   3198 Sep 15 11:55 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 15 11:55 scripts
+-rw-r--r--  1 runner runner     33 Sep 15 11:55 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 15 11:55 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 15 11:55 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 15 11:55 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 15 11:55 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 15 11:55 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 15 11:55 triage
+[0m
+[0m$ [0mls -la /home/runner/work/rainbet-hunt/rainbet-hunt/leads/ /home/runner/work/rainbet-hunt/rainbet-hunt/knowledge/ /home/runner/work/rainbet-hunt/rainbet-hunt/scripts/ /home/runner/work/rainbet-hunt/rainbet-hunt/triage/ 2>/dev/null
+/home/runner/work/rainbet-hunt/rainbet-hunt/knowledge/:
+total 92
+drwxr-xr-x  2 runner runner  4096 Sep 15 11:55 .
+drwxr-xr-x 12 runner runner  4096 Sep 15 11:55 ..
+-rw-r--r--  1 runner runner 84163 Sep 15 11:55 index.md
+
+/home/runner/work/rainbet-hunt/rainbet-hunt/leads/:
+total 1324
+drwxr-xr-x  2 runner runner   4096 Sep 15 11:55 .
+drwxr-xr-x 12 runner runner   4096 Sep 15 11:55 ..
+-rw-r--r--  1 runner runner 464530 Sep 15 11:55 lead-bigpickle.md
+-rw-r--r--  1 runner runner   4131 Sep 15 11:55 lead-laguna.md
+-rw-r--r--  1 runner runner   4050 Sep 15 11:55 lead-ling3.md
+-rw-r--r--  1 runner runner   4212 Sep 15 11:55 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep 15 11:55 lead-mimo.md
+-rw-r--r--  1 runner runner 836266 Sep 15 11:55 lead-nemotron3.md
+-rw-r--r--  1 runner runner  13921 Sep 15 11:55 reposcan-rainbet.md
+
+/home/runner/work/rainbet-hunt/rainbet-hunt/scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 15 11:55 .
+drwxr-xr-x 12 runner runner  4096 Sep 15 11:55 ..
+-rw-r--r--  1 runner runner 16987 Sep 15 11:55 sync-issues.py
+
+/home/runner/work/rainbet-hunt/rainbet-hunt/triage/:
+total 432
+drwxr-xr-x  2 runner runner  4096 Sep 15 11:55 .
+drwxr-xr-x 12 runner runner  4096 Sep 15 11:55 ..
+-rw-r--r--  1 runner runner     0 Sep 15 11:55 .gitkeep
+-rw-r--r--  1 runner runner   184 Sep 15 11:55 run-2026-09-02-21-53.md
+-rw-r--r--  1 runner runner   146 Sep 15 11:55 run-2026-09-02-23-52.md
+-rw-r--r--  1 runner runner   171 Sep 15 11:55 run-2026-09-03-03-11.md
+-rw-r--r--  1 runner runner   317 Sep 15 11:55 run-2026-09-03-08-09.md
+-rw-r--r--  1 runner runner   213 Sep 15 11:55 run-2026-09-03-12-52.md
+-rw-r--r--  1 runner runner   519 Sep 15 11:55 run-2026-09-03-16-57.md
+-rw-r--r--  1 runner runner   169 Sep 15 11:55 run-2026-09-03-19-41.md
+-rw-r--r--  1 runner runner   219 Sep 15 11:55 run-2026-09-03-22-19.md
+-rw-r--r--  1 runner runner  4735 Sep 15 11:55 run-2026-09-04-00-14.md
+-rw-r--r--  1 runner runner   181 Sep 15 11:55 run-2026-09-04-04-42.md
+-rw-r--r--  1 runner runner   182 Sep 15 11:55 run-2026-09-04-09-20.md
+-rw-r--r--  1 runner runner   226 Sep 15 11:55 run-2026-09-04-13-45.md
+-rw-r--r--  1 runner runner   161 Sep 15 11:55 run-2026-09-04-17-23.md
+-rw-r--r--  1 runner runner   241 Sep 15 11:55 run-2026-09-04-19-50.md
+-rw-r--r--  1 runner runner   242 Sep 15 11:55 run-2026-09-04-22-09.md
+-rw-r--r--  1 runner runner   185 Sep 15 11:55 run-2026-09-05-00-10.md
+-rw-r--r--  1 runner runner  4310 Sep 15 11:55 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner   201 Sep 15 11:55 run-2026-09-05-08-35.md
+-rw-r--r--  1 runner runner   861 Sep 15 11:55 run-2026-09-05-12-02.md
+-rw-r--r--  1 runner runner   163 Sep 15 11:55 run-2026-09-05-15-20.md
+-rw-r--r--  1 runner runner   307 Sep 15 11:55 run-2026-09-05-17-24.md
+-rw-r--r--  1 runner runner   228 Sep 15 11:55 run-2026-09-05-19-27.md
+-rw-r--r--  1 runner runner   181 Sep 15 11:55 run-2026-09-05-21-41.md
+-rw-r--r--  1 runner runner   211 Sep 15 11:55 run-2026-09-05-23-34.md
+-rw-r--r--  1 runner runner 10063 Sep 15 11:55 run-2026-09-06-01-20.md
+-rw-r--r--  1 runner runner 11916 Sep 15 11:55 run-2026-09-06-06-05.md
+-rw-r--r--  1 runner runner  8617 Sep 15 11:55 run-2026-09-06-11-08.md
+-rw-r--r--  1 runner runner   169 Sep 15 11:55 run-2026-09-06-14-13.md
+-rw-r--r--  1 runner runner   196 Sep 15 11:55 run-2026-09-06-17-08.md
+-rw-r--r--  1 runner runner   184 Sep 15 11:55 run-2026-09-06-19-16.md
+-rw-r--r--  1 runner runner   167 Sep 15 11:55 run-2026-09-06-21-26.md
+-rw-r--r--  1 runner runner   172 Sep 15 11:55 run-2026-09-06-23-07.md
+-rw-r--r--  1 runner runner   189 Sep 15 11:55 run-2026-09-07-01-05.md
+-rw-r--r--  1 runner runner   319 Sep 15 11:55 run-2026-09-07-06-10.md
+-rw-r--r--  1 runner runner   155 Sep 15 11:55 run-2026-09-07-12-44.md
+-rw-r--r--  1 runner runner  8345 Sep 15 11:55 run-2026-09-07-18-08.md
+-rw-r--r--  1 runner runner   184 Sep 15 11:55 run-2026-09-07-21-35.md
+-rw-r--r--  1 runner runner   199 Sep 15 11:55 run-2026-09-07-23-44.md
+-rw-r--r--  1 runner runner   234 Sep 15 11:55 run-2026-09-08-03-18.md
+-rw-r--r--  1 runner runner   157 Sep 15 11:55 run-2026-09-08-08-12.md
+-rw-r--r--  1 runner runner   211 Sep 15 11:55 run-2026-09-08-12-55.md
+-rw-r--r--  1 runner runner 14196 Sep 15 11:55 run-2026-09-08-17-09.md
+-rw-r--r--  1 runner runner   269 Sep 15 11:55 run-2026-09-08-19-56.md
+-rw-r--r--  1 runner runner   246 Sep 15 11:55 run-2026-09-08-22-27.md
+-rw-r--r--  1 runner runner   496 Sep 15 11:55 run-2026-09-09-00-34.md
+-rw-r--r--  1 runner runner   156 Sep 15 11:55 run-2026-09-09-05-12.md
+-rw-r--r--  1 runner runner   169 Sep 15 11:55 run-2026-09-09-09-51.md
+-rw-r--r--  1 runner runner   182 Sep 15 11:55 run-2026-09-09-14-11.md
+-rw-r--r--  1 runner runner   202 Sep 15 11:55 run-2026-09-09-17-52.md
+-rw-r--r--  1 runner runner 13155 Sep 15 11:55 run-2026-09-09-20-31.md
+-rw-r--r--  1 runner runner   285 Sep 15 11:55 run-2026-09-09-22-44.md
+-rw-r--r--  1 runner runner   211 Sep 15 11:55 run-2026-09-10-00-52.md
+-rw-r--r--  1 runner runner   143 Sep 15 11:55 run-2026-09-10-05-39.md
+-rw-r--r--  1 runner runner   152 Sep 15 11:55 run-2026-09-10-10-02.md
+-rw-r--r--  1 runner runner   213 Sep 15 11:55 run-2026-09-10-14-30.md
+-rw-r--r--  1 runner runner   206 Sep 15 11:55 run-2026-09-10-17-51.md
+-rw-r--r--  1 runner runner   236 Sep 15 11:55 run-2026-09-10-20-28.md
+-rw-r--r--  1 runner runner   217 Sep 15 11:55 run-2026-09-10-22-45.md
+-rw-r--r--  1 runner runner   196 Sep 15 11:55 run-2026-09-11-00-50.md
+-rw-r--r--  1 runner runner   143 Sep 15 11:55 run-2026-09-11-05-39.md
+-rw-r--r--  1 runner runner   211 Sep 15 11:55 run-2026-09-11-10-00.md
+-rw-r--r--  1 runner runner   162 Sep 15 11:55 run-2026-09-11-14-29.md
+-rw-r--r--  1 runner runner   179 Sep 15 11:55 run-2026-09-11-17-53.md
+-rw-r--r--  1 runner runner   163 Sep 15 11:55 run-2026-09-11-20-32.md
+-rw-r--r--  1 runner runner   256 Sep 15 11:55 run-2026-09-11-22-46.md
+-rw-r--r--  1 runner runner   172 Sep 15 11:55 run-2026-09-12-00-56.md
+-rw-r--r--  1 runner runner   256 Sep 15 11:55 run-2026-09-12-05-27.md
+-rw-r--r--  1 runner runner  1074 Sep 15 11:55 run-2026-09-12-09-34.md
+-rw-r--r--  1 runner runner  2004 Sep 15 11:55 run-2026-09-12-13-07.md
+-rw-r--r--  1 runner runner   679 Sep 15 11:55 run-2026-09-12-16-22.md
+-rw-r--r--  1 runner runner   580 Sep 15 11:55 run-2026-09-12-18-44.md
+-rw-r--r--  1 runner runner   928 Sep 15 11:55 run-2026-09-12-21-14.md
+-rw-r--r--  1 runner runner  2460 Sep 15 11:55 run-2026-09-12-23-05.md
+-rw-r--r--  1 runner runner   164 Sep 15 11:55 run-2026-09-13-01-07.md
+-rw-r--r--  1 runner runner   146 Sep 15 11:55 run-2026-09-13-06-17.md
+-rw-r--r--  1 runner runner   181 Sep 15 11:55 run-2026-09-13-12-03.md
+-rw-r--r--  1 runner runner   178 Sep 15 11:55 run-2026-09-13-16-26.md
+-rw-r--r--  1 runner runner   174 Sep 15 11:55 run-2026-09-13-18-56.md
+-rw-r--r--  1 runner runner   170 Sep 15 11:55 run-2026-09-13-21-15.md
+-rw-r--r--  1 runner runner   198 Sep 15 11:55 run-2026-09-13-23-13.md
+-rw-r--r--  1 runner runner   193 Sep 15 11:55 run-2026-09-14-01-12.md
+-rw-r--r--  1 runner runner   185 Sep 15 11:55 run-2026-09-14-06-25.md
+-rw-r--r--  1 runner runner 10800 Sep 15 11:55 run-2026-09-14-13-21.md
+-rw-r--r--  1 runner runner   200 Sep 15 11:55 run-2026-09-14-18-43.md
+-rw-r--r--  1 runner runner   183 Sep 15 11:55 run-2026-09-14-22-16.md
+-rw-r--r--  1 runner runner   241 Sep 15 11:55 run-2026-09-15-00-42.md
+-rw-r--r--  1 runner runner   299 Sep 15 11:55 run-2026-09-15-05-53.md
+-rw-r--r--  1 runner runner   147 Sep 15 11:55 run-2026-09-15-11-12.md
+[0m
+[0m→ [0mRead triage/run-2026-09-15-11-12.md
+[0m→ [0mRead state_bigpickle.json
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "chat_eio_code=%{http_code} len=%{size_download}\n" --max-time 15 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" ; sleep 1; curl -s -D- --max-time 15 -H "Origin: https://evil.example" "https://staging-services.rainbet.com/health" -o /dev/null | grep -iE "^HTTP|access-control-allow-origin|access-control-allow-credentials|x-powered-by|x-do-orig-status|content-type" | head -20
+chat_eio_code=200 len=116
+HTTP/2 404 
+content-type: application/json; charset=utf-8
+x-powered-by: Express
+x-do-orig-status: 404
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil.example
+[0m
+[0m$ [0mcurl -s -D- --max-time 15 -X OPTIONS "https://api.rainbet.com/openapi.json" -o /dev/null | grep -iE "^HTTP|^allow|access-control|x-do-orig-status|x-do-app-origin" ; sleep 1; curl -s -D- --max-time 15 -X OPTIONS "https://api.rainbet.com/robots.txt" -o /dev/null | grep -iE "^HTTP|^allow|x-do-orig-status"
+HTTP/2 200 
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+HTTP/2 200 
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "raffles_health=%{http_code} len=%{size_download}\n" --max-time 15 "https://staging-raffles.rainbet.com/health" ; sleep 1; curl -s -o /dev/null -w "api_ping=%{http_code} len=%{size_download} cf_mitigated_header=%{header_json}\n" --max-time 15 -w "code=%{http_code} len=%{size_download}\n" "https://api.rainbet.com/api/v1/public/ping" ; curl -s -D- --max-time 15 "https://api.rainbet.com/api/v1/public/ping" -o /dev/null | grep -i "cf-mitigated"
+raffles_health=200 len=75
+code=403 len=5484
+[0m
+[0m$ [0mgrep -rin "rabbitmq" /home/runner/work/rainbet-hunt/rainbet-hunt/leads/lead-bigpickle.md | tail -5; echo ---; grep -rin "rabbitmq" /home/runner/work/rainbet-hunt/rainbet-hunt/knowledge/index.md | tail -10
+1053:[PARKED] RabbitMQ default-creds: unchanged from last round, AUTH_HELPED blocked, no new evidence — carry forward
+1061:[RISK] RainBet: 69 — Unchanged. 1ce4ff55 anonymous socket/health plane stable on 3+ hostnames; prod api OPTIONS pass-through confirms direct DO origin reachability (app UUID 53f39197) on every non-`/`,`/docs` path while content methods stay 403; staging Access default-deny. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; socket sids issued by design; no creds; RabbitMQ 401 untouched). Mitigating: all content methods closed, socket namespace auth JWT-gated and unverified, staging-originals unmounted. Drivers: next operator WAF content-method edit, slot-originals mount, RabbitMQ default-creds (AUTH_HELPED, highest potential).
+1091:[RISK] RainBet: 62 — Down from 69 (RabbitMQ default-creds driver removed: broker ports closed, guest/guest 401). Staging engine.io plane persists but vhost-isolated, /health remains benign JSON, no content-bearing unprotected route; api OPTIONS pass-through latent-only with content methods WAF-closed and /docs explicitly blocked everywhere; Access default-deny on staging. No customer/employee/financial/auth data accessed (read-only GET/OPTIONS; sids issued by design; single 401 guest probe; refused-mgmt ports). Drivers: new content-bearing vhost mount on 1ce4ff55 or any WAF content-method edit on 53f39197.
+1501:[PARKED] Internet-exposed RabbitMQ management + AMQP on direct DigitalOcean origins: confidence 55 but no confirmed asset (DO IP ranges with open 15672/5672 not yet identified); requires RAG (Shodan/Censys) first to become falsifiable.
+1524:[RISK] RainBet: 85 — Staging pocket app (app 1ce4ff55) confirmed serving real origin API/socket responses on 6 hostnames without any Cloudflare protection (no WAF, no Access, no challenge). Engine.io v4 anonymous sid issuance persists on staging-alerts (200, fresh sid), reappeared on staging-chat, intermittent on staging-socket — WebSocket upgrade CONFIRMED WORKING with captured sid (sid=0gDL_9TQP86sFRNOAACb, upgrades=["websocket"]), enabling session hijack on socket plane across 6 hostnames. API subdomain hardened (only OPTIONS blanket info leak, GET/POST challenged with cf-mitigated) but on DIFFERENT DO app (53f39197). New staging-services (app 1ce4ff55) and staging-monorepo (app bc240b8a) expand attack surface with path-partial Access gaps. RabbitMQ on direct DO origins theoretical but unconfirmed (OSINT needed). Staging.rainbet.com Access gap closed but intermittent drift persists. 9+ live hosts confirmed with significant protections on production; staging fleet partially exposed. Residual risk: Staging origin API/socket enumeration (HIGH), DO direct-origin bypass if FQDN discovered (CRITICAL but unproven), RabbitMQ exposure (CRITICAL if confirmed).
+---
+[0m
+[0m$ [0mwhich websocat wscat node npx python3 2>/dev/null; python3 -c "import websocket" 2>&1 | head -1; node -e "require('ws')" 2>&1 | head -1
+/usr/local/bin/node
+/usr/local/bin/npx
+/usr/bin/python3
+Traceback (most recent call last):
+node:internal/modules/cjs/loader:1433
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "robots=%{http_code} len=%{size_download}\n" --max-time 15 "https://api.rainbet.com/robots.txt"; sleep 1; curl -s -o /dev/null -w "www=%{http_code} len=%{size_download}\n" --max-time 15 -H "Accept: text/html" "https://www.rainbet.com/"
+robots=403 len=4546
+www=403 len=5845
+[0m
+Probes at 11:56Z re-confirmed the live state (GET/OPTIONS only, ≤1 rps): chat EIO4 200/116B, services ACAO-reflect `https://evil.example`+credentials on 404, raffles /health 200/75B, api OPTIONS exemption on both path classes, api GET plain-block both classes, www 403/5845B. No new surface.
+
+## STEP 1 — DELTA
+- CHANGED www.rainbet.com block len 5484→5845B (probable page-length jitter, no body-diff run — non-informative)
+- NO_DELTA otherwise: all top threads re-confirmed stable at 11:56Z (chat plane UP; services reflector 404-gated; raffles 200/75B; api OPTIONS exemption class-independent + GET 403 both classes; staging /health 302 Access).
+- No new live hosts discovered; no previously-unprobed path showed a distinct response.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] staging-chat.rainbet.com/socket.io/, 7.0/10, AUTH(8)+gate(10)+tech(8)+cloud(6)+fresh(7)=7.0
+- [PRIO] api.rainbet.com, 5.8/10, MISCONFIG(6)+gate(5)+churn(7)+cloud(5)+fresh(8)=5.8
+- [PRIO] staging-services.rainbet.com, 4.2/10, MISCONFIG(7)+latent(3)+cloud(5)+gate(5)+fresh(7)=4.2
+
+## STEP 3 — HYPOTHESES
+[HYP] staging-chat fair-egress with pong delivers business frames on root/namespaces
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/
+confidence: 55
+reasoning: EIO4 polling 200/116B fresh anonymous sid live 11:56Z (app 1ce4ff55); root `40` CONNECT ACKs socket-sid across prior rounds; same-app staging-alerts returns `44 er_auth_token_invalid` (per-hostname asymmetry); 2026-09-12 root listen gave 0 business frames in 75s only because client never ponged (server `2` ping then close at pingTimeout); namespace-join reproducibility on WS is unproven (2026-09-12 regressed to 44), so egress is the sole gate.
+evidence_needed: `42[...]` frame (raffle/alert/win) after ≥60s answering every engine.io `2` with `3`
+verify_steps: GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` → capture sid; WS 101 `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>` → send `2probe`→ await `3probe` → `5`; send `40` (root) and `40/raffles,{}` / `40/alerts,{}`; reply `3` to each `2`; listen ≥60s for `42[...]`; 1 conn, ≤1 rps, listen-only
+impact: pre-auth read of live bet/raffle/wallet event stream on production DO app — information disclosure/intel; HIGH, egress-gated
+testability: AUTH_HELPED
+
+[HYP] api per-class GET gap opens during WAF churn
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: 11:56Z GET /api/v1/public/ping 403 len=5484B plain block (no cf-mitigated), GET /robots.txt 403 len=4546B (static class); OPTIONS /openapi.json AND /robots.txt both 200 + x-do-orig-status:200 (app 53f39197) — blanket preflight passthrough live class-independent; 110KB↔5485B flips observed 20+ rounds; GET remains uniformly 403 both classes.
+evidence_needed: any GET/HEAD non-403 with x-do-orig-status on either block class during a churn window
+verify_steps: 1x/round class-pair watch at ≤0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json (state marker); flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: 11:56Z /health evil-origin 404 continues ACAO-reflect `https://evil.example` + allow-credentials:true + x-powered-by:Express + x-do-orig-status:404; all 6 probed paths 404/33B; /docs behind Access (302 on openapi.json/api-json) proves mounted protected surface on app 1ce4ff55 — any future 2xx route inherits reflector.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round on untested prefixes (/api/v1/bets, /api/v1/transactions, /api/v2/) with Origin: https://evil.example + Accept: application/json, ≤1 rps; flag 2xx+ACAO on any
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] api per-class GET gap: confidence=40, 20+ rounds of zero non-403 GET — churn window may never open; REMAINS for passive class-pair watch only.
+- [PARKED] rainbet-com-rabbitmq: no confirmed asset (DO origin ranges with open 15672/5672 unconfirmed) — requires RAG/Shodan to become falsifiable.
+- [FINAL] survivors ranked: (1) staging-chat egress 55 — decisive, tool-gated; (2) staging-services CORS 45 — passive, deploy-gated; (3) api GET gap 40 — passive, churn-gated.
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: staging-chat fair-egress with pong — GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` → capture engine.io sid; WS upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>` → `2probe`/`3probe`/`5` → `40` root plus `40/raffles,{}` and `40/alerts,{}` → reply `3` to every engine.io `2` → listen ≥60s for `42[...]`. Requires interactive WS client (websocat / node socket.io-client); listen-only, 1 connection, ≤1 rps — plane is UP (200/116B at 11:56Z) so the window is open. Not runnable from passive GET/HEAD/OPTIONS probing.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: EIO4 polling 200/116B fresh anonymous sid re-confirmed 11:56Z — anonymous plane UP, egress test window open.
+- [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS /robots.txt (static class) 200 + x-do-orig-status:200 at 11:56Z — blanket class-independent preflight passthrough re-proven; GET 403 both classes (API 5484B, static 4546B), no cf-mitigated.
+- [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health evil-origin 404 ACAO-reflects `https://evil.example` + allow-credentials:true at 11:56Z — reflector persists, still no 2xx mount.
+- [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: /health 200/75B origin JSON live 11:56Z — unprotected origin health stable.
+
+## STEP 7 — RISK
+[RISK] RainBet: 28/100 — flat. No new surface; all live findings re-confirmed at 11:56Z (chat plane UP; services reflector 404-gated; raffles health 200; api OPTIONS exemption class-independent + GET closed both classes). Decisive thread (chat fair-egress with pong) is the single highest-value open item and remains unrun — tool-gated, plane currently open. Remaining threads (services CORS 2xx, api churn GET gap) are deploy/operator-gated with zero observed lift across 20+ rounds. All standings ≤CVSS 7.3, previously reported. Monitoring-only; no escalation.

@@ -1,26 +1,15 @@
-## 2026-09-15 06:17:39 UTC [target] (model nemotron3)
-[NEW] www.rainbet.com: production front flipped to 5484B plain-block template — plain-block mode now fleet-wide (api/www/monorepo), managed-rule template family not per-host drift (2026-09-14 19:34)
-[NEW] api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough proven class-independent (2026-09-14 19:34)
-[NEW] staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin reachable but route-less (2026-09-14 19:34)
-[NEW] staging-chat.rainbet.com: WS-transport `40` close-on-connect is missing `2probe/3probe/5` upgrade exchange, NOT auth closure — prior WS ACKs and polling ACK both valid (2026-09-14 19:34)
-[CHANGED] staging-raffles.rainbet.com: REAL origin JSON stable 200/75B, x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge — 6 hostnames on app 1ce4ff55 confirmed
-[CHANGED] staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control proving same-DO-app auth asymmetry with staging-chat
-[CHANGED] api.rainbet.com: WAF frozen at plain-block 5484B (no cf-mitigated) + OPTIONS exemption fully stable — no operator churn window observed this round
-[CHANGED] staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — reflects arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; all 404/33B, no 2xx across 13+ rounds
-[CHANGED] staging-chat.rainbet.com/socket.io: engine.io polling 200/116B fresh anonymous sid (x-do-orig-status:200) — anonymous plane persists; fair egress test (with pong) remains decisive step
-[CHANGED] staging-monorepo.rainbet.com: /docs flipped to CF managed challenge (110KB) from 5483B plain block — WAF front fluctuates on app bc240b8a
-[CHANGED] staging.rainbet.com: /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — gap CLOSED, pre-auth CORS-neutral
+## 2026-09-15 12:00:53 UTC [target] (model nemotron3)
 [PRIO] staging-chat.rainbet.com/socket.io/,9.55,attack_surface=10,business_value=9,tech_exposure=10,gate_ease=10,cloud_surface=8,freshness=10
-[PRIO] staging-raffles.rainbet.com (6 hostnames on app 1ce4ff55),9.0,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=8,freshness=10
+[PRIO] staging-raffles.rainbet.com (6 hostnames on app 1ce4ff55),9.00,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=8,freshness=10
 [PRIO] staging-alerts.rainbet.com/socket.io/,8.65,attack_surface=8,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=10
-[PRIO] staging-services.rainbet.com,8.3,attack_surface=7,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
-[PRIO] api.rainbet.com,6.3,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=3,cloud_surface=7,freshness=10
+[PRIO] staging-services.rainbet.com,8.30,attack_surface=7,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=8,freshness=9
+[PRIO] api.rainbet.com,6.30,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=3,cloud_surface=7,freshness=10
 [PRIO] staging-monorepo.rainbet.com,5.75,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=5,cloud_surface=6,freshness=9
-[PRIO] staging-cdn.rainbet.com,5.2,attack_surface=4,business_value=5,tech_exposure=3,gate_ease=8,cloud_surface=5,freshness=8
-[PRIO] files.rainbet.com,4.1,attack_surface=3,business_value=5,tech_exposure=2,gate_ease=2,cloud_surface=6,freshness=8
-[PRIO] media.rainbet.com,4.1,attack_surface=3,business_value=5,tech_exposure=2,gate_ease=2,cloud_surface=6,freshness=8
-[PRIO] staging.rainbet.com,4.0,attack_surface=3,business_value=6,tech_exposure=3,gate_ease=2,cloud_surface=7,freshness=8
-[PRIO] www.rainbet.com,3.7,attack_surface=2,business_value=8,tech_exposure=2,gate_ease=1,cloud_surface=7,freshness=8
+[PRIO] staging-cdn.rainbet.com,5.20,attack_surface=4,business_value=5,tech_exposure=3,gate_ease=8,cloud_surface=5,freshness=8
+[PRIO] files.rainbet.com,4.10,attack_surface=3,business_value=5,tech_exposure=2,gate_ease=2,cloud_surface=6,freshness=8
+[PRIO] media.rainbet.com,4.10,attack_surface=3,business_value=5,tech_exposure=2,gate_ease=2,cloud_surface=6,freshness=8
+[PRIO] staging.rainbet.com,4.00,attack_surface=3,business_value=6,tech_exposure=3,gate_ease=2,cloud_surface=7,freshness=8
+[PRIO] www.rainbet.com,3.70,attack_surface=2,business_value=8,tech_exposure=2,gate_ease=1,cloud_surface=7,freshness=8
 [HYP] staging-chat.rainbet.com socket.io root + business namespaces accept unauthenticated CONNECT enabling full session establishment and event emission
 class: AUTH
 asset: staging-chat.rainbet.com/socket.io/
