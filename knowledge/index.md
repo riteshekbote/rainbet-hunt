@@ -404,3 +404,7 @@
 - 2026-09-15 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B anonymous plane persists at 12:05Z (app 1ce4ff55); fair egress test is decisive remaining step.
 - 2026-09-15 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now on 9 paths (added `/api/v1/bets` + `/api/v2/`) — path-agnostic on app 1ce4ff55; still 404, latent.
 - 2026-09-15 ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry.
+- 2026-09-15 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now 12/12 probed paths (added /api/v1/transactions, /api/v1/history, /v1/admin) — path-agnostic on app 1ce4ff55; still 404/33B, latent.
+- 2026-09-15 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped 110KB challenge → 5485B plain block this round (app bc240b8a) — front churn live, no distinct surface.
+- 2026-09-15 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid at this round (x-do-orig-status:200) — plane persists; fair egress test remains decisive.
+- 2026-09-15 ACCEPTED MISCONFIG @ api.rainbet.com: GET 403 len=5485 (API class) / 4547 (static class); OPTIONS /openapi.json 200 + x-do-orig-status:200 — plain-block + blanket exemption stable this round.

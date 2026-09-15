@@ -1565,3 +1565,15 @@
 - LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B anonymous plane persists at 12:05Z (app 1ce4ff55); fair egress test is decisive remaining step.
 - LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now on 9 paths (added `/api/v1/bets` + `/api/v2/`) — path-agnostic on app 1ce4ff55; still 404,
 - LEARN: ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymm
+
+## RANKED HYPOTHESES 2026-09-15 19:54:07 UTC
+- [55] staging-chat.rainbet.com/socket.io/: staging-chat fair-egress with pong delivers business frames on root/namespaces (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: staging-chat fair-egress with pong — GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` → capture engine.io sid; WS upgrade `wss:/
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block mode 5483B (no cf-mitigated) + OPTIONS exemption (200 + Allow + x-do-orig-status:200 + app 53f39197) — both st
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B anonymous plane persists at 12:05Z (app 1ce4ff55); fair egress test is decisive remaining step.
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now on 9 paths (added `/api/v1/bets` + `/api/v2/`) — path-agnostic on app 1ce4ff55; still 404,
+- LEARN: ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymm
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now 12/12 probed paths (added /api/v1/transactions, /api/v1/history, /v1/admin) — path-agnosti
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped 110KB challenge → 5485B plain block this round (app bc240b8a) — front churn live, no distinct s
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid at this round (x-do-orig-status:200) — plane persists; fair egress test rema
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: GET 403 len=5485 (API class) / 4547 (static class); OPTIONS /openapi.json 200 + x-do-orig-status:200 — plain-block + blank

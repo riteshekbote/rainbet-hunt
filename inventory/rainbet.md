@@ -767,3 +767,13 @@ www.rainbet.com
 ## 2026-09-15 12:01:03 UTC
 
 ## 2026-09-15 16:58:21 UTC
+
+## 2026-09-15 19:54:07 UTC
+- CHANGED api.rainbet.com: WAF reverted to full CF managed challenge (110KB) from 5485B plain block at 12:05Z — active operator churn confirmed live on DO app 53f39197 (110KB ↔ 5485B)
+- CHANGED www.rainbet.com: production front flipped to 5484B plain-block template — plain-block mode now fleet-wide (api/www/monorepo), managed-rule template family not per-host drift
+- CHANGED staging-services.rainbet.com: CORS reflector expanded to 9 paths (added `/api/v1/bets` + `/api/v2/`) — path-agnostic on app 1ce4ff55; still 404, latent
+- CHANGED staging-chat.rainbet.com: engine.io v4 200/116B anonymous plane persists; fair egress test (with pong) remains decisive step
+- CHANGED staging-raffles.rainbet.com: REAL origin JSON stable 200/75B — 6 hostnames on app 1ce4ff55 confirmed
+- CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B — plane persists, control for same-DO-app auth asymmetry
+- CHANGED api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough proven class-independent
+- CHANGED staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin reachable but route-less
