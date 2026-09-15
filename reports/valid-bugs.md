@@ -67,3 +67,9 @@
   - | Q5 Novel/unreported? | **No** — already merged into Lead 1 (staging Socket.IO group) in valid-bugs.md |
   - | Q5 Novel/unreported? | **No** — already marked VALID in valid-bugs.md (2026-09-14 13:21, CVSS 3.7 Low) |
   - | Q5 Novel/unreported? | **Borderline** — OPTIONS on /api/v1/ has been observed since 2026-09-03; already noted in lead logs but NOT in valid-bugs.md as a distinct reportable finding |
+
+- 4 lead(s) marked VALID at 2026-09-15 22:21:56 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | Staging pocket app: unprotected origin + anonymous Socket.IO (4 hostnames) | **VALID** | 5.3 |
+  - | 2 | Internet-exposed RabbitMQ brokers (management + AMQP) on direct DO IPs | **VALID** | 7.5 |
