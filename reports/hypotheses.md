@@ -1577,3 +1577,10 @@
 - LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped 110KB challenge → 5485B plain block this round (app bc240b8a) — front churn live, no distinct s
 - LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid at this round (x-do-orig-status:200) — plane persists; fair egress test rema
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: GET 403 len=5485 (API class) / 4547 (static class); OPTIONS /openapi.json 200 + x-do-orig-status:200 — plain-block + blank
+
+## RANKED HYPOTHESES 2026-09-15 22:53:12 UTC
+- [55] staging-chat.rainbet.com/socket.io/: staging-chat fair-egress with pong delivers business frames on root/namespaces (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: staging-chat fair-egress with pong — GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` → capture engine.io sid (plane is UP this 
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid `_2wpjwcU4LwYwyGUAABB` issued this round (x-do-app-origin:1ce4ff55) — plane 
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block stable this round (API 5485 / static 4547, no cf-mitigated); static-class length now identical on api+www (454
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: 17/17 probed prefixes 404/33B this round — zero 2xx lift; reflector remains deploy-gated, latent.

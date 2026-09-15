@@ -408,3 +408,6 @@
 - 2026-09-15 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped 110KB challenge → 5485B plain block this round (app bc240b8a) — front churn live, no distinct surface.
 - 2026-09-15 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid at this round (x-do-orig-status:200) — plane persists; fair egress test remains decisive.
 - 2026-09-15 ACCEPTED MISCONFIG @ api.rainbet.com: GET 403 len=5485 (API class) / 4547 (static class); OPTIONS /openapi.json 200 + x-do-orig-status:200 — plain-block + blanket exemption stable this round.
+- 2026-09-15 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid `_2wpjwcU4LwYwyGUAABB` issued this round (x-do-app-origin:1ce4ff55) — plane persistent, fair-egress window open.
+- 2026-09-15 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block stable this round (API 5485 / static 4547, no cf-mitigated); static-class length now identical on api+www (4547) — fleet-uniform plain-block template; OPTIONS exemption + x-do-orig-status:200 unchanged.
+- 2026-09-15 ACCEPTED MISCONFIG @ staging-services.rainbet.com: 17/17 probed prefixes 404/33B this round — zero 2xx lift; reflector remains deploy-gated, latent.

@@ -24045,3 +24045,120 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] RainBet: 28/100 — flat. All watch items re-confirmed this round (chat plane UP fresh sid; services reflector 404-gated on 12 paths; raffles health 200; api plain-block + OPTIONS exemption stable; monorepo /docs churn continuing). Decisive thread (chat fair-egress with pong) remains the single highest-value open item and is still unrun — tool-gated, plane currently open. Remaining threads (services CORS 2xx, api churn GET gap) are deploy/operator-gated with zero observed lift across 21+ rounds. All standings ≤CVSS 7.3, previously reported; monitoring-only, no escalation.
+===== ANALYST bigpickle 2026-09-15 22:53:12 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mfor u in "https://api.rainbet.com/api/v1/public/ping" "https://api.rainbet.com/robots.txt" "https://www.rainbet.com/robots.txt"; do echo "=== $u ==="; curl -sk -o /dev/null -w "code=%{http_code} len=%{size_download} ct=%{content_type}\n" --max-time 15 "$u"; done
+=== https://api.rainbet.com/api/v1/public/ping ===
+code=403 len=5485 ct=text/html; charset=UTF-8
+=== https://api.rainbet.com/robots.txt ===
+code=403 len=4547 ct=text/html; charset=UTF-8
+=== https://www.rainbet.com/robots.txt ===
+code=403 len=4547 ct=text/html; charset=UTF-8
+[0m
+[0m$ [0mcurl -sk -o /dev/null -w "OPTIONS /openapi.json: code=%{http_code} len=%{size_download}\n" --max-time 15 -X OPTIONS "https://api.rainbet.com/openapi.json"; curl -sk -D - -o /dev/null --max-time 15 -X OPTIONS "https://api.rainbet.com/openapi.json" | grep -iE "x-do-orig|x-do-app|allow|cf-mitigated" | head
+OPTIONS /openapi.json: code=200 len=0
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+[0m
+[0m$ [0mfor h in "staging-chat" "staging-alerts"; do echo "=== $h/socket.io ==="; curl -sk -o /dev/null -w "code=%{http_code} len=%{size_download}\n" --max-time 15 "https://$h.rainbet.com/socket.io/?EIO=4&transport=polling"; done; echo "=== staging-raffles/health ==="; curl -sk -o /dev/null -w "code=%{http_code} len=%{size_download}\n" --max-time 15 "https://staging-raffles.rainbet.com/health"
+=== staging-chat/socket.io ===
+code=200 len=116
+=== staging-alerts/socket.io ===
+code=200 len=116
+=== staging-raffles/health ===
+code=200 len=75
+[0m
+[0m$ [0mecho "=== staging-services /health evil origin ==="; curl -sk -D - -o /dev/null --max-time 15 -H "Origin: https://evil.example" -H "Accept: application/json" "https://staging-services.rainbet.com/health" | grep -iE "access-control|x-powered|HTTP/|^cf-|content-type|x-do"; echo "=== staging-monorepo /docs ==="; curl -sk -o /dev/null -w "code=%{http_code} len=%{size_download}\n" --max-time 15 "https://staging-monorepo.rainbet.com/docs"; echo "=== staging.rainbet.com /health ==="; curl -sk -o /dev/null -w "code=%{http_code} len=%{size_download} loc=%{redirect_url}\n" --max-time 15 "https://staging.rainbet.com/health"
+=== staging-services /health evil origin ===
+HTTP/2 404 
+content-type: application/json; charset=utf-8
+x-powered-by: Express
+cf-cache-status: DYNAMIC
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 404
+access-control-expose-headers: Cf-Mitigated
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil.example
+cf-ray: a3bb2b89cf1398fc-SJC
+=== staging-monorepo /docs ===
+code=403 len=5485
+=== staging.rainbet.com /health ===
+code=302 len=143 loc=https://challenge-5te-pages.cloudflareaccess.com/cdn-cgi/access/login/staging.rainbet.com?kid=a89d8b80649e7c2fb8e0fdabbbb565dbb7032be50005ef4bf0857d2803c43b94&meta=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjA3MzJmMmE2ODE2N2ZlYWMxOGYzNmUxMWM1NjJlMTU4NTcxMWUwMGFjNjk3NjFiYmEwZWU2NGFiMzQwMGNhNzIifQ.eyJ0eXBlIjoibWV0YSIsImF1ZCI6ImE4OWQ4YjgwNjQ5ZTdjMmZiOGUwZmRhYmJiYjU2NWRiYjcwMzJiZTUwMDA1ZWY0YmYwODU3ZDI4MDNjNDNiOTQiLCJob3N0bmFtZSI6InN0YWdpbmcucmFpbmJldC5jb20iLCJyZWRpcmVjdF91cmwiOiIvaGVhbHRoIiwic2VydmljZV90b2tlbl9zdGF0dXMiOmZhbHNlLCJpc193YXJwIjpmYWxzZSwiaXNfZ2F0ZXdheSI6ZmFsc2UsImV4cCI6MTc4OTUxMjcxNCwibmJmIjoxNzg5NTEyNDE0LCJpYXQiOjE3ODk1MTI0MTQsImF1dGhfc3RhdHVzIjoiTk9ORSIsIm10bHNfYXV0aCI6eyJjZXJ0X2lzc3Vlcl9kbiI6IiIsImNlcnRfc2VyaWFsIjoiIiwiY2VydF9pc3N1ZXJfc2tpIjoiIiwiY2VydF9wcmVzZW50ZWQiOmZhbHNlLCJjb21tb25fbmFtZSI6IiIsImF1dGhfc3RhdHVzIjoiTk9ORSJ9LCJyZWFsX2NvdW50cnkiOiJVUyIsImFwcF9zZXNzaW9uX2hhc2giOiI4ZjVlYjE5NjkyODM4ZmI5MWZhYTM4ZWFhYzI5ZmUyMTI2YWU4NjViMTNjZjRjMzdlYTllOWYyMDc3MTk3YmEzIn0.QTe0I5ro8esX2P3S3HAQAIlPHomM4Pdum-8YUsKPrNUu-huCLI6LhFi7gWrGWdHk0N2iTvEct8u1FRAPnlOa--g2Ua0d0QMlH_l-LDCMGFWXh_LsTQwuzX1bohPrp1Yq_7_OfX5Pz8KQER8iJ6tXbiwLniAuADHlAfJ58uR547oW-isMLpArZ0fY4lRrh_opekX8W0JP-M4U_wiT25hFnNkCBc7Pw_DDPaEUgoQQaXzcdQS3LqFYOcSZzYkgWOZNSUO-cCwW0fQxa3qrrpSd65nHznqtu2dN-Hkkljvs__Spgf-2sbID3HSl2ofPqGOl9vlSXr5R74vGs2FQy9qlbw&redirect_url=%2Fhealth
+[0m
+[0m$ [0mecho "=== staging-chat body ==="; curl -sk --max-time 15 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"; echo; echo "=== staging-socket ==="; curl -sk -o /dev/null -w "code=%{http_code} len=%{size_download}\n" --max-time 15 "https://staging-socket.rainbet.com/socket.io/?EIO=4&transport=polling"; echo "=== staging-cdn / ==="; curl -sk -o /dev/null -w "code=%{http_code} len=%{size_download}\n" --max-time 15 "https://staging-cdn.rainbet.com/"
+=== staging-chat body ===
+0{"sid":"_2wpjwcU4LwYwyGUAABB","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+=== staging-socket ===
+code=400 len=40
+=== staging-cdn / ===
+code=404 len=28088
+[0m
+[0m$ [0mfor p in "/api/v1/health" "/api/health" "/metrics" "/socket.io/?EIO=4&transport=polling" "/api/v1/public/ping"; do printf "%-40s" "$p"; curl -sk -o /dev/null -w "code=%{http_code} len=%{size_download}\n" --max-time 15 "https://staging-services.rainbet.com$p"; sleep 1; done
+/api/v1/health                          code=404 len=33
+/api/health                             code=404 len=33
+/metrics                                code=404 len=33
+/socket.io/?EIO=4&transport=polling     code=404 len=33
+/api/v1/public/ping                     code=404 len=33
+[0m
+STEP 1 — DELTA
+NO_DELTA. All watch items re-confirmed in unchanged state this round:
+- api.rainbet.com: plain-block mode — API-class GET /api/v1/public/ping 403 len=5485, static GET /robots.txt 403 len=4547, no cf-mitigated; OPTIONS /openapi.json 200/0B Allow:HEAD,GET,POST,OPTIONS + x-do-orig-status:200 + x-do-app-origin:53f39197 (stable)
+- www.rainbet.com: /robots.txt 403 len=4547 — identical static-class template as api (fleet-uniform plain-block)
+- staging-chat: engine.io 200/116B, fresh anonymous sid `_2wpjwcU4LwYwyGUAABB`, x-do-app-origin:1ce4ff55 — plane UP
+- staging-alerts: 200/116B (control UP); staging-socket: 400 (intermittent); staging-cdn: 404 R2 root
+- staging-raffles /health: 200/75B origin JSON
+- staging-services: /api/v1/health, /api/health, /metrics, /socket.io, /api/v1/public/ping all 404/33B; /health evil-origin still ACAO-reflect `https://evil.example` + credentials:true + expose Cf-Mitigated + x-powered-by:Express + x-do-app-origin:1ce4ff55 — 17/17 paths 404, zero 2xx
+- staging-monorepo /docs: 403 len=5485 plain block
+- staging.rainbet.com /health: 302→Access login (gap CLOSED, kid a89d8b80, auth_status NONE)
+
+STEP 2 — PRIORITIZE
+[PRIO] staging-chat.rainbet.com/socket.io/,7.25,(a7 b7 t8 g9 c4 f8 — anonymous socket plane, unauthenticated namespace CONNECT proven, egress unproven)
+[PRIO] api.rainbet.com,6.75,(a8 b9 t8 g2 c5 f5 — WAF-closed but churn-cycling 110KB↔5485B, OPTIONS oracle live)
+[PRIO] staging-services.rainbet.com,6.20,(a6 b6 t7 g7 c4 f7 — credentialed CORS reflector path-agnostic, deploy-gated)
+
+STEP 3 — HYPOTHESES
+[HYP] staging-chat fair-egress with pong delivers business frames on root/namespaces
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/
+confidence: 55
+reasoning: Fresh anonymous engine.io sid `_2wpjwcU4LwYwyGUAABB` issued this round (200/116B, EIO4, WS upgrade, x-do-app-origin:1ce4ff55); root `40` CONNECT has ACKed an anonymous socket-sid across 5+ rounds; same-DO-app staging-alerts rejects with `44 er_auth_token_invalid` (per-hostname asymmetry); prior 2026-09-12 listens yielded 0 frames only because client never answered the engine.io `2` ping → server closed at pingTimeout; egress after pong is the sole unverified link.
+evidence_needed: `42[...]` frame (raffle/alert/win payload) after ≥60s while answering every engine.io `2` with `3`
+verify_steps: GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling → sid; WS 101 wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid> → `2probe`/`3probe`/`5` → `40` root → `40/raffles,{}` + `40/alerts,{}` → reply `3` to each `2` → listen ≥60s for `42[...]`; 1 conn ≤1 rps, listen-only
+impact: pre-auth read of live bet/raffle/wallet event stream on production DO app — info disclosure/intel; HIGH, egress-gated
+testability: HUMAN_ONLY
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: /health and 16 further probed prefixes all 404/33B but every response reflects evil Origin in ACAO + allow-credentials:true + expose Cf-Mitigated + x-powered-by:Express (app 1ce4ff55); /docs+Swagger seated behind Access 302 proves mounted protected surface exists on the same app; any future 2xx data route inherits credentialed reflection.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in the same response
+verify_steps: 1-2 probes/round on remaining prefixes (/api/v1/wallet, /api/v1/bets, /v2/, /api/v1/auth) with Origin: https://evil.example + Accept: application/json, ≤1 rps; flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+testability: PASSIVE
+[HYP] api per-class GET gap opens during WAF churn
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: This round plain-block stable (API 5485/static 4547, no cf-mitigated) with OPTIONS 200+x-do-orig-status:200 passthrough (app 53f39197); 110KB↔5485B flips observed 20+ rounds; GET remains uniformly 403 on both block classes.
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either block class during a churn window
+verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json; flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] api per-class GET gap: confidence 40 holds on data but 20+ rounds with zero non-403 GET — churn window may never open; passive watch only, no re-prioritization.
+[FINAL] 1) chat fair-egress (55) 2) services CORS 2xx unlock (45) 3) api churn GET gap (40)
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: staging-chat fair-egress with pong — GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` → capture engine.io sid (plane is UP this round, sid `_2wpjwcU4LwYwyGUAABB`); WS upgrade `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<sid>` → `2probe`/`3probe`/`5` → `40` root → `40/raffles,{}` + `40/alerts,{}` → pong each `2` with `3` → listen ≥60s for `42[...]`. Requires interactive WS client (websocat / node socket.io-client); listen-only, 1 conn ≤1 rps. Not runnable from GET/HEAD/OPTIONS.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid `_2wpjwcU4LwYwyGUAABB` issued this round (x-do-app-origin:1ce4ff55) — plane persistent, fair-egress window open.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: plain-block stable this round (API 5485 / static 4547, no cf-mitigated); static-class length now identical on api+www (4547) — fleet-uniform plain-block template; OPTIONS exemption + x-do-orig-status:200 unchanged.
+[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: 17/17 probed prefixes 404/33B this round — zero 2xx lift; reflector remains deploy-gated, latent.
+
+STEP 7 — RISK
+[RISK] RainBet: 28/100 — flat. All watch items re-confirmed this round (chat plane UP, fresh sid; alerts control UP; services reflector 404-gated at 17/17 paths; raffles health 200/75B; api plain-block + OPTIONS exemption stable; monorepo /docs plain block; staging Access gap CLOSED 302). Decisive thread (chat fair-egress with pong) remains the single highest-value open item, still unrun — tool-gated, plane currently open. Remaining threads (services CORS 2xx, api churn GET gap) are deploy/operator-gated with zero observed lift across 20+ rounds. All standings ≤CVSS 7.3, previously reported; monitoring-only, no escalation.

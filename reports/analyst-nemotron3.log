@@ -10855,3 +10855,42 @@ STEP 1 — DELTA:
 EOF
 cat /tmp/delta_analysis.txt failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST nemotron3 2026-09-15 22:53:12 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{content_length} %{header_x-do-orig-status} %{header_x-do-app-origin}\n" -H "Accept: application/json" "https://api.rainbet.com/api/v1/public/ping" --max-time 10
+curl: unknown --write-out variable: 'content_length'
+curl: unknown --write-out variable: 'header_x-do-orig-status'
+curl: unknown --write-out variable: 'header_x-do-app-origin'
+403
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null "https://api.rainbet.com/api/v1/public/ping" -H "Accept: application/json" --max-time 10 | head -20
+HTTP/2 403 
+date: Tue, 15 Sep 2026 22:50:49 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=GXgTf.cR8DFkPdiNrdWVghe_2Bge_JtZWgL_m8LrNLA-1789512649.7219748-1.0.1.1-LNQ6DxOUVKKtdZVHnM42PMLblAbu9kzEiHSKa4nARcuoQPoUrQKiKBIINkLEGdeB0.ubGokagWVcjrx1SGB.HOKgbuQnIUw6_C.d6BPPTZHIueW4samjTIBhcQSYDsvk; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 15 Sep 2026 23:20:49 GMT
+server: cloudflare
+cf-ray: a3bb314ccd0999ad-IAD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -X OPTIONS -D - -o /dev/null "https://api.rainbet.com/openapi.json" -H "Origin: https://evil.com" -H "Access-Control-Request-Method: GET" --max-time 10 | head -20
+HTTP/2 200 
+date: Tue, 15 Sep 2026 22:51:39 GMT
+content-type: application/json
+content-length: 0
+server: cloudflare
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=E43Ijt40dlTPmmmnbw9ubP0FZmqXNB7YFcxkWRI3Y3A-1789512699.2641068-1.0.1.1-RHplHcyM8KLVASm_gUXEbsg8G4OTN9iDhbn6fpi1M7vITLSvqb4kk3xUpD6Z7EvCXx581ehPqJ6HJDzR3jkb9IOsNGPifVqpF0U75oRUCYWpTVk_ElMK80xE9Bo4bhnK; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Tue, 15 Sep 2026 23:21:39 GMT
+cf-ray: a3bb32826f7799ad-IAD
+alt-svc: h3=":443"; ma=86400
+[0m
+[91m[1mError: [0m{"message":"Streaming response failed: [502] Upstream error from Nvidia: Service temporarily overloaded","type":"server_error"}

@@ -722,3 +722,7 @@ https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` -> HTTP 400
 ## 2026-09-15 19:54:09 UTC
 https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` -> HTTP 400
 https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 len=116
+
+## 2026-09-15 22:53:15 UTC
+https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling -> 200 len=116
+https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` -> HTTP 400

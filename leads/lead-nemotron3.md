@@ -4470,3 +4470,4 @@ testability: PASSIVE
 [CHANGED] staging-alerts.rainbet.com: engine.io v4 stable 200/116B — plane persists, control for same-DO-app auth asymmetry
 [CHANGED] api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough proven class-independent
 [CHANGED] staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin reachable but route-less
+## 2026-09-15 22:53:04 UTC [target] (model nemotron3)
