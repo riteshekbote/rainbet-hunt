@@ -396,3 +396,7 @@
 - 2026-09-15 REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
 - 2026-09-15 ACCEPTED MISCONFIG @ api.rainbet.com: CF block page present but `cf-mitigated` header absent (unlike www.rainbet.com) — different CF WAF configurations per subdomain creates potential inconsistency
 - 2026-09-15 ACCEPTED AUTH @ staging.rainbet.com: CF Access JWT contains `auth_status: NONE` and `is_wrap: false` — Access policy may be permissive or misconfigured
+- 2026-09-15 ACCEPTED AUTH @ staging-chat.rainbet.com: anonymous root CONNECT ACK persists via polling while staging-alerts rejects `44 er_auth_token_invalid` — per-hostname auth asymmetry re-confirmed (same DO app 1ce4ff55).
+- 2026-09-15 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption covers BOTH path classes — blanket preflight passthrough proven class-independent; GET remains 403 both classes.
+- 2026-09-15 ACCEPTED MISCONFIG @ www.rainbet.com: production front flipped to 5484B plain-block template — fleet-wide, not per-host drift.
+- 2026-09-15 REJECTED (methodology) @ staging-chat.rainbet.com: WS-transport `40` close-on-connect is missing upgrade exchange, NOT auth closure.
