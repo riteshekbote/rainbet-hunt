@@ -1555,3 +1555,13 @@
 - LEARN: REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: CF block page present but `cf-mitigated` header absent (unlike www.rainbet.com) — different CF WAF configurations per subd
 - LEARN: ACCEPTED AUTH @ staging.rainbet.com: CF Access JWT contains `auth_status: NONE` and `is_wrap: false` — Access policy may be permissive or misconfigured
+
+## RANKED HYPOTHESES 2026-09-15 16:58:21 UTC
+- [95] staging-chat.rainbet.com/socket.io/: staging-chat.rainbet.com socket.io root + business namespaces accept unauthenticated CONNECT enabling full session establishment and event emission (from art/lead_nemotron3.txt)
+- [55] staging-chat.rainbet.com/socket.io/: staging-chat fair-egress with pong delivers business frames on root/namespaces (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: staging-chat fair-egress with pong — GET `https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling` → capture engine.io sid; WS upgrade `wss:/
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling → capture engine.io sid; WebSocket upgrade to wss://staging-chat.rainbet.com/sock
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block mode 5483B (no cf-mitigated) + OPTIONS exemption (200 + Allow + x-do-orig-status:200 + app 53f39197) — both st
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B anonymous plane persists at 12:05Z (app 1ce4ff55); fair egress test is decisive remaining step.
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now on 9 paths (added `/api/v1/bets` + `/api/v2/`) — path-agnostic on app 1ce4ff55; still 404,
+- LEARN: ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymm

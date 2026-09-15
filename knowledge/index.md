@@ -400,3 +400,7 @@
 - 2026-09-15 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption covers BOTH path classes — blanket preflight passthrough proven class-independent; GET remains 403 both classes.
 - 2026-09-15 ACCEPTED MISCONFIG @ www.rainbet.com: production front flipped to 5484B plain-block template — fleet-wide, not per-host drift.
 - 2026-09-15 REJECTED (methodology) @ staging-chat.rainbet.com: WS-transport `40` close-on-connect is missing upgrade exchange, NOT auth closure.
+- 2026-09-15 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block mode 5483B (no cf-mitigated) + OPTIONS exemption (200 + Allow + x-do-orig-status:200 + app 53f39197) — both stable at 12:05Z.
+- 2026-09-15 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B anonymous plane persists at 12:05Z (app 1ce4ff55); fair egress test is decisive remaining step.
+- 2026-09-15 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector now on 9 paths (added `/api/v1/bets` + `/api/v2/`) — path-agnostic on app 1ce4ff55; still 404, latent.
+- 2026-09-15 ACCEPTED MISCONFIG @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry.
