@@ -726,3 +726,27 @@ www.rainbet.com
 - CHANGED staging-raffles.rainbet.com: REAL origin JSON stable 200/75B (`{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`), x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Acce
 - CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control proving same-DO-app auth asymmetry with staging-chat
 - CHANGED api.rainbet.com: WAF frozen at plain-block 5484B (no cf-mitigated) + OPTIONS exemption fully stable — no operator churn window observed this round
+
+## 2026-09-15 01:30:11 UTC
+- NEW www.rainbet.com: production front flipped to 5484B plain-block template — plain-block mode now fleet-wide (api/www/monorepo), managed-rule template family not per-host drift (2026-09-14 19:34)
+- NEW api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough proven class-independent (2026-09-14 19:34)
+- NEW staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin reachable but route-less (2026-09-14 19:34)
+- NEW staging-chat.rainbet.com: WS-transport `40` close-on-connect is missing `2probe/3probe/5` upgrade exchange, NOT auth closure — prior WS ACKs and polling ACK both valid (2026-09-14 19:34)
+- CHANGED staging-raffles.rainbet.com: REAL origin JSON stable 200/75B (`{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`), x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Acce
+- CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control proving same-DO-app auth asymmetry with staging-chat
+- CHANGED api.rainbet.com: WAF frozen at plain-block 5484B (no cf-mitigated) + OPTIONS exemption fully stable — no operator churn window observed this round
+- CHANGED staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — reflects arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; all 404/33B, no 2xx across 13+ rounds
+- CHANGED staging-chat.rainbet.com/socket.io: engine.io polling 200/116B fresh anonymous sid (x-do-orig-status:200) — anonymous plane persists; fair egress test (with pong) remains decisive step
+- CHANGED staging-monorepo.rainbet.com: /docs flipped to CF managed challenge (110KB) from 5483B plain block — WAF front fluctuates on app bc240b8a
+- CHANGED staging.rainbet.com: /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — gap CLOSED, pre-auth CORS-neutral
+- NEW www.rainbet.com: production front flipped to 5484B plain-block template — plain-block mode now fleet-wide (api/www/monorepo), managed-rule template family not per-host drift (2026-09-14 19:34)
+- NEW api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough proven class-independent (2026-09-14 19:34)
+- NEW staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin reachable but route-less (2026-09-14 19:34)
+- NEW staging-chat.rainbet.com: WS-transport `40` close-on-connect is missing `2probe/3probe/5` upgrade exchange, NOT auth closure — prior WS ACKs and polling ACK both valid (2026-09-14 19:34)
+- CHANGED staging-raffles.rainbet.com: REAL origin JSON stable 200/75B (`{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`), x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Acce
+- CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control proving same-DO-app auth asymmetry with staging-chat
+- CHANGED api.rainbet.com: WAF frozen at plain-block 5484B (no cf-mitigated) + OPTIONS exemption fully stable — no operator churn window observed this round
+- CHANGED staging-services.rainbet.com: CORS reflector confirmed on 6 paths incl `/` root — reflects arbitrary Origin + allow-credentials:true + expose Cf-Mitigated; all 404/33B, no 2xx across 13+ rounds
+- CHANGED staging-chat.rainbet.com/socket.io: engine.io polling 200/116B fresh anonymous sid (x-do-orig-status:200) — anonymous plane persists; fair egress test (with pong) remains decisive step
+- CHANGED staging-monorepo.rainbet.com: /docs flipped to CF managed challenge (110KB) from 5483B plain block — WAF front fluctuates on app bc240b8a
+- CHANGED staging.rainbet.com: /health → 302 CF Access (kid=a89d8b80); Access 302 reflects evil Origin + allow-credentials:true — gap CLOSED, pre-auth CORS-neutral
