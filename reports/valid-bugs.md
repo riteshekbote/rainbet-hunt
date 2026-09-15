@@ -61,3 +61,9 @@
   - **Verdict: VALID (Low)**
   - | 1 | staging-chat unauthenticated socket.io | **VALID** | 5.3 (Medium) | Real unauthenticated session on staging |
   - | 3 | staging-raffles /health origin leak | **VALID** (Low) | 3.7 (Low) | Version + DO infra info disclosure |
+
+- 4 lead(s) marked VALID at 2026-09-15 19:14:23 UTC
+  - | Q5 Novel/unreported? | **No** — already marked VALID in valid-bugs.md (2026-09-06, 2026-09-09, 2026-09-12, 2026-09-14) |
+  - | Q5 Novel/unreported? | **No** — already merged into Lead 1 (staging Socket.IO group) in valid-bugs.md |
+  - | Q5 Novel/unreported? | **No** — already marked VALID in valid-bugs.md (2026-09-14 13:21, CVSS 3.7 Low) |
+  - | Q5 Novel/unreported? | **Borderline** — OPTIONS on /api/v1/ has been observed since 2026-09-03; already noted in lead logs but NOT in valid-bugs.md as a distinct reportable finding |
