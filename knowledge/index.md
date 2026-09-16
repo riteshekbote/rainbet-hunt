@@ -445,3 +445,6 @@
 - 2026-09-16 REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
 - 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: CF block page present but `cf-mitigated` header absent (unlike www.rainbet.com) — different CF WAF configurations per subdomain creates potential inconsistency
 - 2026-09-16 ACCEPTED AUTH @ staging.rainbet.com: CF Access JWT contains `auth_status: NONE` and `is_wrap: false` — Access policy may be permissive or misconfigured
+- 2026-09-16 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid `_2wpjwcU4LwYwyGUAABB` issued this round (x-do-app-origin:1ce4ff55) — plane persistent, fair-egress window open.
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block stable this round (API 5485 / static 4547, no cf-mitigated); static-class length now identical on api+www (4547) — fleet-uniform plain-block template; OPTIONS exemption + x-do-orig-status:200 unchanged.
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-services.rainbet.com: 17/17 probed prefixes 404/33B this round — zero 2xx lift; reflector remains deploy-gated, latent.
