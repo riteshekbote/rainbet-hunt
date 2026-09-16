@@ -73,3 +73,9 @@
   - **Verdict: VALID**
   - | 1 | Staging pocket app: unprotected origin + anonymous Socket.IO (4 hostnames) | **VALID** | 5.3 |
   - | 2 | Internet-exposed RabbitMQ brokers (management + AMQP) on direct DO IPs | **VALID** | 7.5 |
+
+- 4 lead(s) marked VALID at 2026-09-16 18:57:28 UTC
+  - **Verdict: VALID**
+  - **Verdict: VALID**
+  - | 1 | staging-chat: Unauthenticated socket.io CONNECT | **VALID** | 7.5 |
+  - | 2 | staging-alerts: WebSocket hijack via captured sid | **VALID** | 8.1 |
