@@ -825,3 +825,12 @@ www.rainbet.com
 - CHANGED staging-chat.rainbet.com: engine.io v4 200/116B anonymous plane persists at 12:05Z and 22:53Z (app 1ce4ff55); fair egress test (with pong) remains decisive step
 - CHANGED staging-raffles.rainbet.com: REAL origin JSON stable 200/75B — 6 hostnames on app 1ce4ff55 confirmed (persistent across all 2026-09-15 rounds)
 - CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
+
+## 2026-09-16 16:40:39 UTC
+- NEW staging-chat.rainbet.com/socket.io: engine.io polling 200/116B fresh anonymous sid at 11:52Z (app 1ce4ff55) — plane UP this round after 400 flapping
+- NEW staging-services.rainbet.com: CORS reflector confirmed on 12/12 probed paths incl /api/v1/transactions, /api/v1/history, /v1/admin — path-agnostic on app 1ce4ff55, all 404/33B
+- CHANGED api.rainbet.com: WAF reverted to full CF managed challenge (110KB) from 5485B plain block at 12:05Z — active operator churn live on DO app 53f39197 (110KB ↔ 5485B flip)
+- CHANGED www.rainbet.com: production front flipped to 5484B plain-block template — plain-block mode now fleet-wide (api/www/monorepo)
+- CHANGED staging-monorepo.rainbet.com: /docs flipped 110KB challenge → 5485B plain block this round (app bc240b8a) — front churn live
+- CHANGED staging-raffles.rainbet.com: REAL origin JSON stable 200/75B — 6 hostnames on app 1ce4ff55 confirmed persistent
+- CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
