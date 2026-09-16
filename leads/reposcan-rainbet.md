@@ -282,3 +282,12 @@ TARGET_ORG not configured for rainbet; skipping public-org deep scan.
 TARGET_ORG not configured for rainbet; skipping public-org deep scan.
 ## REPOSCAN 2026-09-16 10:02:55 UTC
 TARGET_ORG not configured for rainbet; skipping public-org deep scan.
+## REPOSCAN 2026-09-16 15:01:39 UTC
+[HYP] Source-Code Audit Vector Closed
+class: OTHER
+asset: rainbet-hunt repo
+confidence: 95
+reasoning: No candidate repos exist ("no org candidates"). GitHub API GET /orgs/rainbet/repos returns empty. Web search found 3 third-party repos (rayanroubio/Rainbet-FE, bodsterm/rainbet-modded, parikshitgorain/tzbetz-showcase) — cloned depth=1, grep-scanned for AKIA*, AIza*, ghp_*, sk_live_*, sk-us*, -----BEGIN PRIVATE, password=, api_key, secret, token, client_secret, storage.googleapis, *.azure, *.amazonaws. Zero matches. None contain RainBet infrastructure references. These are NOT RainBet's own code.
+impact: N/A — no public source code exists for RainBet to audit
+verify_steps: Already confirmed via GitHub API + web search + grep scans documented in leads/reposcan-rainbet.md
+TARGET_ORG not configured for rainbet; skipping public-org deep scan.
