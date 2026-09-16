@@ -1698,3 +1698,7 @@
 - LEARN: REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: CF block page present but `cf-mitigated` header absent (unlike www.rainbet.com) — different CF WAF configurations per subd
 - LEARN: ACCEPTED AUTH @ staging.rainbet.com: CF Access JWT contains `auth_status: NONE` and `is_wrap: false` — Access policy may be permissive or misconfigured
+
+## RANKED HYPOTHESES 2026-09-16 20:02:11 UTC
+- [60] staging-chat.rainbet.com/socket.io/: staging-chat fair-egress with pong delivers business frames on root/namespaces (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: staging-chat fair-egress — plane UP with captured sid `JWRKb4ExbI6U1LsbAABn` (fresh, this round); OPEN a single WS `wss://staging-chat.rainbet.com/socket
