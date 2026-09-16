@@ -411,3 +411,37 @@
 - 2026-09-15 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid `_2wpjwcU4LwYwyGUAABB` issued this round (x-do-app-origin:1ce4ff55) — plane persistent, fair-egress window open.
 - 2026-09-15 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block stable this round (API 5485 / static 4547, no cf-mitigated); static-class length now identical on api+www (4547) — fleet-uniform plain-block template; OPTIONS exemption + x-do-orig-status:200 unchanged.
 - 2026-09-15 ACCEPTED MISCONFIG @ staging-services.rainbet.com: 17/17 probed prefixes 404/33B this round — zero 2xx lift; reflector remains deploy-gated, latent.
+- 2026-09-16 ACCEPTED MISCONFIG @ www.rainbet.com: production front flipped to 5484B plain-block template — plain-block mode now fleet-wide (api/www/monorepo), managed-rule template family not per-host drift
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough proven class-independent
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin reachable but route-less
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-chat.rainbet.com: WS-transport `40` close-on-connect is missing `2probe/3probe/5` upgrade exchange, NOT auth closure — prior WS ACKs and polling ACK both valid
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: WAF reverted to full CF managed challenge (110KB) from 5485B plain block at 12:05Z — active operator churn confirmed live on DO app 53f39197 (110KB ↔ 5485B)
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector expanded to 12/12 probed paths (added /api/v1/transactions, /api/v1/history, /v1/admin) — path-agnostic on app 1ce4ff55; still 404/33B, latent
+- 2026-09-16 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B anonymous plane persists at 12:05Z and 22:53Z (app 1ce4ff55); fair egress test (with pong) remains decisive step
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON stable 200/75B — 6 hostnames on app 1ce4ff55 confirmed (persistent across all 2026-09-15 rounds)
+- 2026-09-16 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block stable at 12:05Z (API 5485 / static 4547, no cf-mitigated); static-class length now identical on api+www (4547) — fleet-uniform plain-block template; reverted to 110KB challenge by 19:53
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped 110KB challenge → 5485B plain block this round (app bc240b8a) — front churn live, no distinct surface
+- 2026-09-16 REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants (double-encoded path, `%2e%2e`, trailing `%2f`, mixed-case) all 403@5484B — no content-method WAF bypass this round
+- 2026-09-16 REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of path-based policy gaps
+- 2026-09-16 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively
+- 2026-09-16 REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: CF block page present but `cf-mitigated` header absent (unlike www.rainbet.com) — different CF WAF configurations per subdomain creates potential inconsistency
+- 2026-09-16 ACCEPTED AUTH @ staging.rainbet.com: CF Access JWT contains `auth_status: NONE` and `is_wrap: false` — Access policy may be permissive or misconfigured
+- 2026-09-16 ACCEPTED MISCONFIG @ www.rainbet.com: production front flipped to 5484B plain-block template — plain-block mode now fleet-wide (api/www/monorepo), managed-rule template family not per-host drift
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: OPTIONS exemption covers BOTH path classes (OPTIONS /robots.txt → 200 x-do-orig-status:200, static class) — blanket preflight passthrough proven class-independent
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: WAF is path-pattern (docs/.git → 403 block; all other paths origin to bare Express 404 on 22 routes) — origin reachable but route-less
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-chat.rainbet.com: WS-transport `40` close-on-connect is missing `2probe/3probe/5` upgrade exchange, NOT auth closure — prior WS ACKs and polling ACK both valid
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: WAF reverted to full CF managed challenge (110KB) from 5485B plain block at 12:05Z — active operator churn confirmed live on DO app 53f39197 (110KB ↔ 5485B)
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector expanded to 12/12 probed paths (added /api/v1/transactions, /api/v1/history, /v1/admin) — path-agnostic on app 1ce4ff55; still 404/33B, latent
+- 2026-09-16 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B anonymous plane persists at 12:05Z and 22:53Z (app 1ce4ff55); fair egress test (with pong) remains decisive step
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON stable 200/75B — 6 hostnames on app 1ce4ff55 confirmed (persistent across all 2026-09-15 rounds)
+- 2026-09-16 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block stable at 12:05Z (API 5485 / static 4547, no cf-mitigated); static-class length now identical on api+www (4547) — fleet-uniform plain-block template; reverted to 110KB challenge by 19:53
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs flipped 110KB challenge → 5485B plain block this round (app bc240b8a) — front churn live, no distinct surface
+- 2026-09-16 REJECTED MISCONFIG @ api.rainbet.com: 6 encoded GET variants (double-encoded path, `%2e%2e`, trailing `%2f`, mixed-case) all 403@5484B — no content-method WAF bypass this round
+- 2026-09-16 REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of path-based policy gaps
+- 2026-09-16 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively
+- 2026-09-16 REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: CF block page present but `cf-mitigated` header absent (unlike www.rainbet.com) — different CF WAF configurations per subdomain creates potential inconsistency
+- 2026-09-16 ACCEPTED AUTH @ staging.rainbet.com: CF Access JWT contains `auth_status: NONE` and `is_wrap: false` — Access policy may be permissive or misconfigured
