@@ -1702,3 +1702,10 @@
 ## RANKED HYPOTHESES 2026-09-16 20:02:11 UTC
 - [60] staging-chat.rainbet.com/socket.io/: staging-chat fair-egress with pong delivers business frames on root/namespaces (from art/lead_bigpickle.txt)
 - NEXT(hypotheses-bigpickle.txt): HUMAN: staging-chat fair-egress — plane UP with captured sid `JWRKb4ExbI6U1LsbAABn` (fresh, this round); OPEN a single WS `wss://staging-chat.rainbet.com/socket
+
+## RANKED HYPOTHESES 2026-09-16 22:48:12 UTC
+- [60] staging-chat.rainbet.com/socket.io/: staging-chat fair-egress with pong delivers business frames on root/namespaces (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: staging-chat fair-egress — use freshly captured sid `Jw8EuSKt9fcGmkxeAABp` (22:46Z, plane UP); OPEN single WS `wss://staging-chat.rainbet.com/socket.io/?
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: WAF flipped back to plain-block at 22:46Z (API 5485B / static 4547B, no cf-mitigated) from 110KB challenge — churn live; O
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `Jw8EuSKt9fcGmkxeAABp` issued (pingInterval=25000, pingTimeout=20000, maxPayload=10240, 
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B under evil Origin this round — reflector still 404-gated, zero 2xx lift.

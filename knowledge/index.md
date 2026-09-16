@@ -448,3 +448,6 @@
 - 2026-09-16 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io v4 200/116B fresh anonymous sid `_2wpjwcU4LwYwyGUAABB` issued this round (x-do-app-origin:1ce4ff55) — plane persistent, fair-egress window open.
 - 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block stable this round (API 5485 / static 4547, no cf-mitigated); static-class length now identical on api+www (4547) — fleet-uniform plain-block template; OPTIONS exemption + x-do-orig-status:200 unchanged.
 - 2026-09-16 ACCEPTED MISCONFIG @ staging-services.rainbet.com: 17/17 probed prefixes 404/33B this round — zero 2xx lift; reflector remains deploy-gated, latent.
+- 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: WAF flipped back to plain-block at 22:46Z (API 5485B / static 4547B, no cf-mitigated) from 110KB challenge — churn live; OPTIONS exemption + x-do-orig-status:200 + app 53f39197 stable.
+- 2026-09-16 ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `Jw8EuSKt9fcGmkxeAABp` issued (pingInterval=25000, pingTimeout=20000, maxPayload=10240, x-do-orig-status:200) — plane UP, egress window open.
+- 2026-09-16 ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B under evil Origin this round — reflector still 404-gated, zero 2xx lift.

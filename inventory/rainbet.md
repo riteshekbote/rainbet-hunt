@@ -836,3 +836,8 @@ www.rainbet.com
 - CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
 
 ## 2026-09-16 20:02:11 UTC
+
+## 2026-09-16 22:48:12 UTC
+- CHANGED api.rainbet.com: WAF flipped 110KB challenge → plain-block at 22:46Z (GET ping 403 len=5485B; GET /robots.txt 403 len=4547B; no cf-mitigated) — churn bidirectionally live on app 53f39197.
+- CHANGED staging-chat.rainbet.com/socket.io/: fresh anonymous engine.io sid `Jw8EuSKt9fcGmkxeAABp` issued 22:46Z (EIO4 200/116B, pingInterval=25000, pingTimeout=20000, maxPayload=10240, x-do-orig-status:200, a
+- NEW staging-services.rainbet.com: /health still 404/33B with Origin:https://evil.example — reflector remains 404-gated, zero 2xx lift.
