@@ -451,3 +451,6 @@
 - 2026-09-16 ACCEPTED MISCONFIG @ api.rainbet.com: WAF flipped back to plain-block at 22:46Z (API 5485B / static 4547B, no cf-mitigated) from 110KB challenge — churn live; OPTIONS exemption + x-do-orig-status:200 + app 53f39197 stable.
 - 2026-09-16 ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `Jw8EuSKt9fcGmkxeAABp` issued (pingInterval=25000, pingTimeout=20000, maxPayload=10240, x-do-orig-status:200) — plane UP, egress window open.
 - 2026-09-16 ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B under evil Origin this round — reflector still 404-gated, zero 2xx lift.
+- 2026-09-17 ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `CowpmCsgoukLr4QTAABu` issued this round (200/116B, pingTimeout=20000, maxPayload=10240, app 1ce4ff55) — plane UP, fair-egress window open.
+- 2026-09-17 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists (API 5485B / static 4547B, no cf-mitigated) + OPTIONS /openapi.json 200 + Allow + x-do-orig-status:200 + app 53f39197 — exemption stable this round, no new churn window.
+- 2026-09-17 ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B evil-Origin ACAO-reflect + credentials:true + expose Cf-Mitigated — reflector still 404-gated, zero 2xx lift.

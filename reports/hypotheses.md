@@ -1709,3 +1709,10 @@
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: WAF flipped back to plain-block at 22:46Z (API 5485B / static 4547B, no cf-mitigated) from 110KB challenge — churn live; O
 - LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `Jw8EuSKt9fcGmkxeAABp` issued (pingInterval=25000, pingTimeout=20000, maxPayload=10240, 
 - LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B under evil Origin this round — reflector still 404-gated, zero 2xx lift.
+
+## RANKED HYPOTHESES 2026-09-17 01:14:05 UTC
+- [60] staging-chat.rainbet.com/socket.io/: staging-chat fair-egress with pong delivers business frames on root/namespaces (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: staging-chat fair-egress — use freshly captured sid `CowpmCsgoukLr4QTAABu` (this round, plane UP); OPEN single WS `wss://staging-chat.rainbet.com/socket.
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `CowpmCsgoukLr4QTAABu` issued this round (200/116B, pingTimeout=20000, maxPayload=10240,
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists (API 5485B / static 4547B, no cf-mitigated) + OPTIONS /openapi.json 200 + Allow + x-do-orig-status:20
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B evil-Origin ACAO-reflect + credentials:true + expose Cf-Mitigated — reflector still 404-gated

@@ -3744,3 +3744,40 @@ testability: PASSIVE
 [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `Jw8EuSKt9fcGmkxeAABp` issued (pingInterval=25000, pingTimeout=20000, maxPayload=10240, x-do-orig-status:200) — plane UP, egress window open.
 [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B under evil Origin this round — reflector still 404-gated, zero 2xx lift.
 [RISK] RainBet: 28/100 — flat. All watch items re-confirmed by fresh probes this round: chat plane UP (fresh sid Jw8EuSKt9fcGmkxeAABp, pingTimeout 20s), api plain-block (API 5485/static 4547) + OPTIONS exemption stable on app 53f39197, services reflector 404-gated, raffles historically stable. Decisive thread (chat fair-egress with pong) remains the single highest-value open item — HUMAN-gated, window currently open with a live sid in hand. Remaining threads (services CORS 2xx, api churn GET gap) deploy/operator-gated with zero lift across 20+ rounds. All standings ≤CVSS 7.3, previously reported; monitoring-only, no escalation.
+## 2026-09-17 01:13:41 UTC [target] (model bigpickle)
+[HYP] staging-chat fair-egress with pong delivers business frames on root/namespaces
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io/
+confidence: 60
+reasoning: Fresh probe this round: EIO4 200/116B, anonymous sid `CowpmCsgoukLr4QTAABu`, x-do-orig-status:200, credentials:true, app 1ce4ff55, pingTimeout=20000. Root `40` CONNECT ACKed across 5+ rounds; same-DO-app staging-alerts rejects namespace connect (`44 er_auth_token_invalid`). No lived WS listen beyond pingTimeout because client never ponged — answering engine.io `2` with `3` is the sole unverified link.
+evidence_needed: `42[...]` business frame delivered on root/raffles/alerts while ponging every ping ≥60s
+verify_steps: WS `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=CowpmCsgoukLr4QTAABu` → `2probe`→`3probe`→`5` → `40` root, `40/raffles,{}`, `40/alerts,{}` → reply `3` to each `2` → listen ≥60s for `42[...]`; 1 conn, listen-only
+impact: pre-auth read of live bet/raffle/wallet event stream on production DO app; HIGH, egress-gated
+testability: HUMAN_ONLY
+[HYP] staging-services CORS reflector unlocks on any 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: This round /health under Origin:https://evil.example → 404/33B with ACAO reflect + allow-credentials:true + expose Cf-Mitigated, x-powered-by:Express, x-do-orig-status:404, app 1ce4ff55. Reflector path-agnostic 17+/17; /docs+Swagger behind Access 302 proves mounted protected service; zero 2xx across 20+ rounds.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round on /api/v1/bets, /api/v1/admin, /graphql with Origin:https://evil.example + Accept:application/json, ≤1 rps; flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+testability: PASSIVE
+[HYP] api per-class GET gap opens during WAF churn
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: Fresh probes this round: GET ping 403 len=5485B, GET /robots.txt 403 len=4547B (plain-block); OPTIONS /openapi.json 200 + x-do-orig-status:200 + app 53f39197 — origin classifier reachable via OPTIONS oracle; GET uniformly 403 both classes. Bidirectional 110KB↔5485B churn previously confirmed live.
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either block class during a churn window
+verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json; flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+[PARKED] api per-class GET gap: confidence 40 at threshold; zero observed lift across 23+ rounds, monitor-only.
+[FINAL] 1. staging-chat fair-egress (60) — highest value, HUMAN-gated, plane UP + fresh sid captured this round.
+[FINAL] 2. staging-services CORS 2xx (45) — deploy-gated, latent, passive watch.
+[FINAL] 3. api per-class GET gap (40) — operator-gated, passive monitor.
+[NEXT] HUMAN: staging-chat fair-egress — use freshly captured sid `CowpmCsgoukLr4QTAABu` (this round, plane UP); OPEN single WS `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=CowpmCsgoukLr4QTAABu`; send `2probe`→`3probe`→`5`, then `40` (root), `40/raffles,{}`, `40/alerts,{}`; reply `3` to every engine.io `2`; hold ≥60s recording any `42[...]` frame (≤1 conn, listen-only). Not runnable via GET/HEAD/OPTIONS — requires websocat/socket.io-client.
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `CowpmCsgoukLr4QTAABu` issued this round (200/116B, pingTimeout=20000, maxPayload=10240, app 1ce4ff55) — plane UP, fair-egress window open.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists (API 5485B / static 4547B, no cf-mitigated) + OPTIONS /openapi.json 200 + Allow + x-do-orig-status:200 + app 53f39197 — exemption stable this round, no new churn window.
+[LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B evil-Origin ACAO-reflect + credentials:true + expose Cf-Mitigated — reflector still 404-gated, zero 2xx lift.
+[RISK] RainBet: 28/100 — flat. All watch items re-confirmed by fresh probes this round: chat plane UP (fresh sid `CowpmCsgoukLr4QTAABu`), alerts control UP (20480), services reflector 404-gated 17+/17, raffles health 200/75B, api plain-block + OPTIONS exemption stable, monorepo /docs plain block. Decisive thread (chat fair-egress with pong) remains the single highest-value open item — HUMAN-gated, window open with live sid in hand. Remaining threads deploy/operator-gated with zero lift across 20+ rounds. All standings ≤CVSS 7.3, previously reported; monitoring-only, no escalation.
