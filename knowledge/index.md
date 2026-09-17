@@ -454,3 +454,6 @@
 - 2026-09-17 ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `CowpmCsgoukLr4QTAABu` issued this round (200/116B, pingTimeout=20000, maxPayload=10240, app 1ce4ff55) — plane UP, fair-egress window open.
 - 2026-09-17 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists (API 5485B / static 4547B, no cf-mitigated) + OPTIONS /openapi.json 200 + Allow + x-do-orig-status:200 + app 53f39197 — exemption stable this round, no new churn window.
 - 2026-09-17 ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B evil-Origin ACAO-reflect + credentials:true + expose Cf-Mitigated — reflector still 404-gated, zero 2xx lift.
+- 2026-09-17 ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `ozEiCowqpIT3x3CBAABv` issued this round (200/116B, pingTimeout=20000, maxPayload=10240) — plane UP, fair-egress window open.
+- 2026-09-17 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists this round (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OPTIONS,HEAD — exemption stable, no new churn window.
+- 2026-09-17 ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example this round — ACAO-reflect + credentials:true + expose Cf-Mitigated, still 404-gated, zero 2xx lift.

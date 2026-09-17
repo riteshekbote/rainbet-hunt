@@ -1716,3 +1716,10 @@
 - LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `CowpmCsgoukLr4QTAABu` issued this round (200/116B, pingTimeout=20000, maxPayload=10240,
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists (API 5485B / static 4547B, no cf-mitigated) + OPTIONS /openapi.json 200 + Allow + x-do-orig-status:20
 - LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: /health 404/33B evil-Origin ACAO-reflect + credentials:true + expose Cf-Mitigated — reflector still 404-gated
+
+## RANKED HYPOTHESES 2026-09-17 06:15:47 UTC
+- [60] staging-chat.rainbet.com/socket.io/: staging-chat fair-egress with pong delivers business frames on root/namespaces (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: staging-chat fair-egress — use freshly captured sid `ozEiCowqpIT3x3CBAABv` (this round, plane UP); OPEN single WS `wss://staging-chat.rainbet.com/socket.
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `ozEiCowqpIT3x3CBAABv` issued this round (200/116B, pingTimeout=20000, maxPayload=10240)
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists this round (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OP
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example this round — ACAO-reflect + credentials:true + expose 
