@@ -461,3 +461,7 @@
 - 2026-09-17 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 6 staging hostnames
 - 2026-09-17 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
 - 2026-09-17 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app bc240b8a
+- 2026-09-17 ACCEPTED AUTH @ staging-chat.rainbet.com: engine.io polling flapped to 400 this round (was 200/116B at 16:40Z) — intermittent flapping persists on DO app 1ce4ff55 across 17+ rounds
+- 2026-09-17 ACCEPTED MISCONFIG @ staging-services.rainbet.com: CORS reflector confirmed on /health (404/33B) — ACAO-reflect + credentials:true + expose Cf-Mitigated, still 404-gated, zero 2xx lift
+- 2026-09-17 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480, upgrades=["websocket"]) — plane persists, control for same-DO-app auth asymmetry
+- 2026-09-17 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OPTIONS,HEAD — exemption stable, no new churn window
