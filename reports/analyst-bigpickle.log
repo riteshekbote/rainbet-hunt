@@ -25262,3 +25262,29 @@ testability: PASSIVE
 
 **STEP 7 — RISK**
 [RISK] RainBet: 30/100 — flat. All watch items re-confirmed by fresh probes this round: chat plane UP with a live sid in hand (`PGlXcXZ3bC0lsAgRAAA9`, pingTimeout 20s), api plain-block (API 5485/static 4547) + OPTIONS exemption stable on app 53f39197, services reflector 404-gated on 17+/17, raffles origin JSON stable, alerts control sid healthy. Decisive thread (chat fair-egress with pong) remains the single highest-value open item — HUMAN-gated, window open. Remaining threads (services CORS 2xx, api churn GET gap) deploy/operator-gated with zero lift across 20+ rounds. All standings ≤CVSS 7.3, previously reported; monitoring-only, no escalation.
+===== ANALYST bigpickle 2026-09-17 22:46:50 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mecho "=== OPTIONS /openapi.json ==="; curl -sk -o /dev/null -w "status=%{http_code} bytes=%{size_download} allow=%header{allow} xdo_orig=%header{x-do-orig-status} xdo_app=%header{x-do-app-origin}\n" --max-time 20 -X OPTIONS -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://api.rainbet.com/openapi.json"; echo "=== OPTIONS /robots.txt ==="; curl -sk -o /dev/null -w "status=%{http_code} bytes=%{size_download} allow=%header{allow} xdo_orig=%header{x-do-orig-status}\n" --max-time 20 -X OPTIONS -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://api.rainbet.com/robots.txt"
+=== OPTIONS /openapi.json ===
+status=200 bytes=0 allow=OPTIONS,HEAD,GET,POST xdo_orig=200 xdo_app=53f39197-6fd5-4e93-8a3b-b8177a4bd079
+=== OPTIONS /robots.txt ===
+status=200 bytes=0 allow=GET,POST,OPTIONS,HEAD xdo_orig=200
+[0m
+[0m$ [0mfor u in "https://api.rainbet.com/api/v1/public/ping" "https://api.rainbet.com/robots.txt"; do echo "=== $u ==="; curl -sk -o /tmp/api_body -w "status=%{http_code} bytes=%{size_download} ct=%{content_type}\n" --max-time 20 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "$u"; head -c 80 /tmp/api_body | tr -d '\n' | head -c 120; echo; echo "cf-mitigated: $(curl -sk -o /dev/null -w '%header{cf-mitigated}' --max-time 20 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "$u")"; sleep 1; done
+=== https://api.rainbet.com/api/v1/public/ping ===
+status=403 bytes=5484 ct=text/html; charset=UTF-8
+<!DOCTYPE html><!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <!
+cf-mitigated: 
+=== https://api.rainbet.com/robots.txt ===
+status=403 bytes=4546 ct=text/html; charset=UTF-8
+<!DOCTYPE html><!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <!
+cf-mitigated:
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mfor h in staging-chat staging-alerts; do echo "=== $h /socket.io/ ==="; curl -sk -o /tmp/eng -w "status=%{http_code} bytes=%{size_download} xdo_orig=%header{x-do-orig-status} xdo_app=%header{x-do-app-origin}\n" --max-time 20 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://$h.rainbet.com/socket.io/?EIO=4&transport=polling"; cat /tmp/eng | head -c 160; echo; sleep 1; done failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mecho "=== raffles /health ==="; curl -sk -o /tmp/rf -w "status=%{http_code} bytes=%{size_download} xdo_orig=%header{x-do-orig-status} xdo_app=%header{x-do-app-origin}\n" --max-time 20 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://staging-raffles.rainbet.com/health"; cat /tmp/rf; echo; sleep 1; echo "=== services /health evil origin ==="; curl -sk -o /tmp/svc -w "status=%{http_code} bytes=%{size_download} acao=%header{access-control-allow-origin} creds=%header{access-control-allow-credentials} expose=%header{access-control-expose-headers} xpb=%header{x-powered-by}\n" --max-time 20 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -H "Origin: https://evil.example" "https://staging-services.rainbet.com/health"; cat /tmp/svc | head -c 60; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
