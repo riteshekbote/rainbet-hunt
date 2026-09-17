@@ -1723,3 +1723,18 @@
 - LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `ozEiCowqpIT3x3CBAABv` issued this round (200/116B, pingTimeout=20000, maxPayload=10240)
 - LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists this round (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OP
 - LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example this round — ACAO-reflect + credentials:true + expose 
+
+## RANKED HYPOTHESES 2026-09-17 11:54:05 UTC
+- [95] staging-chat.rainbet.com/socket.io/: staging-chat.rainbet.com/socket.io/ unauthenticated socket.io namespace access enables event interception and business logic abuse (from art/lead_nemotron3.txt)
+- [60] staging-chat.rainbet.com/socket.io/: staging-chat fair-egress with pong delivers business frames on root/namespaces (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: staging-chat fair-egress — use freshly captured sid `ozEiCowqpIT3x3CBAABv` (this round, plane UP, pingTimeout=20s); OPEN single WS `wss://staging-chat.ra
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling → capture engine.io sid; WebSocket upgrade to wss://staging-chat.rainbet.com/sock
+- LEARN: ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `ozEiCowqpIT3x3CBAABv` issued this round (200/116B, pingTimeout=20000, maxPayload=10240)
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists this round (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OP
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example this round — ACAO-reflect + credentials:true + expose 
+- LEARN: ACCEPTED MISCONFIG @ staging-chat.rainbet.com: fresh anonymous engine.io sid `CowpmCsgoukLr4QTAABu` issued this round (200/116B, pingTimeout=20000, maxPayload=1
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists this round (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OP
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example this round — ACAO-reflect + credentials:true + expose 
+- LEARN: ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-
+- LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app b
