@@ -25132,3 +25132,22 @@ All three hypotheses survive. staging-chat (60) is decisive — the pong test is
 
 **STEP 7 — RISK**
 [RISK] RainBet: 28/100 — flat. All watch items re-confirmed by fresh probes this round: chat plane UP (fresh sid `ozEiCowqpIT3x3CBAABv`, pingTimeout 20s), api plain-block (API 5485/static 4547) + OPTIONS exemption stable on app 53f39197, services reflector 404-gated on 17+/17, raffles historically stable. Decisive thread (chat fair-egress with pong) remains single highest-value open item — HUMAN-gated, window open with a live sid in hand. Remaining threads (services CORS 2xx, api churn GET gap) deploy/operator-gated with zero lift across 20+ rounds. All standings ≤CVSS 7.3, previously reported; monitoring-only, no escalation.
+===== ANALYST bigpickle 2026-09-17 16:40:26 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - -m 20 "https://api.rainbet.com/api/v1/public/ping" 2>&1 | grep -iE "^(HTTP|cf-mitigated|x-do-orig|content-length|server)" ; echo "---SERVICES---"; curl -s -o /dev/null -D - -m 20 -H "Origin: https://evil.example" -H "Accept: application/json" "https://staging-services.rainbet.com/api/v1/bets" 2>&1 | grep -iE "^(HTTP|access-control|x-do-orig|x-powered|content-length)"
+HTTP/2 403 
+server: cloudflare
+---SERVICES---
+HTTP/2 404 
+content-length: 33
+x-powered-by: Express
+x-do-orig-status: 404
+access-control-expose-headers: Cf-Mitigated
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil.example
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0msleep 3; curl -s -o /dev/null -D - -m 20 -X OPTIONS "https://api.rainbet.com/openapi.json" 2>&1 | grep -iE "^(HTTP|allow|x-do-orig|x-do-app)" ; echo "---CHAT---"; sleep 2; curl -s -D - -m 20 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" -o /tmp/chat_eio.txt 2>&1 | grep -iE "^(HTTP|x-do-orig|content-length|access-control)" ; echo "---BODY---"; cat /tmp/chat_eio.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

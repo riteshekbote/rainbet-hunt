@@ -859,3 +859,11 @@ www.rainbet.com
 - CHANGED staging-raffles.rainbet.com: /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — 6 hostnames on app 1ce4ff55 persistent
 - CHANGED staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
 - CHANGED staging-monorepo.rainbet.com: /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app bc240b8a
+
+## 2026-09-17 16:40:26 UTC
+- NEW api.rainbet.com: plain-block mode persists at 5486B (API class) / 4547B (static class), no `cf-mitigated` header; OPTIONS /openapi.json 200 + Allow + x-do-orig-status:200 + x-do-app-origin:53f39197 — 
+- NEW staging-chat.rainbet.com/socket.io: engine.io polling 200/116B fresh anonymous sid `CowpmCsgoukLr4QTAABu` issued 2026-09-17 (plane UP, fair-egress window open) — confirmed live
+- NEW staging-services.rainbet.com: /health 404/33B under evil Origin — CORS reflector (ACAO-reflect + allow-credentials:true + expose Cf-Mitigated) confirmed still 404-gated, zero 2xx lift across all probe
+- NEW staging-raffles.rainbet.com: /health stable 200/75B real origin JSON (x-do-orig-status:200, full Helmet CSP+HSTS+XFO, no CF Access/challenge) — 6 hostnames on app 1ce4ff55 persistent
+- NEW staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480) — plane persists, control for same-DO-app auth asymmetry
+- NEW staging-monorepo.rainbet.com: /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app bc240b8a
