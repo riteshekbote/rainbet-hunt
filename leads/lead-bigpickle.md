@@ -3988,3 +3988,4 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists (GET ping 403@5485B, no cf-mitigated) + OPTIONS /openapi.json 200+Allow+x-do-orig-status:200+app 53f39197 — no new churn window at 11:28Z; state frozen vs prior round.
 [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `NIvqcv4jZ2ZcIT-KAAAI` issued 11:28Z (200/116B, pingTimeout=20000, maxPayload=10240) — plane UP, fair-egress window open.
 [RISK] rainbet: 42 — staging fleet (app 1ce4ff55) continues to expose an unauthenticated socket plane, unprotected origin /health JSON, and a credentialed CORS reflector across 6+ hostnames; none yet yields PII/transactional data (all 404-gated or egress-unproven), and prod api stays WAF-closed — exposure is real but latent, deploy-gated.
+## 2026-09-18 15:09:20 UTC [target] (model bigpickle)

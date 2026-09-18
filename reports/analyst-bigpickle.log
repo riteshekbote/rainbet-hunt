@@ -25654,3 +25654,40 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] rainbet: 42 — staging fleet (app 1ce4ff55) continues to expose an unauthenticated socket plane, unprotected origin /health JSON, and a credentialed CORS reflector across 6+ hostnames; none yet yields PII/transactional data (all 404-gated or egress-unproven), and prod api stays WAF-closed — exposure is real but latent, deploy-gated.
+===== ANALYST bigpickle 2026-09-18 15:12:48 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/api_ping -w "api_ping %{http_code} %{size_download}\n" -H "User-Agent: Mozilla/5.0" https://api.rainbet.com/api/v1/public/ping; grep -i cf-mitigated /tmp/api_ping | head -1
+api_ping 403 5484
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "api_robots %{http_code} %{size_download}\n" -H "User-Agent: Mozilla/5.0" https://api.rainbet.com/robots.txt
+api_robots 403 4546
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET" https://api.rainbet.com/openapi.json | grep -iE "HTTP/|allow|x-do-orig-status|x-do-app-origin|access-control"
+HTTP/2 200 
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -o /tmp/eio -w "chat_eio %{http_code} %{size_download}\n" -H "User-Agent: Mozilla/5.0" "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"; cat /tmp/eio; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -o /tmp/eio2 -w "alerts_eio %{http_code} %{size_download}\n" -H "User-Agent: Mozilla/5.0" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling"; cat /tmp/eio2; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null -H "Origin: https://evil.example" -H "User-Agent: Mozilla/5.0" https://staging-services.rainbet.com/health | grep -iE "HTTP/|x-do-orig-status|x-do-app-origin|access-control|content-length|x-powered"
+HTTP/2 404 
+content-length: 33
+x-powered-by: Express
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 404
+access-control-expose-headers: Cf-Mitigated
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil.example
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -o /tmp/raff -w "raffles_health %{http_code} %{size_download}\n" -H "User-Agent: Mozilla/5.0" https://staging-raffles.rainbet.com/health; cat /tmp/raff; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+I'll run a small passive probe round (read-only GET/HEAD/OPTIONS, ≤1 rps, low volume) to establish DELTA against the current KB, then emit the structured analysis.
