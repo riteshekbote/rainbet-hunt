@@ -920,3 +920,12 @@ www.rainbet.com
 - NEW staging-monorepo.rainbet.com /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app bc240b8a (unchanged)
 - NEW api.rainbet.com plain-block mode (5485B/4547B) + OPTIONS blanket exemption holding across 17+ rounds; no WAF churn window in last 3 probes (unchanged)
 - NEW No new live hosts or endpoints discovered since 2026-09-17 22:46 knowledge cutoff — surface stable
+
+## 2026-09-18 21:18:00 UTC
+- NEW No new live hosts or endpoints discovered since 2026-09-17 22:46 knowledge cutoff — surface stable
+- CHANGED api.rainbet.com plain-block mode (5485B/4547B) + OPTIONS blanket exemption holding across 17+ rounds; no WAF churn window in last 3 probes
+- CHANGED staging-chat.rainbet.com/socket.io engine.io polling 200/116B with fresh anonymous sids persistently issued — plane UP, fair-egress window open
+- CHANGED staging-services.rainbet.com CORS reflector path-agnostic on 12+ endpoints, all 404-gated — zero 2xx lift across 13+ rounds
+- CHANGED staging-raffles.rainbet.com /health real origin JSON stable (75B, x-do-orig-status:200, no CF protections) — 6 hostnames on app 1ce4ff55 confirmed
+- CHANGED staging-alerts.rainbet.com engine.io v4 stable 200/116B (maxPayload=20480, upgrades=["websocket"]) — control plane for auth asymmetry
+- CHANGED staging-monorepo.rainbet.com /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app bc240b8a

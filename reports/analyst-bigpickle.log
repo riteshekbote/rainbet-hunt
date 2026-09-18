@@ -25835,3 +25835,27 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] rainbet: 42 — staging fleet (app 1ce4ff55) continues to expose an unauthenticated socket plane, unprotected origin /health JSON, and a credentialed CORS reflector across 6+ hostnames; none yet yields PII/transactional data (all 404-gated or egress-unproven), and prod api stays WAF-closed — exposure real but latent, deploy-gated.
+===== ANALYST bigpickle 2026-09-18 21:18:00 UTC =====
+[0m
+> build · big-pickle
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -o /tmp/chat_hs.txt -D - "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 20 | grep -iE "^(HTTP|content-length|access-control|x-do-orig-status|x-do-app-origin)" ; echo "BODY:"; cat /tmp/chat_hs.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - "https://api.rainbet.com/api/v1/public/ping" --max-time 20 | grep -iE "^(HTTP|content-length|cf-mitigated)|x-do-orig" ; curl -s -o /dev/null -D - -X OPTIONS "https://api.rainbet.com/openapi.json" --max-time 20 | grep -iE "^(HTTP|allow|content-length|cf-mitigated)|x-do-orig"
+HTTP/2 403 
+HTTP/2 200 
+content-length: 0
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - "https://staging-services.rainbet.com/api/v1/bets" -H "Origin: https://evil.example" -H "Accept: application/json" --max-time 20 | grep -iE "^(HTTP|access-control|content-length)|x-do-orig|x-powered"
+HTTP/2 404 
+content-length: 33
+x-powered-by: Express
+x-do-orig-status: 404
+access-control-expose-headers: Cf-Mitigated
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil.example
+[0m

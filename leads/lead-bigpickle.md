@@ -4017,3 +4017,4 @@ evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either 
 verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json; flag non-403+x-do-orig-status
 impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
 testability: PASSIVE
+## 2026-09-18 21:14:53 UTC [target] (model bigpickle)
