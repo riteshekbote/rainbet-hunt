@@ -25288,3 +25288,191 @@ cf-mitigated:
 [93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
 [0m✗ [0mecho "=== raffles /health ==="; curl -sk -o /tmp/rf -w "status=%{http_code} bytes=%{size_download} xdo_orig=%header{x-do-orig-status} xdo_app=%header{x-do-app-origin}\n" --max-time 20 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://staging-raffles.rainbet.com/health"; cat /tmp/rf; echo; sleep 1; echo "=== services /health evil origin ==="; curl -sk -o /tmp/svc -w "status=%{http_code} bytes=%{size_download} acao=%header{access-control-allow-origin} creds=%header{access-control-allow-credentials} expose=%header{access-control-expose-headers} xpb=%header{x-powered-by}\n" --max-time 20 -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -H "Origin: https://evil.example" "https://staging-services.rainbet.com/health"; cat /tmp/svc | head -c 60; echo failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-18 01:09:36 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && cat scope.yml 2>/dev/null | head -50
+total 572
+drwxr-xr-x 12 runner runner   4096 Sep 18 01:08 .
+drwxr-xr-x  3 runner runner   4096 Sep 18 01:08 ..
+drwxr-xr-x  7 runner runner   4096 Sep 18 01:08 .git
+drwxr-xr-x  3 runner runner   4096 Sep 18 01:08 .github
+-rw-r--r--  1 runner runner   1696 Sep 18 01:08 README.md
+-rw-r--r--  1 runner runner     32 Sep 18 01:08 analyst-out.txt
+-rw-r--r--  1 runner runner 226334 Sep 18 01:08 analyst-prompt.txt
+-rw-r--r--  1 runner runner 222549 Sep 18 01:08 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 18 01:08 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 18 01:08 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 18 01:08 leads
+-rw-r--r--  1 runner runner  42234 Sep 18 01:08 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 18 01:08 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 18 01:08 reports
+drwxr-xr-x  2 runner runner   4096 Sep 18 01:08 reposcan-raw
+-rw-r--r--  1 runner runner   3198 Sep 18 01:08 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 18 01:08 scripts
+-rw-r--r--  1 runner runner     33 Sep 18 01:08 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 18 01:08 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 18 01:08 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 18 01:08 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 18 01:08 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 18 01:08 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 18 01:08 triage
+programs:
+  rainbet:
+    name: RainBet Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, gaming platforms, wallets, APIs, user systems, mobile/web applications, and domains operated by RainBet"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+[0m
+[0m$ [0mcat state_bigpickle.json state_laguna.json state_ling3.json state_longcat.json state_mimo.json state_nemotron3.json; ls leads knowledge inventory 2>/dev/null
+{"phase": "POC", "target": "api"}{"phase": "POC", "target": "api"}{"phase": "POC", "target": "api"}{"phase": "POC", "target": "api"}{"phase": "POC", "target": "api"}{"phase": "POC", "target": "api"}inventory:
+rainbet.md
+
+knowledge:
+index.md
+
+leads:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-mimo.md
+lead-nemotron3.md
+reposcan-rainbet.md
+[0m
+[0m$ [0mcat leads/lead-bigpickle.md; echo ====; cat leads/lead-nemotron3.md | head -40
+...output truncated...
+
+Full output saved to: /home/runner/.local/share/opencode/tool-output/tool_0b20ec17f001ZVrQK9l7M5Ptwc
+
+====
+## 2026-09-03 17:24:27 UTC [target] (model nemotron3)
+[NEW] rainbet.com / www.rainbet.com — Cloudflare managed challenge (403), bot protection active, serves React SPA behind challenge
+[NEW] api.rainbet.com — Cloudflare managed challenge (403 on all paths: /, /api/v1, /api/v2, /graphql, /swagger, /openapi.json, /health, /version)
+[NEW] staging.rainbet.com — Cloudflare Access (Zero Trust), 302 to challenge-5te-pages.cloudflareaccess.com for all paths including /api
+[NEW] app.rainbet.com, auth.rainbet.com, admin.rainbet.com, dashboard.rainbet.com, dev.rainbet.com, login.rainbet.com, m.rainbet.com, my.rainbet.com, portal.rainbet.com, support.rainbet.com, test.rainbet.com, web.rainbet.com — NXDOMAIN (no DNS resolution)
+[PRIO] api.rainbet.com,7.0,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=2,cloud_surface=8,freshness=8
+[PRIO] staging.rainbet.com,6.5,attack_surface=7,business_value=8,tech_exposure=7,gate_ease=1,cloud_surface=9,freshness=7
+[PRIO] rainbet.com,5.5,attack_surface=6,business_value=9,tech_exposure=5,gate_ease=2,cloud_surface=8,freshness=6
+[HYP] API endpoint enumeration behind Cloudflare challenge
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 55
+reasoning: All tested endpoints (/api/v1, /api/v2, /graphql, /swagger, /openapi.json, /health, /version) return 403 via Cloudflare challenge rather than 404. Challenge page suggests WAF rules may allow certain paths/headers through. Cloudflare "managed challenge" typically permits known-good bots/API clients with proper headers.
+evidence_needed: Identify at least one API endpoint that returns non-403 (200, 401, 404 with JSON body) indicating actual API surface behind WAF
+verify_steps: GET https://api.rainbet.com/api/v1/public/ping (if exists), GET https://api.rainbet.com/api/v1/health with Accept: application/json, GET https://api.rainbet.com/ with header CF-Access-Client-Id: test (test bypass), OPTIONS https://api.rainbet.com/api/v1/
+impact: If any API endpoint bypasses challenge, full API surface enumeration possible → IDOR/BOLA, mass assignment, business logic flaws on gambling/wallet endpoints
+testability: PASSIVE
+[HYP] Staging environment Cloudflare Access misconfiguration
+class: AUTH
+asset: staging.rainbet.com
+confidence: 45
+reasoning: staging.rainbet.com uses Cloudflare Access (Zero Trust) with JWT metadata in redirect URL (kid, aud, exp claims visible). The redirect includes `service_token_status:false` and `auth_status:NO_OR`. If any policy allows unauthenticated access to specific paths (e.g., /health, /metrics, /.well-known/), staging API could be exposed.
+evidence_needed: Find at least one path on staging.rainbet.com returning 200/401/403 (JSON) instead of 302 to Cloudflare Access login
+verify_steps: GET https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/, GET https://staging.rainbet.com/health, GET https://staging.rainbet.com/metrics, GET https://staging.rainbet.com/api/health, GET https://staging.rainbet.com/.well-known/jwks.json
+impact: Staging often mirrors production with weaker controls → PII exposure, test wallets, debug endpoints, feature flags
+testability: PASSIVE
+[HYP] Main application client-side logic exposure via challenge bypass
+class: MISCONFIG
+asset: rainbet.com
+confidence: 40
+reasoning: Main domain serves a React SPA (Montserrat font, SVG logo) entirely behind Cloudflare managed challenge. Challenge page includes cf_chl_opt with cFPWv, cRay, cvId. If challenge can be solved programmatically (headless browser, CF challenge solver) or if certain paths (static assets, /api/* proxied) are excluded from challenge, client-side code reveals API contracts, feature flags, wallet logic.
+evidence_needed: Successfully solve challenge or find unchallenged path returning JS bundles / API calls
+verify_steps: GET https://rainbet.com/ with headless browser (playwright/puppeteer) to solve challenge, GET https://rainbet.com/assets/ (static assets), GET https://rainbet.com/api/ (check if proxied API calls bypass challenge), GET https://rainbet.com/__cf_chl_captcha_tk__ (challenge token endpoint)
+impact: Access to compiled React app → reverse-engineer API contracts, find hidden endpoints, identify wallet/betting logic, locate IDOR vectors
+testability: AUTH_HELPED
+[PARKED] Staging environment Cloudflare Access misconfiguration: confidence 45 < 50 threshold; Cloudflare Access is default-deny; no evidence of policy misconfiguration; verify steps unlikely to yield results without auth
+[PARKED] Main application client-side logic exposure via challenge bypass: confidence 40 < 50; requires active challenge solving (headless browser) which exceeds passive-only mandate; Cloudflare managed challenge is robust
+[FINAL] 1. API endpoint enumeration behind Cloudflare challenge (api.rainbet.com, confidence 55)
+[NEXT] PROBE: GET https://api.rainbet.com/api/v1/public/ping with headers: Accept: application/json, User-Agent: RainBet-Mobile/1.0 (test common mobile API endpoint pattern), then GET https://api.rainbet.com/api/v1/health with Accept: application/json, then OPTIONS https://api.rainbet.com/api/v1/
+[LEARN] REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of path-based policy gaps
+[0m
+[0m→ [0mRead leads/lead-bigpickle.md
+Running fresh read-only probes on the active watch items (≤1 rps).
+[0m
+[0m$ [0mUA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+echo "=== api GET ping ==="
+curl -s -o /tmp/r1.bin -D - -A "$UA" "https://api.rainbet.com/api/v1/public/ping" --max-time 15 | head -20
+wc -c /tmp/r1.bin
+sleep 1
+echo "=== api GET robots (static class) ==="
+curl -s -o /tmp/r2.bin -D - -A "$UA" "https://api.rainbet.com/robots.txt" --max-time 15 | grep -iE "HTTP/|cf-mitigated|x-do-orig-status|content-length" 
+wc -c /tmp/r2.bin
+=== api GET ping ===
+HTTP/2 403 
+date: Fri, 18 Sep 2026 01:08:30 GMT
+content-type: text/html; charset=UTF-8
+cache-control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+expires: Thu, 01 Jan 1970 00:00:01 GMT
+referrer-policy: same-origin
+x-frame-options: SAMEORIGIN
+set-cookie: __cf_bm=y38moEb7XuuYJtwopIAIGxsSDFzqIrgq_l_9XrWACqI-1789693710.3731387-1.0.1.1-wvQpcVaMkyezrsawQxoY4jr3z3rh8MSwT6BqzP5xsgP663u.17EV8aPaTYXRUL0SyYfOxfC24.o3x9uzNzk4PpgkdW1kDxixiLsJY8frR7lYNdmbCXvT7xdWd1LxNf73; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Fri, 18 Sep 2026 01:38:30 GMT
+server: cloudflare
+cf-ray: a3cc75b9dd38e5cb-IAD
+alt-svc: h3=":443"; ma=86400
+
+5486 /tmp/r1.bin
+=== api GET robots (static class) ===
+HTTP/2 403 
+content-length: 4548
+4548 /tmp/r2.bin
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mUA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+echo "=== api OPTIONS openapi.json ==="
+curl -s -o /tmp/r3.bin -D - -A "$UA" -X OPTIONS "https://api.rainbet.com/openapi.json" --max-time 15 | grep -iE "HTTP/|allow:|cf-mitigated|x-do-orig-status|x-do-app-origin|content-length|access-control"
+wc -c /tmp/r3.bin
+sleep 1
+echo "=== staging-raffles /health ==="
+curl -s -o /tmp/r4.bin -D - -A "$UA" "https://staging-raffles.rainbet.com/health" --max-time 15 | grep -iE "HTTP/|cf-mitigated|x-do-orig-status|x-do-app-origin|content-length|content-type"
+echo "---body---"; cat /tmp/r4.bin; echo
+sleep 1
+echo "=== staging-alerts EIO4 polling ==="
+curl -s -o /tmp/r5.bin -D - -A "$UA" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 15 | grep -iE "HTTP/|cf-mitigated|x-do-orig-status|x-do-app-origin|content-length"
+echo "---body---"; cat /tmp/r5.bin; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

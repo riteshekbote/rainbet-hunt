@@ -871,3 +871,16 @@ www.rainbet.com
 ## 2026-09-17 19:54:10 UTC
 
 ## 2026-09-17 22:46:50 UTC
+
+## 2026-09-18 01:09:36 UTC
+- NEW rainbet.com / www.rainbet.com — Cloudflare managed challenge (403), bot protection active, serves React SPA behind challenge
+- NEW api.rainbet.com — Cloudflare managed challenge (403 on all paths: /, /api/v1, /api/v2, /graphql, /swagger, /openapi.json, /health, /version)
+- NEW staging.rainbet.com — Cloudflare Access (Zero Trust), 302 to challenge-5te-pages.cloudflareaccess.com for all paths including /api
+- NEW app.rainbet.com, auth.rainbet.com, admin.rainbet.com, dashboard.rainbet.com, dev.rainbet.com, login.rainbet.com, m.rainbet.com, my.rainbet.com, portal.rainbet.com, support.rainbet.com, test.rainbet.co
+- NEW No new live hosts or endpoints discovered since 2026-09-17 22:46 knowledge cutoff — surface stable
+- CHANGED api.rainbet.com plain-block mode (5485B/4547B) + OPTIONS blanket exemption holding across 17+ rounds; no WAF churn window in last 3 probes
+- CHANGED staging-chat.rainbet.com/socket.io engine.io polling 200/116B with fresh anonymous sids persistently issued (sid=CowpmCsgoukLr4QTAABu latest) — plane UP, fair-egress window open
+- CHANGED staging-services.rainbet.com CORS reflector path-agnostic on 12+ endpoints, all 404-gated — zero 2xx lift across 13+ rounds
+- CHANGED staging-raffles.rainbet.com /health real origin JSON stable (75B, x-do-orig-status:200, no CF protections) — 6 hostnames on app 1ce4ff55 confirmed
+- CHANGED staging-alerts.rainbet.com engine.io v4 stable 200/116B (maxPayload=20480, upgrades=["websocket"]) — control plane for auth asymmetry
+- CHANGED staging-monorepo.rainbet.com /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app bc240b8a

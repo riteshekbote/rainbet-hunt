@@ -3883,3 +3883,43 @@ testability: PASSIVE
 [NEXT] HUMAN: staging-chat fair-egress — use freshly captured sid `PGlXcXZ3bC0lsAgRAAA9` (this round, plane UP, pingTimeout=20s); OPEN single WS `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=PGlXcXZ3bC0lsAgRAAA9`; send `2probe`→`3probe`→`5`, then `40` (root), `40/raffles,{}`, `40/alerts,{}`; reply `3` to every engine.io `2`; hold ≥60s recording any `42[...]` frame (≤1 conn, listen-only). Not runnable via GET/HEAD/OPTIONS — requires websocat/socket.io-client.
 [RISK] RainBet: 30/100 — flat. All watch items re-confirmed by fresh probes this round: chat plane UP with a live sid in hand (`PGlXcXZ3bC0lsAgRAAA9`, pingTimeout 20s), api plain-block (API 5485/static 4547) + OPTIONS exemption stable on app 53f39197, services reflector 404-gated on 17+/17, raffles origin JSON stable, alerts control sid healthy. Decisive thread (chat fair-egress with pong) remains the single highest-value open item — HUMAN-gated, window open. Remaining threads (services CORS 2xx, api churn GET gap) deploy/operator-gated with zero lift across 20+ rounds. All standings ≤CVSS 7.3, previously reported; monitoring-only, no escalation.
 ## 2026-09-17 22:44:38 UTC [target] (model bigpickle)
+## 2026-09-18 01:08:34 UTC [target] (model bigpickle)
+[NEW] rainbet.com / www.rainbet.com — Cloudflare managed challenge (403), bot protection active, serves React SPA behind challenge
+[NEW] api.rainbet.com — Cloudflare managed challenge (403 on all paths: /, /api/v1, /api/v2, /graphql, /swagger, /openapi.json, /health, /version)
+[NEW] staging.rainbet.com — Cloudflare Access (Zero Trust), 302 to challenge-5te-pages.cloudflareaccess.com for all paths including /api
+[NEW] app.rainbet.com, auth.rainbet.com, admin.rainbet.com, dashboard.rainbet.com, dev.rainbet.com, login.rainbet.com, m.rainbet.com, my.rainbet.com, portal.rainbet.com, support.rainbet.com, test.rainbet.com, web.rainbet.com — NXDOMAIN (no DNS resolution)
+[PRIO] api.rainbet.com,7.0,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=2,cloud_surface=8,freshness=8
+[PRIO] staging.rainbet.com,6.5,attack_surface=7,business_value=8,tech_exposure=7,gate_ease=1,cloud_surface=9,freshness=7
+[PRIO] rainbet.com,5.5,attack_surface=6,business_value=9,tech_exposure=5,gate_ease=2,cloud_surface=8,freshness=6
+[HYP] API endpoint enumeration behind Cloudflare challenge
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 55
+reasoning: All tested endpoints (/api/v1, /api/v2, /graphql, /swagger, /openapi.json, /health, /version) return 403 via Cloudflare challenge rather than 404. Challenge page suggests WAF rules may allow certain paths/headers through. Cloudflare "managed challenge" typically permits known-good bots/API clients with proper headers.
+evidence_needed: Identify at least one API endpoint that returns non-403 (200, 401, 404 with JSON body) indicating actual API surface behind WAF
+verify_steps: GET https://api.rainbet.com/api/v1/public/ping (if exists), GET https://api.rainbet.com/api/v1/health with Accept: application/json, GET https://api.rainbet.com/ with header CF-Access-Client-Id: test (test bypass), OPTIONS https://api.rainbet.com/api/v1/
+impact: If any API endpoint bypasses challenge, full API surface enumeration possible → IDOR/BOLA, mass assignment, business logic flaws on gambling/wallet endpoints
+testability: PASSIVE
+[HYP] Staging environment Cloudflare Access misconfiguration
+class: AUTH
+asset: staging.rainbet.com
+confidence: 45
+reasoning: staging.rainbet.com uses Cloudflare Access (Zero Trust) with JWT metadata in redirect URL (kid, aud, exp claims visible). The redirect includes `service_token_status:false` and `auth_status:NO_OR`. If any policy allows unauthenticated access to specific paths (e.g., /health, /metrics, /.well-known/), staging API could be exposed.
+evidence_needed: Find at least one path on staging.rainbet.com returning 200/401/403 (JSON) instead of 302 to Cloudflare Access login
+verify_steps: GET https://staging.rainbet.com/.well-known/cloudflare-access-protected-resource/, GET https://staging.rainbet.com/health, GET https://staging.rainbet.com/metrics, GET https://staging.rainbet.com/api/health, GET https://staging.rainbet.com/.well-known/jwks.json
+impact: Staging often mirrors production with weaker controls → PII exposure, test wallets, debug endpoints, feature flags
+testability: PASSIVE
+[HYP] Main application client-side logic exposure via challenge bypass
+class: MISCONFIG
+asset: rainbet.com
+confidence: 40
+reasoning: Main domain serves a React SPA (Montserrat font, SVG logo) entirely behind Cloudflare managed challenge. Challenge page includes cf_chl_opt with cFPWv, cRay, cvId. If challenge can be solved programmatically (headless browser, CF challenge solver) or if certain paths (static assets, /api/* proxied) are excluded from challenge, client-side code reveals API contracts, feature flags, wallet logic.
+evidence_needed: Successfully solve challenge or find unchallenged path returning JS bundles / API calls
+verify_steps: GET https://rainbet.com/ with headless browser (playwright/puppeteer) to solve challenge, GET https://rainbet.com/assets/ (static assets), GET https://rainbet.com/api/ (check if proxied API calls bypass challenge), GET https://rainbet.com/__cf_chl_captcha_tk__ (challenge token endpoint)
+impact: Access to compiled React app → reverse-engineer API contracts, find hidden endpoints, identify wallet/betting logic, locate IDOR vectors
+testability: AUTH_HELPED
+[PARKED] Staging environment Cloudflare Access misconfiguration: confidence 45 < 50 threshold; Cloudflare Access is default-deny; no evidence of policy misconfiguration; verify steps unlikely to yield results without auth
+[PARKED] Main application client-side logic exposure via challenge bypass: confidence 40 < 50; requires active challenge solving (headless browser) which exceeds passive-only mandate; Cloudflare managed challenge is robust
+[FINAL] 1. API endpoint enumeration behind Cloudflare challenge (api.rainbet.com, confidence 55)
+[NEXT] PROBE: GET https://api.rainbet.com/api/v1/public/ping with headers: Accept: application/json, User-Agent: RainBet-Mobile/1.0 (test common mobile API endpoint pattern), then GET https://api.rainbet.com/api/v1/health with Accept: application/json, then OPTIONS https://api.rainbet.com/api/v1/
+[LEARN] REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of path-based policy gaps
