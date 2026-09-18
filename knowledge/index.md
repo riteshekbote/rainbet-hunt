@@ -474,3 +474,5 @@
 - 2026-09-18 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app bc240b8a
 - 2026-09-18 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists (GET ping 403@5485B, no cf-mitigated) + OPTIONS /openapi.json 200+Allow+x-do-orig-status:200+app 53f39197 — no new churn window at 11:28Z; state frozen vs prior round.
 - 2026-09-18 ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `NIvqcv4jZ2ZcIT-KAAAI` issued 11:28Z (200/116B, pingTimeout=20000, maxPayload=10240) — plane UP, fair-egress window open.
+- 2026-09-18 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively
+- 2026-09-18 REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
