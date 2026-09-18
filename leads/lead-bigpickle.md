@@ -4018,3 +4018,4 @@ verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET
 impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
 testability: PASSIVE
 ## 2026-09-18 21:14:53 UTC [target] (model bigpickle)
+## 2026-09-18 23:22:50 UTC [target] (model bigpickle)

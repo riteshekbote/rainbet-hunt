@@ -25859,3 +25859,31 @@ access-control-expose-headers: Cf-Mitigated
 access-control-allow-credentials: true
 access-control-allow-origin: https://evil.example
 [0m
+===== ANALYST bigpickle 2026-09-18 23:25:12 UTC =====
+[0m
+> build · big-pickle
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -sS -o /tmp/chat_eio.txt -w "chat_eio GET=%{http_code} len=%{size_download}\n" --max-time 15 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" ; cat /tmp/chat_eio.txt 2>/dev/null | head -c 200 ; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w "api_ping GET=%{http_code} len=%{size_download}\n" --max-time 15 "https://api.rainbet.com/api/v1/public/ping" ; sleep 1 ; curl -sS -i -X OPTIONS --max-time 15 -o /tmp/api_opt.json -w "api_opt OPTIONS=%{http_code} len=%{size_download}\n" "https://api.rainbet.com/openapi.json" ; grep -i "allow\|do-orig\|do-app" /tmp/api_opt.json | head -6
+api_ping GET=403 len=5485
+api_opt OPTIONS=200 len=0
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -sS -o /tmp/raffles.txt -w "raffles_health GET=%{http_code} len=%{size_download}\n" --max-time 15 "https://staging-raffles.rainbet.com/health" ; cat /tmp/raffles.txt 2>/dev/null | head -c 150 ; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[0m
+[0m$ [0mcurl -sS -i --max-time 15 -H "Origin: https://evil.example" -H "Accept: application/json" "https://staging-services.rainbet.com/api/v1/bets" | grep -i "HTTP/\|access-control\|x-do-orig\|x-powered\|content-type" | head -8
+HTTP/2 404 
+content-type: application/json; charset=utf-8
+x-powered-by: Express
+x-do-orig-status: 404
+access-control-expose-headers: Cf-Mitigated
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil.example
+[0m
