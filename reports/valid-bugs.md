@@ -79,3 +79,10 @@
   - **Verdict: VALID**
   - | 1 | staging-chat: Unauthenticated socket.io CONNECT | **VALID** | 7.5 |
   - | 2 | staging-alerts: WebSocket hijack via captured sid | **VALID** | 8.1 |
+
+- 5 lead(s) marked VALID at 2026-09-18 13:31:24 UTC
+  - **Verdict: VALID**
+  - | Q3 | Real security impact? | **YES** — Root namespace + /raffles + /alerts all accept unauthenticated `40` (CONNECT) returning valid sids. WebSocket upgrade with captured sid is confirmed working. A
+  - **Verdict: VALID**
+  - | 1 | Staging pocket app (app 1ce4ff55) — unauth origin + engine.io | **VALID** | HIGH (CVSS 7.5) |
+  - | 3 | staging-chat unauthenticated socket.io + WS hijack | **VALID** | HIGH (CVSS 7.5) |
