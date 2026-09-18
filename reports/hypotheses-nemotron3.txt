@@ -1,4 +1,4 @@
-## 2026-09-18 01:09:27 UTC [target] (model nemotron3)
+## 2026-09-18 06:03:34 UTC [target] (model nemotron3)
 [NEW] No new live hosts or endpoints discovered since 2026-09-17 22:46 knowledge cutoff — surface stable
 [CHANGED] api.rainbet.com plain-block mode (5485B/4547B) + OPTIONS blanket exemption holding across 17+ rounds; no WAF churn window in last 3 probes
 [CHANGED] staging-chat.rainbet.com/socket.io engine.io polling 200/116B with fresh anonymous sids persistently issued (sid=CowpmCsgoukLr4QTAABu latest) — plane UP, fair-egress window open
@@ -42,7 +42,6 @@ testability: PASSIVE
 [FINAL] 2. staging-raffles.rainbet.com (6 hostnames on app 1ce4ff55): Staging pocket app exposes full API contract via unprotected /health and /api/* endpoints (confidence 90)
 [FINAL] 3. staging-services.rainbet.com: CORS reflector with credentials + Cf-Mitigated header exposure enables cross-origin data theft once any 2xx endpoint mounts (confidence 75)
 [NEXT] PROBE: GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling → capture engine.io sid; WebSocket upgrade to wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<captured_sid>; send engine.io packet `2` (pong) immediately after upgrade; then send `40` (bare CONNECT to root namespace); if 200 with socket sid, send `40{"0":"/raffles"}` and `40{"0":"/alerts"}` to test namespace joins; then emit `42["subscribe",{"channel":"raffles"}]` to test event subscription and server-push interception
-[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `CowpmCsgoukLr4QTAABu` issued this round (200/116B, pingTimeout=20000, maxPayload=10240) — plane UP, fair-egress window open
 [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists this round (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OPTIONS,HEAD — exemption stable, no new churn window
 [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example this round — ACAO-reflect + credentials:true + expose Cf-Mitigated, still 404-gated, zero 2xx lift
 [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 6 staging hostnames

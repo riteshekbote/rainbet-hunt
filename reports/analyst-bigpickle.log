@@ -25476,3 +25476,107 @@ echo "=== staging-alerts EIO4 polling ==="
 curl -s -o /tmp/r5.bin -D - -A "$UA" "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling" --max-time 15 | grep -iE "HTTP/|cf-mitigated|x-do-orig-status|x-do-app-origin|content-length"
 echo "---body---"; cat /tmp/r5.bin; echo failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-18 06:03:55 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/probe_api_get.txt -w "HTTP %{http_code} len=%{size_download}\n" -H "Accept: application/json" --max-time 20 "https://api.rainbet.com/api/v1/public/ping"; sleep 1; curl -s -o /dev/null -w "HTTP %{http_code} len=%{size_download}\n" -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET" --max-time 20 "https://api.rainbet.com/openapi.json"
+HTTP 403 len=5485
+HTTP 200 len=0
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "HTTP %{http_code} len=%{size_download}\n" --max-time 20 "https://api.rainbet.com/robots.txt"; sleep 1; curl -s -I -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: POST" --max-time 20 "https://api.rainbet.com/openapi.json" | head -30
+HTTP 403 len=4547
+HTTP/2 200 
+date: Fri, 18 Sep 2026 06:02:24 GMT
+content-type: application/json
+content-length: 0
+server: cloudflare
+allow: GET,POST,OPTIONS,HEAD
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+cache-control: private
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=FFW1MJ46yJMAyghmtrY_SeZUGusP97J5WmboPIPg6ds-1789711344.4086046-1.0.1.1-Stc2_0oHRMp.gv5Ymcu_2M_vWx6pYF0av.CWnsGaj0HAcAuAruelVr0j44e5QBsdEWa3ZRiDSnjCA6VtdG_ZXpc8Y78sb9308wGD8sUot_hcXTlBEkrmt2bwsLXD0Qio; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Fri, 18 Sep 2026 06:32:24 GMT
+cf-ray: a3ce243e8e7cc5db-ORD
+alt-svc: h3=":443"; ma=86400
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "chat: HTTP %{http_code} len=%{size_download}\n" --max-time 20 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"; sleep 1; curl -s -o /dev/null -w "alerts: HTTP %{http_code} len=%{size_download}\n" --max-time 20 "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling"
+chat: HTTP 200 len=116
+alerts: HTTP 200 len=116
+[0m
+[0m$ [0mcurl -s --max-time 20 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"; echo; sleep 1; curl -s -o /dev/null -w "services /api/v1/bets: HTTP %{http_code} len=%{size_download}\n" -H "Origin: https://evil.example" -H "Accept: application/json" --max-time 20 "https://staging-services.rainbet.com/api/v1/bets"; sleep 1; curl -s -o /dev/null -w "raffles /health: HTTP %{http_code} len=%{size_download}\n" --max-time 20 "https://staging-raffles.rainbet.com/health"; sleep 1; curl -s -o /dev/null -w "monorepo /docs: HTTP %{http_code} len=%{size_download}\n" --max-time 20 "https://staging-monorepo.rainbet.com/docs"
+0{"sid":"gI8WWE6iE1i8SPNmAAAD","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+services /api/v1/bets: HTTP 404 len=33
+raffles /health: HTTP 200 len=75
+monorepo /docs: HTTP 403 len=5485
+[0m
+[0m$ [0mcurl -s -I -H "Origin: https://evil.example" -H "Accept: application/json" --max-time 20 "https://staging-services.rainbet.com/api/v1/bets" | grep -iE "^(HTTP|access-control|allow-cred|x-powered|x-do|content-type)"
+HTTP/2 404 
+content-type: application/json; charset=utf-8
+x-powered-by: Express
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 404
+access-control-allow-credentials: true
+access-control-allow-origin: https://evil.example
+access-control-expose-headers: Cf-Mitigated
+[0m
+**STEP 1 — DELTA**
+- NO_DELTA: No new live hosts/endpoints since last round; surface stable across 20+ rounds.
+- CHANGED api.rainbet.com: plain-block persists (API 5485B / static 4547B, no cf-mitigated) + OPTIONS /openapi.json 200 + Allow:GET,POST,OPTIONS,HEAD + x-do-orig-status:200 + app 53f39197 — exemption stable, no churn window observed.
+- CHANGED staging-chat.rainbet.com: fresh anonymous engine.io sid `gI8WWE6iE1i8SPNmAAAD` issued this round (200/116B, pingTimeout=20000, maxPayload=10240) — plane UP, fair-egress window OPEN.
+- CHANGED staging-monorepo.rainbet.com: /docs → 403 len=5485 (plain-block flavor this round).
+- CHANGED staging-services/raffles/alerts: /api/v1/bets 404/33B evil-origin ACAO-reflect; raffles /health 200/75B; alerts 200/116B control — all stable.
+
+**STEP 2 — PRIORITIZE**
+- [PRIO] api.rainbet.com,6.95,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=2,cloud_surface=8,freshness=7
+- [PRIO] staging-services.rainbet.com,7.0,attack_surface=7,business_value=8,tech_exposure=5,gate_ease=8,cloud_surface=6,freshness=7
+- [PRIO] staging-chat.rainbet.com/socket.io,6.75,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=8,cloud_surface=6,freshness=8
+
+**STEP 3 — HYPOTHESES**
+[HYP] staging-chat unauthenticated socket plane delivers business frames on fair egress
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 95
+reasoning: Fresh probe this round: engine.io v4 polling 200/116B issued anonymous sid `gI8WWE6iE1i8SPNmAAAD` (pingTimeout=20000, maxPayload=10240, app 1ce4ff55); root namespace bare CONNECT (`40`) ACKs socket-level sid on same app; sibling staging-alerts on identical DO app rejects `44 er_auth_token_invalid` — per-hostname auth asymmetry proven 20+ rounds; all prior listen attempts truncated at pingTimeout because client never ponged.
+evidence_needed: any `42[...]` business frame delivered to anonymous socket during one held connection with correct pong behavior
+verify_steps: HUMAN — OPEN single WS `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=gI8WWE6iE1i8SPNmAAAD`; send `2probe`→`3probe`→`5`, then `40`, `40/raffles,{}`, `40/alerts,{}`; reply `3` to every engine.io `2`; hold ≥60s recording any `42[...]` (≤1 conn, listen-only, no events emitted).
+impact: anonymous read of raft of live event stream (bets/wallet/raffle activity) on staging; HIGH if PII/trading data, deploy-gated only by auth asymmetry which is proven; testability HUMAN_ONLY
+testability: HUMAN_ONLY
+[HYP] api per-class GET gap opens during WAF churn
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: Fresh probes this round: GET ping 403 len=5485 (API class), GET /robots.txt 403 len=4547 (static class, no cf-mitigated); OPTIONS /openapi.json 200 + Allow + x-do-orig-status:200 + app 53f39197 — origin reachable via OPTIONS oracle; GET uniformly 403 both classes; bidirectional 110KB↔5485B churn confirmed across 20+ rounds but no open window observed this round.
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either block class during a churn window
+verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json; flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+[HYP] services CORS reflector becomes exploitable once any route mounts 2xx
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: Fresh probe this round: GET /api/v1/bets under Origin:https://evil.example → 404/33B with ACAO `https://evil.example` + allow-credentials:true + access-control-expose-headers:Cf-Mitigated + x-powered-by:Express, app 1ce4ff55; /docs + Swagger sub-paths behind Access 302 prove a mounted protected service; reflector path-agnostic 20+/20; zero 2xx across 20+ rounds.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round on /api/v1/bets, /api/v1/admin, /graphql with Origin:https://evil.example + Accept:application/json, ≤1 rps; flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+testability: PASSIVE
+
+**STEP 4 — SELF-CRITIQUE**
+- [FINAL] staging-chat unauthenticated socket plane fair egress (95) — decisive, plane UP, fresh sid captured.
+- [FINAL] services CORS 2xx lift (45) — ≥40, actionable verify, survives.
+- [FINAL] api churn GET gap (40) — ≥40, cheap passive watch, survives.
+- Dropped: all recurring REJECTED items (staging Access, rainbet challenge, dead subdomains) not re-emitted; findings already ACCEPTED in KB stand as monitoring items only.
+
+**STEP 5 — NEXT ACTION**
+- [NEXT] HUMAN: staging-chat fair-egress — use freshly captured sid `gI8WWE6iE1i8SPNmAAAD` (this round, plane UP, pingTimeout=20s); OPEN single WS `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=gI8WWE6iE1i8SPNmAAAD`; send `2probe`→`3probe`→`5`, then `40`, `40/raffles,{}`, `40/alerts,{}`; reply `3` to every engine.io `2`; hold ≥60s recording any `42[...]` frame (≤1 conn, listen-only, no events emitted). Not runnable via GET/HEAD/OPTIONS — requires websocat/socket.io-client.
+
+**STEP 6 — LEARNING**
+- [LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `gI8WWE6iE1i8SPNmAAAD` issued this round (200/116B, pingTimeout=20000, maxPayload=10240) — plane UP, fair-egress window open on app 1ce4ff55.
+- [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists this round (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OPTIONS,HEAD + x-do-orig-status:200 + app 53f39197 — exemption stable, no new churn window.
+- [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example — ACAO-reflect + credentials:true + expose Cf-Mitigated + x-powered-by:Express; still 404-gated, zero 2xx lift.
+- [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: /health 200/75B origin JSON stable (`x-do-orig-status:200`, app 1ce4ff55).
+- [LEARN] ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io 200/116B control sid healthy (maxPayload=20480, upgrades websocket).
+- [LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs 403 len=5485 (plain-block) this round — WAF front churn live on app bc240b8a.
+
+**STEP 7 — RISK**
+- [RISK] RainBet: 30/100 — flat. All watch items re-confirmed by fresh probes this round: chat plane UP with a live sid in hand (`gI8WWE6iE1i8SPNmAAAD`, pingTimeout 20s), api plain-block (5485/4547) + OPTIONS exemption stable on app 53f39197, services reflector 404-gated on 20+/20, raffles origin JSON stable, alerts control sid healthy, monorepo /docs plain-block flavor. Decisive thread (chat fair-egress with pong) remains the single highest-value open item — HUMAN-gated, window open. Remaining threads (services CORS 2xx, api churn GET gap) deploy/operator-gated with zero lift across 20+ rounds. All standings ≤CVSS 7.3, previously reported; monitoring-only, no escalation.

@@ -3923,3 +3923,31 @@ testability: AUTH_HELPED
 [FINAL] 1. API endpoint enumeration behind Cloudflare challenge (api.rainbet.com, confidence 55)
 [NEXT] PROBE: GET https://api.rainbet.com/api/v1/public/ping with headers: Accept: application/json, User-Agent: RainBet-Mobile/1.0 (test common mobile API endpoint pattern), then GET https://api.rainbet.com/api/v1/health with Accept: application/json, then OPTIONS https://api.rainbet.com/api/v1/
 [LEARN] REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of path-based policy gaps
+## 2026-09-18 06:03:18 UTC [target] (model bigpickle)
+[HYP] staging-chat unauthenticated socket plane delivers business frames on fair egress
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 95
+reasoning: Fresh probe this round: engine.io v4 polling 200/116B issued anonymous sid `gI8WWE6iE1i8SPNmAAAD` (pingTimeout=20000, maxPayload=10240, app 1ce4ff55); root namespace bare CONNECT (`40`) ACKs socket-level sid on same app; sibling staging-alerts on identical DO app rejects `44 er_auth_token_invalid` — per-hostname auth asymmetry proven 20+ rounds; all prior listen attempts truncated at pingTimeout because client never ponged.
+evidence_needed: any `42[...]` business frame delivered to anonymous socket during one held connection with correct pong behavior
+verify_steps: HUMAN — OPEN single WS `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=gI8WWE6iE1i8SPNmAAAD`; send `2probe`→`3probe`→`5`, then `40`, `40/raffles,{}`, `40/alerts,{}`; reply `3` to every engine.io `2`; hold ≥60s recording any `42[...]` (≤1 conn, listen-only, no events emitted).
+impact: anonymous read of raft of live event stream (bets/wallet/raffle activity) on staging; HIGH if PII/trading data, deploy-gated only by auth asymmetry which is proven; testability HUMAN_ONLY
+testability: HUMAN_ONLY
+[HYP] api per-class GET gap opens during WAF churn
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: Fresh probes this round: GET ping 403 len=5485 (API class), GET /robots.txt 403 len=4547 (static class, no cf-mitigated); OPTIONS /openapi.json 200 + Allow + x-do-orig-status:200 + app 53f39197 — origin reachable via OPTIONS oracle; GET uniformly 403 both classes; bidirectional 110KB↔5485B churn confirmed across 20+ rounds but no open window observed this round.
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either block class during a churn window
+verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json; flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+[HYP] services CORS reflector becomes exploitable once any route mounts 2xx
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: Fresh probe this round: GET /api/v1/bets under Origin:https://evil.example → 404/33B with ACAO `https://evil.example` + allow-credentials:true + access-control-expose-headers:Cf-Mitigated + x-powered-by:Express, app 1ce4ff55; /docs + Swagger sub-paths behind Access 302 prove a mounted protected service; reflector path-agnostic 20+/20; zero 2xx across 20+ rounds.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round on /api/v1/bets, /api/v1/admin, /graphql with Origin:https://evil.example + Accept:application/json, ≤1 rps; flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
+testability: PASSIVE
