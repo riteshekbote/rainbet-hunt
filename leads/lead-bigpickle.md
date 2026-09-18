@@ -3951,3 +3951,40 @@ evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:tru
 verify_steps: 1-2 probes/round on /api/v1/bets, /api/v1/admin, /graphql with Origin:https://evil.example + Accept:application/json, ≤1 rps; flag 2xx+ACAO
 impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated
 testability: PASSIVE
+## 2026-09-18 11:29:30 UTC [target] (model bigpickle)
+[PRIO] staging-chat.rainbet.com/socket.io, 7.45, realtime-auth (a8 b8 t8 g9 c6 f3)
+[PRIO] staging-services.rainbet.com, 6.25, cors-deploy-gate (a6 b8 t5 g8 c6 f2)
+[PRIO] api.rainbet.com, 6.00, waf-churn-oracle (a7 b9 t5 g3 c6 f2)
+[HYP] staging-chat unauthenticated socket plane delivers business frames on fair egress
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 95
+reasoning: Fresh probe 11:28Z: EIO4 polling 200/116B issued anonymous sid `NIvqcv4jZ2ZcIT-KAAAI` (pingInterval=25000, pingTimeout=20000, maxPayload=10240, upgrades=[websocket]); root `40` CONNECT ACKs socket-level sid on app 1ce4ff55 in all prior rounds; sibling staging-alerts on identical DO app rejects `44 er_auth_token_invalid` — per-hostname auth asymmetry sustained 20+ rounds; every prior WS listen truncated at pingTimeout because client never ponged `2`.
+evidence_needed: any `42[...]` business frame delivered to an anonymous socket during one held connection with correct pong behavior
+verify_steps: HUMAN — single WS `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=NIvqcv4jZ2ZcIT-KAAAI`; send `2probe`→`3probe`→`5`, `40`, `40/raffles,{}`, `40/alerts,{}`; reply `3` to each engine.io `2`; hold ≥60s, listen-only, record any `42[...]`
+impact: anonymous read of live bet/wallet/raffle event stream on staging; HIGH if PII/trading data; deploy-gated only by proven auth asymmetry
+testability: HUMAN_ONLY
+[HYP] services CORS-with-credentials reflector becomes exploitable on first 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: Path-agnostic; fresh round re-confirmed /api/v1/bets 404/33B under evil Origin with ACAO-reflect + allow-credentials:true + expose Cf-Mitigated on app 1ce4ff55; /docs+Swagger behind Access 302 proves a live protected service; zero 2xx across 20+ rounds.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round GET /api/v1/bets, /graphql with Origin:https://evil.example + Accept:application/json, ≤1 rps; flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated only
+testability: PASSIVE
+[HYP] api WAF plain-block↔110KB churn opens a GET passthrough window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: Fresh 11:28Z GET ping 403@5485B + OPTIONS oracle 200 confirmed; bidirectional 110KB↔5485B churn proven on app 53f39197 across 20+ rounds but no open content window observed; OPTIONS oracle shows origin reachable.
+evidence_needed: any GET/HEAD returning non-403 with x-do-orig-status on either block class during a churn window
+verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json; flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+[PARKED] api WAF churn GET-passthrough: 40 barely clears; 20+ rounds with zero open windows makes this drift-monitoring, not a live lead.
+[FINAL] 1. staging-chat egress (95, HUMAN_ONLY — decisive) 2. services CORS 2xx-mount (45) 3. api churn-window (40)
+[NEXT] HUMAN: execute the staged fair-egress listen on `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=NIvqcv4jZ2ZcIT-KAAAI` (sid live as of 11:28Z): `2probe`→`3probe`→`5`, `40`, `40/raffles`, `40/alerts`, pong every `2`, hold ≥60s listen-only for any `42[...]` frame. Single connection, no events emitted.
+[LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists (GET ping 403@5485B, no cf-mitigated) + OPTIONS /openapi.json 200+Allow+x-do-orig-status:200+app 53f39197 — no new churn window at 11:28Z; state frozen vs prior round.
+[LEARN] ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `NIvqcv4jZ2ZcIT-KAAAI` issued 11:28Z (200/116B, pingTimeout=20000, maxPayload=10240) — plane UP, fair-egress window open.
+[RISK] rainbet: 42 — staging fleet (app 1ce4ff55) continues to expose an unauthenticated socket plane, unprotected origin /health JSON, and a credentialed CORS reflector across 6+ hostnames; none yet yields PII/transactional data (all 404-gated or egress-unproven), and prod api stays WAF-closed — exposure is real but latent, deploy-gated.

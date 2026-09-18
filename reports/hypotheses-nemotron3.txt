@@ -1,4 +1,4 @@
-## 2026-09-18 06:03:34 UTC [target] (model nemotron3)
+## 2026-09-18 11:33:21 UTC [target] (model nemotron3)
 [NEW] No new live hosts or endpoints discovered since 2026-09-17 22:46 knowledge cutoff — surface stable
 [CHANGED] api.rainbet.com plain-block mode (5485B/4547B) + OPTIONS blanket exemption holding across 17+ rounds; no WAF churn window in last 3 probes
 [CHANGED] staging-chat.rainbet.com/socket.io engine.io polling 200/116B with fresh anonymous sids persistently issued (sid=CowpmCsgoukLr4QTAABu latest) — plane UP, fair-egress window open
