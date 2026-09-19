@@ -86,3 +86,9 @@
   - **Verdict: VALID**
   - | 1 | Staging pocket app (app 1ce4ff55) — unauth origin + engine.io | **VALID** | HIGH (CVSS 7.5) |
   - | 3 | staging-chat unauthenticated socket.io + WS hijack | **VALID** | HIGH (CVSS 7.5) |
+
+- 4 lead(s) marked VALID at 2026-09-19 05:04:17 UTC
+  - **Verdict: VALID**
+  - | Q5 Novel | YES — confirmed by prior triage as a valid finding; alerts properly rejects CONNECT but transport-level hijack works |
+  - **Verdict: VALID**
+  - **Verdict: VALID**
