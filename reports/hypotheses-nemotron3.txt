@@ -1,4 +1,4 @@
-## 2026-09-19 14:53:40 UTC [target] (model nemotron3)
+## 2026-09-19 17:54:53 UTC [target] (model nemotron3)
 [CHANGED] api.rainbet.com plain-block mode (5485B/4547B) + OPTIONS blanket exemption holding across 17+ rounds; no WAF churn window in last 3 probes
 [CHANGED] staging-chat.rainbet.com/socket.io engine.io polling 200/116B with fresh anonymous sids persistently issued — plane UP, fair-egress window open
 [CHANGED] staging-services.rainbet.com CORS reflector path-agnostic on 12+ endpoints, all 404-gated — zero 2xx lift across 13+ rounds
@@ -12,7 +12,7 @@
 [PRIO] staging-alerts.rainbet.com,6.90,attack_surface=6,business_value=5,tech_exposure=7,gate_ease=10,cloud_surface=8,freshness=8
 [PRIO] api.rainbet.com,6.45,attack_surface=6,business_value=7,tech_exposure=7,gate_ease=3,cloud_surface=7,freshness=10
 [PRIO] staging-monorepo.rainbet.com,6.45,attack_surface=5,business_value=6,tech_exposure=6,gate_ease=8,cloud_surface=7,freshness=9
-[HYP] staging-chat.rainbet.com/socket.io/ unauthenticated socket.io namespace access enables event interception and business logic abuse
+[HYP] staging-chat.rainbet.com/socket.io unauthenticated socket.io namespace access enables event interception and business logic abuse
 class: AUTH
 asset: staging-chat.rainbet.com/socket.io/
 confidence: 95
@@ -48,6 +48,7 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example this round — ACAO-reflect + credentials:true + expose Cf-Mitigated, still 404-gated, zero 2xx lift
 [LEARN] ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 6 staging hostnames
 [LEARN] ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480, upgrades=["websocket"]) — plane persists, control for same-DO-app auth asymmetry
+[LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs fluctuates between CF managed challenge (110KB) and plain
 [LEARN] ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app bc240b8a
 [LEARN] REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of path-based policy gaps
 [LEARN] REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively

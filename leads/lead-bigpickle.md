@@ -4106,3 +4106,31 @@ impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-
 testability: PASSIVE
 [NEXT] HUMAN: execute staged fair-egress listen on `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh EIO4 sid <5 min>`: `2probe`→`3probe`→`5`, `40`, `40/raffles,{}`, `40/alerts,{}`, pong `3` on every engine.io `2`, hold ≥60s listen-only for any `42[...]`. Single connection, zero emitted events.
 ## 2026-09-19 14:48:10 UTC [target] (model bigpickle)
+## 2026-09-19 18:01:11 UTC [target] (model bigpickle)
+[HYP] services CORS-with-credentials reflector becomes exploitable on first 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: This round /api/v1/wallet evil-Origin 404/33B with ACAO-reflect + allow-credentials:true + expose Cf-Mitigated + x-powered-by: Express on app 1ce4ff55; /docs 302→Access proves mounted protected service; zero 2xx across 20+ rounds.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round GET /api/v1/wallet, /api/v1/profile, /graphql with Origin:https://evil.example + Accept:application/json, ≤1 rps; flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated only
+testability: PASSIVE
+[HYP] staging-chat business frames are subscription-gated (emitted after client-side subscribe only)
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 40
+reasoning: Fair egress now POSITIVE-NEGATIVE on root — fresh anonymous EIO4 sid every probe; `40` CONNECT ACKs anonymous socket sid (rounds 21-25); session held 100.3s with 4 pong cycles; ZERO `42[...]` frames delivered; `40/raffles,{}` and `40/alerts,{}` → `44 Invalid namespace`. Server never pushes to an idle anonymous socket — egress may require a client emit (subscribe/room join) not yet performed.
+evidence_needed: any `42[...]` frame delivered after a client-emitted subscribe on anonymous session
+verify_steps: HUMAN — polling or WS session on fresh EIO4 sid; CONNECT root; emit benign subscribe/join event names; listen ≥60s with pong; record any `42[...]`
+impact: anonymous read of live bet/wallet/raffle event stream if subscribe works; HIGH only if frames flow
+testability: HUMAN_ONLY
+[HYP] api WAF plain-block↔110KB churn opens a content passthrough window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: This round GET ping 403@5484B, GET /robots.txt 403@4546B (no cf-mitigated); OPTIONS /openapi.json 200 Allow:GET,POST,OPTIONS,HEAD + x-do-orig-status:200 + app 53f39197; OPTIONS `/openapi.json%2f..%2fv2` → 404 x-do-orig-status:404 (decode-dependent origin classifier). Churn proven 25+ rounds, no non-403 content ever observed.
+evidence_needed: any GET/HEAD non-403 with x-do-orig-status on either block class during a churn window
+verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json; flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE

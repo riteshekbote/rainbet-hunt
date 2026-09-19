@@ -26183,3 +26183,1022 @@ LEN=4545
 [93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
 [0m✗ [0mcurl -s -o /tmp/raf.txt -D - -m 20 "https://staging-raffles.rainbet.com/health" | grep -i -E "HTTP/|content-length|access-control|x-do-orig-status|x-do-app|x-frame|strict-transport"; echo "BODY=$(cat /tmp/raf.txt)" failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-19 18:01:19 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art/ 2>/dev/null | head -30
+total 600
+drwxr-xr-x 12 runner runner   4096 Sep 19 17:52 .
+drwxr-xr-x  3 runner runner   4096 Sep 19 17:51 ..
+drwxr-xr-x  7 runner runner   4096 Sep 19 17:52 .git
+drwxr-xr-x  3 runner runner   4096 Sep 19 17:52 .github
+-rw-r--r--  1 runner runner   1696 Sep 19 17:52 README.md
+-rw-r--r--  1 runner runner     32 Sep 19 17:52 analyst-out.txt
+-rw-r--r--  1 runner runner 240033 Sep 19 17:52 analyst-prompt.txt
+-rw-r--r--  1 runner runner 236248 Sep 19 17:52 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 leads
+-rw-r--r--  1 runner runner  47404 Sep 19 17:52 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 reports
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 reposcan-raw
+-rw-r--r--  1 runner runner   3198 Sep 19 17:52 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 scripts
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 triage
+[0m
+[0m$ [0mls -la scripts/ leads/ knowledge/ triage/ 2>/dev/null | head -60 && cat README.md | head -30 && cat analyst-out.txt
+knowledge/:
+total 108
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 .
+drwxr-xr-x 12 runner runner   4096 Sep 19 17:52 ..
+-rw-r--r--  1 runner runner 101090 Sep 19 17:52 index.md
+
+leads/:
+total 1660
+drwxr-xr-x  2 runner runner    4096 Sep 19 17:52 .
+drwxr-xr-x 12 runner runner    4096 Sep 19 17:52 ..
+-rw-r--r--  1 runner runner  561307 Sep 19 17:52 lead-bigpickle.md
+-rw-r--r--  1 runner runner    5508 Sep 19 17:52 lead-laguna.md
+-rw-r--r--  1 runner runner    5400 Sep 19 17:52 lead-ling3.md
+-rw-r--r--  1 runner runner    5616 Sep 19 17:52 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 19 17:52 lead-mimo.md
+-rw-r--r--  1 runner runner 1074463 Sep 19 17:52 lead-nemotron3.md
+-rw-r--r--  1 runner runner   20198 Sep 19 17:52 reposcan-rainbet.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 19 17:52 .
+drwxr-xr-x 12 runner runner  4096 Sep 19 17:52 ..
+-rw-r--r--  1 runner runner 16987 Sep 19 17:52 sync-issues.py
+
+triage/:
+total 592
+drwxr-xr-x  2 runner runner  4096 Sep 19 17:52 .
+drwxr-xr-x 12 runner runner  4096 Sep 19 17:52 ..
+-rw-r--r--  1 runner runner     0 Sep 19 17:52 .gitkeep
+-rw-r--r--  1 runner runner   184 Sep 19 17:52 run-2026-09-02-21-53.md
+-rw-r--r--  1 runner runner   146 Sep 19 17:52 run-2026-09-02-23-52.md
+-rw-r--r--  1 runner runner   171 Sep 19 17:52 run-2026-09-03-03-11.md
+-rw-r--r--  1 runner runner   317 Sep 19 17:52 run-2026-09-03-08-09.md
+-rw-r--r--  1 runner runner   213 Sep 19 17:52 run-2026-09-03-12-52.md
+-rw-r--r--  1 runner runner   519 Sep 19 17:52 run-2026-09-03-16-57.md
+-rw-r--r--  1 runner runner   169 Sep 19 17:52 run-2026-09-03-19-41.md
+-rw-r--r--  1 runner runner   219 Sep 19 17:52 run-2026-09-03-22-19.md
+-rw-r--r--  1 runner runner  4735 Sep 19 17:52 run-2026-09-04-00-14.md
+-rw-r--r--  1 runner runner   181 Sep 19 17:52 run-2026-09-04-04-42.md
+-rw-r--r--  1 runner runner   182 Sep 19 17:52 run-2026-09-04-09-20.md
+-rw-r--r--  1 runner runner   226 Sep 19 17:52 run-2026-09-04-13-45.md
+-rw-r--r--  1 runner runner   161 Sep 19 17:52 run-2026-09-04-17-23.md
+-rw-r--r--  1 runner runner   241 Sep 19 17:52 run-2026-09-04-19-50.md
+-rw-r--r--  1 runner runner   242 Sep 19 17:52 run-2026-09-04-22-09.md
+-rw-r--r--  1 runner runner   185 Sep 19 17:52 run-2026-09-05-00-10.md
+-rw-r--r--  1 runner runner  4310 Sep 19 17:52 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner   201 Sep 19 17:52 run-2026-09-05-08-35.md
+-rw-r--r--  1 runner runner   861 Sep 19 17:52 run-2026-09-05-12-02.md
+-rw-r--r--  1 runner runner   163 Sep 19 17:52 run-2026-09-05-15-20.md
+-rw-r--r--  1 runner runner   307 Sep 19 17:52 run-2026-09-05-17-24.md
+-rw-r--r--  1 runner runner   228 Sep 19 17:52 run-2026-09-05-19-27.md
+-rw-r--r--  1 runner runner   181 Sep 19 17:52 run-2026-09-05-21-41.md
+-rw-r--r--  1 runner runner   211 Sep 19 17:52 run-2026-09-05-23-34.md
+-rw-r--r--  1 runner runner 10063 Sep 19 17:52 run-2026-09-06-01-20.md
+-rw-r--r--  1 runner runner 11916 Sep 19 17:52 run-2026-09-06-06-05.md
+-rw-r--r--  1 runner runner  8617 Sep 19 17:52 run-2026-09-06-11-08.md
+-rw-r--r--  1 runner runner   169 Sep 19 17:52 run-2026-09-06-14-13.md
+-rw-r--r--  1 runner runner   196 Sep 19 17:52 run-2026-09-06-17-08.md
+-rw-r--r--  1 runner runner   184 Sep 19 17:52 run-2026-09-06-19-16.md
+-rw-r--r--  1 runner runner   167 Sep 19 17:52 run-2026-09-06-21-26.md
+# rainbet-hunt
+
+24/7 deep multi-model bug-hunting automation for **RainBet** (Oliver Maicher bug-bounty hub).
+
+Scope: All company-owned infrastructure, gaming platforms, wallets, APIs, user systems, mobile/web applications, and domains operated by RainBet
+(full exclusion + rules list in `scope.yml`)
+
+Pipeline (all workflows run every 20 minutes):
+
+- **Deep Hunt** (`hunt.yml`): analyst hunts the discovered inventory + hypotheses, emits structured
+  leads, chains primitives, self-critiques. Models: mimo.
+- **Triager** (`triage.yml`): second-model 7-Question Gate validation + live passive probe; keeps
+  running count in `reports/valid-bugs.md`.
+- **Reposcan** (`reposcan.yml`): deep source scan of any public GitHub org (if configured).
+- **Sync Issues** (`sync-issues.yml`): mirrors leads to GitHub issues.
+
+Testing discipline: rate-limited (1 rps), no DoS/account-lockout, writes only on non-prod/test
+assets, no exposure of customer/employee/financial/auth data, secrets committed only as hashes.
+
+> IMPORTANT: the pipeline produces CANDIDATE leads. A reportable, validated finding requires
+> human triage + proof against the program's gate. No finding is fabricated; scanner output alone
+> is never accepted. Active testing is gated behind the in-scope hosts in `inventory/rainbet.md` and
+> must stay within the program's published scope.
+
+Artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art/ 2>/dev/null | head -30
+total 600
+drwxr-xr-x 12 runner runner   4096 Sep 19 17:52 .
+drwxr-xr-x  3 runner runner   4096 Sep 19 17:51 ..
+drwxr-xr-x  7 runner runner   4096 Sep 19 17:52 .git
+drwxr-xr-x  3 runner runner   4096 Sep 19 17:52 .github
+-rw-r--r--  1 runner runner   1696 Sep 19 17:52 README.md
+-rw-r--r--  1 runner runner     32 Sep 19 17:52 analyst-out.txt
+-rw-r--r--  1 runner runner 240033 Sep 19 17:52 analyst-prompt.txt
+-rw-r--r--  1 runner runner 236248 Sep 19 17:52 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 leads
+-rw-r--r--  1 runner runner  47404 Sep 19 17:52 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 reports
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 reposcan-raw
+-rw-r--r--  1 runner runner   3198 Sep 19 17:52 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 scripts
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 triage
+[0m
+[0m
+Running a small rate-limited passive probe set against the high-value plurality to detect deltas for this round.
+[0m$ [0mprobe() {
+  url="$1"; shift
+  out=$(mktemp)
+  code=$(curl -s -o "$out" -w "%{http_code}" --max-time 15 -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" "$@" "$url")
+  len=$(wc -c < "$out")
+  echo "URL: $url"
+  echo "  -> HTTP $code len=$len"
+  grep -iE "^(cf-mitigated|x-do-orig-status|x-do-app-origin|allow|access-control-allow-origin|access-control-allow-credentials|server|x-powered-by):" "$out" | head -6 | sed 's/^/  H /'
+  rm -f "$out"
+}
+probe "https://api.rainbet.com/api/v1/public/ping"
+sleep 1
+probe "https://api.rainbet.com/robots.txt"
+sleep 1
+probe "https://api.rainbet.com/openapi.json" -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET"
+URL: https://api.rainbet.com/api/v1/public/ping
+  -> HTTP 403 len=5484
+URL: https://api.rainbet.com/robots.txt
+  -> HTTP 403 len=4546
+URL: https://api.rainbet.com/openapi.json
+  -> HTTP 200 len=0
+[0m
+[0m$ [0mprobe() {
+  url="$1"; shift
+  out=$(mktemp)
+  code=$(curl -s -o "$out" -w "%{http_code}" --max-time 15 -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" "$@" "$url")
+  len=$(wc -c < "$out")
+  echo "URL: $url"
+  echo "  -> HTTP $code len=$len"
+  grep -iE "^(cf-mitigated|x-do-orig-status|access-control-allow-origin|access-control-allow-credentials|access-control-expose-headers|server|x-powered-by|allow):" "$out" | head -8 | sed 's/^/  H /'
+  rm -f "$out"
+}
+probe "https://api.rainbet.com/openapi.json" -X OPTIONS -H "Origin: https://evil.example"
+sleep 1
+probe "https://staging-chat.rainbet.com/socket.io/" -X GET -d "EIO=4&transport=polling"
+sleep 1
+probe "https://staging-raffles.rainbet.com/health"
+sleep 1
+probe "https://staging-services.rainbet.com/api/v1/wallet" -H "Origin: https://evil.example"
+sleep 1
+probe "https://staging-monorepo.rainbet.com/docs"
+URL: https://api.rainbet.com/openapi.json
+  -> HTTP 200 len=0
+URL: https://staging-chat.rainbet.com/socket.io/
+  -> HTTP 400 len=40
+URL: https://staging-raffles.rainbet.com/health
+  -> HTTP 200 len=75
+URL: https://staging-services.rainbet.com/api/v1/wallet
+  -> HTTP 404 len=33
+URL: https://staging-monorepo.rainbet.com/docs
+  -> HTTP 403 len=5484
+[0m
+[0m$ [0mprobe() {
+  url="$1"; shift
+  hdr=$(mktemp); out=$(mktemp)
+  code=$(curl -s -D "$hdr" -o "$out" -w "%{http_code}" --max-time 15 -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" "$@" "$url")
+  len=$(wc -c < "$out")
+  echo "URL: $url  -> HTTP $code len=$len"
+  grep -iE "^(cf-mitigated|x-do-orig-status|x-do-app-origin|access-control-allow-origin|access-control-allow-credentials|access-control-expose-headers|allow|server|x-powered-by|vary):" "$hdr" | sed 's/^/  H /'
+  rm -f "$hdr" "$out"
+}
+probe "https://api.rainbet.com/openapi.json%2f..%2fv2" -X OPTIONS
+sleep 1
+probe "https://api.rainbet.com/openapi.json" -X OPTIONS
+sleep 1
+probe "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"
+sleep 1
+probe "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling"
+sleep 1
+probe "https://staging-services.rainbet.com/api/v1/wallet" -H "Origin: https://evil.example"
+URL: https://api.rainbet.com/openapi.json%2f..%2fv2  -> HTTP 404 len=1174
+  H server: cloudflare
+  H x-do-orig-status: 404
+  H x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+URL: https://api.rainbet.com/openapi.json  -> HTTP 200 len=0
+  H server: cloudflare
+  H allow: GET,POST,OPTIONS,HEAD
+  H x-do-orig-status: 200
+  H x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+URL: https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling  -> HTTP 200 len=116
+  H vary: Origin
+  H access-control-allow-credentials: true
+  H x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+  H x-do-orig-status: 200
+  H server: cloudflare
+URL: https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling  -> HTTP 200 len=116
+  H vary: Origin
+  H access-control-allow-credentials: true
+  H x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+  H x-do-orig-status: 200
+  H server: cloudflare
+URL: https://staging-services.rainbet.com/api/v1/wallet  -> HTTP 404 len=33
+  H x-powered-by: Express
+  H vary: Accept-Encoding
+  H x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+  H x-do-orig-status: 404
+  H server: cloudflare
+  H access-control-expose-headers: Cf-Mitigated
+  H access-control-allow-credentials: true
+  H access-control-allow-origin: https://evil.example
+[0m
+Live deltas probe confirms core surfaces frozen; chat/alerts anonymous EIO4 plane is **UP** this round (fresh sids). Attempting the decisive fair-egress listen now via the polling transport (single connection, zero emitted events, protocol-conformant pong only).
+[0m$ [0mBASE="https://staging-chat.rainbet.com/socket.io"
+UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+hs=$(curl -s --max-time 15 -A "$UA" "$BASE/?EIO=4&transport=polling")
+echo "HANDSHAKE: $hs"
+sid=$(echo "$hs" | sed -n 's/.*"sid":"\([^"]*\)".*/\1/p')
+echo "SID: $sid"
+if [ -z "$sid" ]; then echo "NO SID — plane closed this attempt"; exit 1; fi
+curl -s --max-time 10 -X POST -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid" -d '40'; echo " <- sent CONNECT(root)"
+for i in 1 2 3 4 5 6 7 8 9 10; do
+  r=$(curl -s --max-time 12 -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid")
+  echo "[t=$i] RX: $r"
+  echo "$r" | grep -qE '^1($|:)' && { echo "CLOSE frame received"; break; }
+  if echo "$r" | grep -qE '^2'; then
+    curl -s --max-time 10 -X POST -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid" -d '3'; echo " <- pong sent"
+  fi
+  sleep 4
+done
+HANDSHAKE: 0{"sid":"DHIXY1mj7VJTIBHQAAAW","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+SID: DHIXY1mj7VJTIBHQAAAW
+ok <- sent CONNECT(root)
+[t=1] RX: 40{"sid":"NI30L8BdiUUF5vQgAAAX"}
+[t=2] RX: 
+[t=3] RX: 
+[t=4] RX: {"code":1,"message":"Session ID unknown"}
+[t=5] RX: {"code":1,"message":"Session ID unknown"}
+[t=6] RX: {"code":1,"message":"Session ID unknown"}
+[t=7] RX: {"code":1,"message":"Session ID unknown"}
+[t=8] RX: {"code":1,"message":"Session ID unknown"}
+[t=9] RX: {"code":1,"message":"Session ID unknown"}
+[t=10] RX: {"code":1,"message":"Session ID unknown"}
+[0m
+CONNECT ACK proven again (round 21) — but session was purged ("Session ID unknown") before any business frame arrived, consistent with the known pingTimeout (20s) truncation. Retrying with a tight poll/pong loop so pings are answered before timeout.
+[0m$ [0mBASE="https://staging-chat.rainbet.com/socket.io"
+UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+hs=$(curl -s --max-time 15 -A "$UA" "$BASE/?EIO=4&transport=polling")
+sid=$(echo "$hs" | sed -n 's/.*"sid":"\([^"]*\)".*/\1/p')
+echo "HANDSHAKE: $hs"
+[ -z "$sid" ] && { echo "NO SID"; exit 1; }
+curl -s --max-time 10 -X POST -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid" -d '40' >/dev/null
+echo "CONNECT(root) sent"
+for i in $(seq 1 18); do
+  r=$(curl -s --max-time 8 -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid")
+  if [ -n "$r" ]; then echo "[loop$i] RX: $r"; fi
+  if echo "$r" | grep -q 'unknown'; then echo "SESSION EVICTED"; break; fi
+  if echo "$r" | grep -qE '(^|,)2(:|\])'; then
+    curl -s --max-time 8 -X POST -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid" -d '3' >/dev/null
+    echo "[loop$i] pong sent"
+  fi
+  if echo "$r" | grep -q '^1'; then echo "CLOSE"; break; fi
+  sleep 1
+done
+HANDSHAKE: 0{"sid":"8sgXoE_EjRqGyYDcAAAY","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+CONNECT(root) sent
+[loop1] RX: 40{"sid":"kU_fM2xii_xizJM5AAAZ"}
+[loop4] RX: {"code":1,"message":"Session ID unknown"}
+SESSION EVICTED
+[0m
+Checking whether a real WebSocket client is available to do the fair-egress test properly (my polling attempt reproduced the same session-purge truncation seen in all prior rounds).
+[0m$ [0mcommand -v node python3 websocat 2>/dev/null; python3 -c "import websockets; print('websockets-ok', websockets.__version__)" 2>&1 | head -1; node -e "require('ws'); console.log('ws-ok')" 2>&1 | head -1
+/usr/local/bin/node
+/usr/bin/python3
+Traceback (most recent call last):
+node:internal/modules/cjs/loader:1433
+[0m
+[0m← [0mWrite /tmp/opencode/eio_listen.mjs
+Wrote file successfully.
+[0m
+Node with no WS libs — I'll implement a faithful sequential long-polling client (one request in flight, immediate pong) in node to run the decisive read-only egress listen.
+[0m$ [0mnode /tmp/opencode/eio_listen.mjs
+HANDSHAKE 200 0{"sid":"8oFq4ZLIy2GLXAKsAAAa","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+sent CONNECT(root)
+RX: "40{\"sid\":\"fz5qj_5vbBJH9A19AAAb\"}"
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+Error: timeout
+    at ClientRequest.<anonymous> (file:///tmp/opencode/eio_listen.mjs:20:43)
+    at Object.onceWrapper (node:events:633:28)
+    at ClientRequest.emit (node:events:519:28)
+    at TLSSocket.emitRequestTimeout (node:_http_client:931:9)
+    at Object.onceWrapper (node:events:633:28)
+    at TLSSocket.emit (node:events:531:35)
+    at Socket._onTimeout (node:net:605:8)
+    at listOnTimeout (node:internal/timers:585:17)
+    at process.processTimers (node:internal/timers:521:7)
+
+Node.js v22.23.2
+[0m
+[0m← [0mEdit /tmp/opencode/eio_listen.mjs
+Index: /tmp/opencode/eio_listen.mjs
+===================================================================
+--- /tmp/opencode/eio_listen.mjs
++++ /tmp/opencode/eio_listen.mjs
+@@ -3,9 +3,9 @@
+ 
+ const HOST = 'staging-chat.rainbet.com';
+ const BASE = 'https://' + HOST + '/socket.io/';
+ const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36';
+-const DURATION = 65000;
++const DURATION = 90000;
+ 
+ function req(qs, method = 'GET', body = null, timeout = 20000) {
+   return new Promise((resolve, reject) => {
+     const u = new URL(BASE + qs);
+
+[0m
+Long-poll GET needs a timeout longer than pingInterval (25s). Fixing and rerunning.
+[0m← [0mEdit /tmp/opencode/eio_listen.mjs
+Index: /tmp/opencode/eio_listen.mjs
+===================================================================
+--- /tmp/opencode/eio_listen.mjs
++++ /tmp/opencode/eio_listen.mjs
+@@ -5,9 +5,9 @@
+ const BASE = 'https://' + HOST + '/socket.io/';
+ const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36';
+ const DURATION = 90000;
+ 
+-function req(qs, method = 'GET', body = null, timeout = 20000) {
++function req(qs, method = 'GET', body = null, timeout = 40000) {
+   return new Promise((resolve, reject) => {
+     const u = new URL(BASE + qs);
+     const r = https.request({
+       hostname: u.hostname, port: 443, path: u.pathname + u.search,
+
+[0m
+[0m← [0mEdit /tmp/opencode/eio_listen.mjs
+Index: /tmp/opencode/eio_listen.mjs
+===================================================================
+--- /tmp/opencode/eio_listen.mjs
++++ /tmp/opencode/eio_listen.mjs
+@@ -32,12 +32,16 @@
+ let sawPing = false;
+ const send = (payload) => req(`?EIO=4&transport=polling&sid=${sid}`, 'POST', payload);
+ 
+ const listenOnce = async () => {
+-  const r = await req(`?EIO=4&transport=polling&sid=${sid}`, 'GET');
+-  if (!r.body) return null;
+-  console.log('RX:', JSON.stringify(r.body));
+-  return r.body;
++  try {
++    const r = await req(`?EIO=4&transport=polling&sid=${sid}`, 'GET');
++    if (!r.body) return null;
++    console.log('RX:', JSON.stringify(r.body));
++    return r.body;
++  } catch (e) {
++    return null;
++  }
+ };
+ 
+ await send('40'); console.log('sent CONNECT(root)');
+ const t0 = Date.now();
+
+[0m
+[0m$ [0mnode /tmp/opencode/eio_listen.mjs
+HANDSHAKE 200 0{"sid":"V5LquWzitqR4i9UgAAAc","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+sent CONNECT(root)
+RX: "40{\"sid\":\"A4Yx_bCrmiLeS5xSAAAd\"}"
+RX: "2"
+RX: "1"
+CLOSE
+DONE sawPing=false elapsed=44935ms
+[0m
+[0m← [0mEdit /tmp/opencode/eio_listen.mjs
+Index: /tmp/opencode/eio_listen.mjs
+===================================================================
+--- /tmp/opencode/eio_listen.mjs
++++ /tmp/opencode/eio_listen.mjs
+@@ -47,9 +47,9 @@
+ const t0 = Date.now();
+ while (Date.now() - t0 < DURATION) {
+   const b = await listenOnce();
+   if (b && b.includes('unknown')) { console.log('SESSION EVICTED'); break; }
+-  if (b && /(^|,)2(:|\])/.test(b)) { sawPing = true; await send('3'); console.log('pong sent'); }
+-  if (b && b.startsWith('1')) { console.log('CLOSE'); break; }
++  if (b && b.trim() === '2') { sawPing = true; await send('3'); console.log('pong sent'); }
++  if (b && b.trim().startsWith('1')) { console.log('CLOSE'); break; }
+   if (b && b.includes('42')) { console.log('*** BUSINESS FRAME ***'); break; }
+ }
+ console.log('DONE sawPing=' + sawPing + ' elapsed=' + (Date.now() - t0) + 'ms');
+\ No newline at end of file
+
+[0m
+Missed the pong — engine.io bare `2` ping didn't match my regex, so the server closed after pingInterval+pingTimeout (44.9s, matches elapsed). Fixing the pong trigger.
+[0m$ [0mnode /tmp/opencode/eio_listen.mjs
+HANDSHAKE 200 0{"sid":"2LMvFzyllD_xFwu_AAAe","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+sent CONNECT(root)
+RX: "40{\"sid\":\"la_cByNBadW1fFYeAAAf\"}"
+RX: "2"
+pong sent
+RX: "2"
+pong sent
+RX: "2"
+pong sent
+RX: "2"
+pong sent
+DONE sawPing=true elapsed=100303ms
+[0m
+[0m← [0mWrite /tmp/opencode/eio_ns.mjs
+Wrote file successfully.
+[0m
+Decisive result: anonymous session held **100s with correct ponging — zero business frames delivered** on root. Now completing the full fair-egress test: join `/raffles` and `/alerts` namespaces first (enum-before-listen), then listen.
+[0m$ [0mnode /tmp/opencode/eio_ns.mjs
+HANDSHAKE 200 0{"sid":"iKCBNlHskyaQWRpMAAAg","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+sent CONNECT(root)
+[root-ack] RX: "40{\"sid\":\"gy-wfXiSt6nTntmeAAAh\"}"
+sent CONNECT(/raffles)
+[raffles-ack] RX: "44/raffles,{\"message\":\"Invalid namespace\"}"
+sent CONNECT(/alerts)
+[alerts-ack] RX: "44/alerts,{\"message\":\"Invalid namespace\"}"
+[listen] RX: "2"
+pong sent
+[listen] RX: "2"
+pong sent
+[listen] RX: "2"
+pong sent
+[listen] RX: "2"
+pong sent
+DONE pongs=4 elapsed=99749ms
+[0m
+[0m$ [0mcat analyst-out.txt; echo "---"; cat state_bigpickle.json; echo; git log --oneline -3 2>/dev/null | head -5
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art/ 2>/dev/null | head -30
+total 600
+drwxr-xr-x 12 runner runner   4096 Sep 19 17:52 .
+drwxr-xr-x  3 runner runner   4096 Sep 19 17:51 ..
+drwxr-xr-x  7 runner runner   4096 Sep 19 17:52 .git
+drwxr-xr-x  3 runner runner   4096 Sep 19 17:52 .github
+-rw-r--r--  1 runner runner   1696 Sep 19 17:52 README.md
+-rw-r--r--  1 runner runner     32 Sep 19 17:52 analyst-out.txt
+-rw-r--r--  1 runner runner 240033 Sep 19 17:52 analyst-prompt.txt
+-rw-r--r--  1 runner runner 236248 Sep 19 17:52 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 leads
+-rw-r--r--  1 runner runner  47404 Sep 19 17:52 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 reports
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 reposcan-raw
+-rw-r--r--  1 runner runner   3198 Sep 19 17:52 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 scripts
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 triage
+[0m
+[0m$ [0mls -la scripts/ leads/ knowledge/ triage/ 2>/dev/null | head -60 && cat README.md | head -30 && cat analyst-out.txt
+knowledge/:
+total 108
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 .
+drwxr-xr-x 12 runner runner   4096 Sep 19 17:52 ..
+-rw-r--r--  1 runner runner 101090 Sep 19 17:52 index.md
+
+leads/:
+total 1660
+drwxr-xr-x  2 runner runner    4096 Sep 19 17:52 .
+drwxr-xr-x 12 runner runner    4096 Sep 19 17:52 ..
+-rw-r--r--  1 runner runner  561307 Sep 19 17:52 lead-bigpickle.md
+-rw-r--r--  1 runner runner    5508 Sep 19 17:52 lead-laguna.md
+-rw-r--r--  1 runner runner    5400 Sep 19 17:52 lead-ling3.md
+-rw-r--r--  1 runner runner    5616 Sep 19 17:52 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 19 17:52 lead-mimo.md
+-rw-r--r--  1 runner runner 1074463 Sep 19 17:52 lead-nemotron3.md
+-rw-r--r--  1 runner runner   20198 Sep 19 17:52 reposcan-rainbet.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep 19 17:52 .
+drwxr-xr-x 12 runner runner  4096 Sep 19 17:52 ..
+-rw-r--r--  1 runner runner 16987 Sep 19 17:52 sync-issues.py
+
+triage/:
+total 592
+drwxr-xr-x  2 runner runner  4096 Sep 19 17:52 .
+drwxr-xr-x 12 runner runner  4096 Sep 19 17:52 ..
+-rw-r--r--  1 runner runner     0 Sep 19 17:52 .gitkeep
+-rw-r--r--  1 runner runner   184 Sep 19 17:52 run-2026-09-02-21-53.md
+-rw-r--r--  1 runner runner   146 Sep 19 17:52 run-2026-09-02-23-52.md
+-rw-r--r--  1 runner runner   171 Sep 19 17:52 run-2026-09-03-03-11.md
+-rw-r--r--  1 runner runner   317 Sep 19 17:52 run-2026-09-03-08-09.md
+-rw-r--r--  1 runner runner   213 Sep 19 17:52 run-2026-09-03-12-52.md
+-rw-r--r--  1 runner runner   519 Sep 19 17:52 run-2026-09-03-16-57.md
+-rw-r--r--  1 runner runner   169 Sep 19 17:52 run-2026-09-03-19-41.md
+-rw-r--r--  1 runner runner   219 Sep 19 17:52 run-2026-09-03-22-19.md
+-rw-r--r--  1 runner runner  4735 Sep 19 17:52 run-2026-09-04-00-14.md
+-rw-r--r--  1 runner runner   181 Sep 19 17:52 run-2026-09-04-04-42.md
+-rw-r--r--  1 runner runner   182 Sep 19 17:52 run-2026-09-04-09-20.md
+-rw-r--r--  1 runner runner   226 Sep 19 17:52 run-2026-09-04-13-45.md
+-rw-r--r--  1 runner runner   161 Sep 19 17:52 run-2026-09-04-17-23.md
+-rw-r--r--  1 runner runner   241 Sep 19 17:52 run-2026-09-04-19-50.md
+-rw-r--r--  1 runner runner   242 Sep 19 17:52 run-2026-09-04-22-09.md
+-rw-r--r--  1 runner runner   185 Sep 19 17:52 run-2026-09-05-00-10.md
+-rw-r--r--  1 runner runner  4310 Sep 19 17:52 run-2026-09-05-04-39.md
+-rw-r--r--  1 runner runner   201 Sep 19 17:52 run-2026-09-05-08-35.md
+-rw-r--r--  1 runner runner   861 Sep 19 17:52 run-2026-09-05-12-02.md
+-rw-r--r--  1 runner runner   163 Sep 19 17:52 run-2026-09-05-15-20.md
+-rw-r--r--  1 runner runner   307 Sep 19 17:52 run-2026-09-05-17-24.md
+-rw-r--r--  1 runner runner   228 Sep 19 17:52 run-2026-09-05-19-27.md
+-rw-r--r--  1 runner runner   181 Sep 19 17:52 run-2026-09-05-21-41.md
+-rw-r--r--  1 runner runner   211 Sep 19 17:52 run-2026-09-05-23-34.md
+-rw-r--r--  1 runner runner 10063 Sep 19 17:52 run-2026-09-06-01-20.md
+-rw-r--r--  1 runner runner 11916 Sep 19 17:52 run-2026-09-06-06-05.md
+-rw-r--r--  1 runner runner  8617 Sep 19 17:52 run-2026-09-06-11-08.md
+-rw-r--r--  1 runner runner   169 Sep 19 17:52 run-2026-09-06-14-13.md
+-rw-r--r--  1 runner runner   196 Sep 19 17:52 run-2026-09-06-17-08.md
+-rw-r--r--  1 runner runner   184 Sep 19 17:52 run-2026-09-06-19-16.md
+-rw-r--r--  1 runner runner   167 Sep 19 17:52 run-2026-09-06-21-26.md
+# rainbet-hunt
+
+24/7 deep multi-model bug-hunting automation for **RainBet** (Oliver Maicher bug-bounty hub).
+
+Scope: All company-owned infrastructure, gaming platforms, wallets, APIs, user systems, mobile/web applications, and domains operated by RainBet
+(full exclusion + rules list in `scope.yml`)
+
+Pipeline (all workflows run every 20 minutes):
+
+- **Deep Hunt** (`hunt.yml`): analyst hunts the discovered inventory + hypotheses, emits structured
+  leads, chains primitives, self-critiques. Models: mimo.
+- **Triager** (`triage.yml`): second-model 7-Question Gate validation + live passive probe; keeps
+  running count in `reports/valid-bugs.md`.
+- **Reposcan** (`reposcan.yml`): deep source scan of any public GitHub org (if configured).
+- **Sync Issues** (`sync-issues.yml`): mirrors leads to GitHub issues.
+
+Testing discipline: rate-limited (1 rps), no DoS/account-lockout, writes only on non-prod/test
+assets, no exposure of customer/employee/financial/auth data, secrets committed only as hashes.
+
+> IMPORTANT: the pipeline produces CANDIDATE leads. A reportable, validated finding requires
+> human triage + proof against the program's gate. No finding is fabricated; scanner output alone
+> is never accepted. Active testing is gated behind the in-scope hosts in `inventory/rainbet.md` and
+> must stay within the program's published scope.
+
+Artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art/ 2>/dev/null | head -30
+total 600
+drwxr-xr-x 12 runner runner   4096 Sep 19 17:52 .
+drwxr-xr-x  3 runner runner   4096 Sep 19 17:51 ..
+drwxr-xr-x  7 runner runner   4096 Sep 19 17:52 .git
+drwxr-xr-x  3 runner runner   4096 Sep 19 17:52 .github
+-rw-r--r--  1 runner runner   1696 Sep 19 17:52 README.md
+-rw-r--r--  1 runner runner     32 Sep 19 17:52 analyst-out.txt
+-rw-r--r--  1 runner runner 240033 Sep 19 17:52 analyst-prompt.txt
+-rw-r--r--  1 runner runner 236248 Sep 19 17:52 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 leads
+-rw-r--r--  1 runner runner  47404 Sep 19 17:52 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 reports
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 reposcan-raw
+-rw-r--r--  1 runner runner   3198 Sep 19 17:52 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 scripts
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 19 17:52 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 19 17:52 triage
+[0m
+[0m
+Running a small rate-limited passive probe set against the high-value plurality to detect deltas for this round.
+[0m$ [0mprobe() {
+  url="$1"; shift
+  out=$(mktemp)
+  code=$(curl -s -o "$out" -w "%{http_code}" --max-time 15 -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" "$@" "$url")
+  len=$(wc -c < "$out")
+  echo "URL: $url"
+  echo "  -> HTTP $code len=$len"
+  grep -iE "^(cf-mitigated|x-do-orig-status|x-do-app-origin|allow|access-control-allow-origin|access-control-allow-credentials|server|x-powered-by):" "$out" | head -6 | sed 's/^/  H /'
+  rm -f "$out"
+}
+probe "https://api.rainbet.com/api/v1/public/ping"
+sleep 1
+probe "https://api.rainbet.com/robots.txt"
+sleep 1
+probe "https://api.rainbet.com/openapi.json" -X OPTIONS -H "Origin: https://evil.example" -H "Access-Control-Request-Method: GET"
+URL: https://api.rainbet.com/api/v1/public/ping
+  -> HTTP 403 len=5484
+URL: https://api.rainbet.com/robots.txt
+  -> HTTP 403 len=4546
+URL: https://api.rainbet.com/openapi.json
+  -> HTTP 200 len=0
+[0m
+[0m$ [0mprobe() {
+  url="$1"; shift
+  out=$(mktemp)
+  code=$(curl -s -o "$out" -w "%{http_code}" --max-time 15 -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" "$@" "$url")
+  len=$(wc -c < "$out")
+  echo "URL: $url"
+  echo "  -> HTTP $code len=$len"
+  grep -iE "^(cf-mitigated|x-do-orig-status|access-control-allow-origin|access-control-allow-credentials|access-control-expose-headers|server|x-powered-by|allow):" "$out" | head -8 | sed 's/^/  H /'
+  rm -f "$out"
+}
+probe "https://api.rainbet.com/openapi.json" -X OPTIONS -H "Origin: https://evil.example"
+sleep 1
+probe "https://staging-chat.rainbet.com/socket.io/" -X GET -d "EIO=4&transport=polling"
+sleep 1
+probe "https://staging-raffles.rainbet.com/health"
+sleep 1
+probe "https://staging-services.rainbet.com/api/v1/wallet" -H "Origin: https://evil.example"
+sleep 1
+probe "https://staging-monorepo.rainbet.com/docs"
+URL: https://api.rainbet.com/openapi.json
+  -> HTTP 200 len=0
+URL: https://staging-chat.rainbet.com/socket.io/
+  -> HTTP 400 len=40
+URL: https://staging-raffles.rainbet.com/health
+  -> HTTP 200 len=75
+URL: https://staging-services.rainbet.com/api/v1/wallet
+  -> HTTP 404 len=33
+URL: https://staging-monorepo.rainbet.com/docs
+  -> HTTP 403 len=5484
+[0m
+[0m$ [0mprobe() {
+  url="$1"; shift
+  hdr=$(mktemp); out=$(mktemp)
+  code=$(curl -s -D "$hdr" -o "$out" -w "%{http_code}" --max-time 15 -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" "$@" "$url")
+  len=$(wc -c < "$out")
+  echo "URL: $url  -> HTTP $code len=$len"
+  grep -iE "^(cf-mitigated|x-do-orig-status|x-do-app-origin|access-control-allow-origin|access-control-allow-credentials|access-control-expose-headers|allow|server|x-powered-by|vary):" "$hdr" | sed 's/^/  H /'
+  rm -f "$hdr" "$out"
+}
+probe "https://api.rainbet.com/openapi.json%2f..%2fv2" -X OPTIONS
+sleep 1
+probe "https://api.rainbet.com/openapi.json" -X OPTIONS
+sleep 1
+probe "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling"
+sleep 1
+probe "https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling"
+sleep 1
+probe "https://staging-services.rainbet.com/api/v1/wallet" -H "Origin: https://evil.example"
+URL: https://api.rainbet.com/openapi.json%2f..%2fv2  -> HTTP 404 len=1174
+  H server: cloudflare
+  H x-do-orig-status: 404
+  H x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+URL: https://api.rainbet.com/openapi.json  -> HTTP 200 len=0
+  H server: cloudflare
+  H allow: GET,POST,OPTIONS,HEAD
+  H x-do-orig-status: 200
+  H x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+URL: https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling  -> HTTP 200 len=116
+  H vary: Origin
+  H access-control-allow-credentials: true
+  H x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+  H x-do-orig-status: 200
+  H server: cloudflare
+URL: https://staging-alerts.rainbet.com/socket.io/?EIO=4&transport=polling  -> HTTP 200 len=116
+  H vary: Origin
+  H access-control-allow-credentials: true
+  H x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+  H x-do-orig-status: 200
+  H server: cloudflare
+URL: https://staging-services.rainbet.com/api/v1/wallet  -> HTTP 404 len=33
+  H x-powered-by: Express
+  H vary: Accept-Encoding
+  H x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+  H x-do-orig-status: 404
+  H server: cloudflare
+  H access-control-expose-headers: Cf-Mitigated
+  H access-control-allow-credentials: true
+  H access-control-allow-origin: https://evil.example
+[0m
+Live deltas probe confirms core surfaces frozen; chat/alerts anonymous EIO4 plane is **UP** this round (fresh sids). Attempting the decisive fair-egress listen now via the polling transport (single connection, zero emitted events, protocol-conformant pong only).
+[0m$ [0mBASE="https://staging-chat.rainbet.com/socket.io"
+UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+hs=$(curl -s --max-time 15 -A "$UA" "$BASE/?EIO=4&transport=polling")
+echo "HANDSHAKE: $hs"
+sid=$(echo "$hs" | sed -n 's/.*"sid":"\([^"]*\)".*/\1/p')
+echo "SID: $sid"
+if [ -z "$sid" ]; then echo "NO SID — plane closed this attempt"; exit 1; fi
+curl -s --max-time 10 -X POST -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid" -d '40'; echo " <- sent CONNECT(root)"
+for i in 1 2 3 4 5 6 7 8 9 10; do
+  r=$(curl -s --max-time 12 -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid")
+  echo "[t=$i] RX: $r"
+  echo "$r" | grep -qE '^1($|:)' && { echo "CLOSE frame received"; break; }
+  if echo "$r" | grep -qE '^2'; then
+    curl -s --max-time 10 -X POST -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid" -d '3'; echo " <- pong sent"
+  fi
+  sleep 4
+done
+HANDSHAKE: 0{"sid":"DHIXY1mj7VJTIBHQAAAW","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+SID: DHIXY1mj7VJTIBHQAAAW
+ok <- sent CONNECT(root)
+[t=1] RX: 40{"sid":"NI30L8BdiUUF5vQgAAAX"}
+[t=2] RX: 
+[t=3] RX: 
+[t=4] RX: {"code":1,"message":"Session ID unknown"}
+[t=5] RX: {"code":1,"message":"Session ID unknown"}
+[t=6] RX: {"code":1,"message":"Session ID unknown"}
+[t=7] RX: {"code":1,"message":"Session ID unknown"}
+[t=8] RX: {"code":1,"message":"Session ID unknown"}
+[t=9] RX: {"code":1,"message":"Session ID unknown"}
+[t=10] RX: {"code":1,"message":"Session ID unknown"}
+[0m
+CONNECT ACK proven again (round 21) — but session was purged ("Session ID unknown") before any business frame arrived, consistent with the known pingTimeout (20s) truncation. Retrying with a tight poll/pong loop so pings are answered before timeout.
+[0m$ [0mBASE="https://staging-chat.rainbet.com/socket.io"
+UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+hs=$(curl -s --max-time 15 -A "$UA" "$BASE/?EIO=4&transport=polling")
+sid=$(echo "$hs" | sed -n 's/.*"sid":"\([^"]*\)".*/\1/p')
+echo "HANDSHAKE: $hs"
+[ -z "$sid" ] && { echo "NO SID"; exit 1; }
+curl -s --max-time 10 -X POST -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid" -d '40' >/dev/null
+echo "CONNECT(root) sent"
+for i in $(seq 1 18); do
+  r=$(curl -s --max-time 8 -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid")
+  if [ -n "$r" ]; then echo "[loop$i] RX: $r"; fi
+  if echo "$r" | grep -q 'unknown'; then echo "SESSION EVICTED"; break; fi
+  if echo "$r" | grep -qE '(^|,)2(:|\])'; then
+    curl -s --max-time 8 -X POST -A "$UA" "$BASE/?EIO=4&transport=polling&sid=$sid" -d '3' >/dev/null
+    echo "[loop$i] pong sent"
+  fi
+  if echo "$r" | grep -q '^1'; then echo "CLOSE"; break; fi
+  sleep 1
+done
+HANDSHAKE: 0{"sid":"8sgXoE_EjRqGyYDcAAAY","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+CONNECT(root) sent
+[loop1] RX: 40{"sid":"kU_fM2xii_xizJM5AAAZ"}
+[loop4] RX: {"code":1,"message":"Session ID unknown"}
+SESSION EVICTED
+[0m
+Checking whether a real WebSocket client is available to do the fair-egress test properly (my polling attempt reproduced the same session-purge truncation seen in all prior rounds).
+[0m$ [0mcommand -v node python3 websocat 2>/dev/null; python3 -c "import websockets; print('websockets-ok', websockets.__version__)" 2>&1 | head -1; node -e "require('ws'); console.log('ws-ok')" 2>&1 | head -1
+/usr/local/bin/node
+/usr/bin/python3
+Traceback (most recent call last):
+node:internal/modules/cjs/loader:1433
+[0m
+[0m← [0mWrite /tmp/opencode/eio_listen.mjs
+Wrote file successfully.
+[0m
+Node with no WS libs — I'll implement a faithful sequential long-polling client (one request in flight, immediate pong) in node to run the decisive read-only egress listen.
+[0m$ [0mnode /tmp/opencode/eio_listen.mjs
+HANDSHAKE 200 0{"sid":"8oFq4ZLIy2GLXAKsAAAa","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+sent CONNECT(root)
+RX: "40{\"sid\":\"fz5qj_5vbBJH9A19AAAb\"}"
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+Error: timeout
+    at ClientRequest.<anonymous> (file:///tmp/opencode/eio_listen.mjs:20:43)
+    at Object.onceWrapper (node:events:633:28)
+    at ClientRequest.emit (node:events:519:28)
+    at TLSSocket.emitRequestTimeout (node:_http_client:931:9)
+    at Object.onceWrapper (node:events:633:28)
+    at TLSSocket.emit (node:events:531:35)
+    at Socket._onTimeout (node:net:605:8)
+    at listOnTimeout (node:internal/timers:585:17)
+    at process.processTimers (node:internal/timers:521:7)
+
+Node.js v22.23.2
+[0m
+[0m← [0mEdit /tmp/opencode/eio_listen.mjs
+Index: /tmp/opencode/eio_listen.mjs
+===================================================================
+--- /tmp/opencode/eio_listen.mjs
++++ /tmp/opencode/eio_listen.mjs
+@@ -3,9 +3,9 @@
+ 
+ const HOST = 'staging-chat.rainbet.com';
+ const BASE = 'https://' + HOST + '/socket.io/';
+ const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36';
+-const DURATION = 65000;
++const DURATION = 90000;
+ 
+ function req(qs, method = 'GET', body = null, timeout = 20000) {
+   return new Promise((resolve, reject) => {
+     const u = new URL(BASE + qs);
+
+[0m
+Long-poll GET needs a timeout longer than pingInterval (25s). Fixing and rerunning.
+[0m← [0mEdit /tmp/opencode/eio_listen.mjs
+Index: /tmp/opencode/eio_listen.mjs
+===================================================================
+--- /tmp/opencode/eio_listen.mjs
++++ /tmp/opencode/eio_listen.mjs
+@@ -5,9 +5,9 @@
+ const BASE = 'https://' + HOST + '/socket.io/';
+ const UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36';
+ const DURATION = 90000;
+ 
+-function req(qs, method = 'GET', body = null, timeout = 20000) {
++function req(qs, method = 'GET', body = null, timeout = 40000) {
+   return new Promise((resolve, reject) => {
+     const u = new URL(BASE + qs);
+     const r = https.request({
+       hostname: u.hostname, port: 443, path: u.pathname + u.search,
+
+[0m
+[0m← [0mEdit /tmp/opencode/eio_listen.mjs
+Index: /tmp/opencode/eio_listen.mjs
+===================================================================
+--- /tmp/opencode/eio_listen.mjs
++++ /tmp/opencode/eio_listen.mjs
+@@ -32,12 +32,16 @@
+ let sawPing = false;
+ const send = (payload) => req(`?EIO=4&transport=polling&sid=${sid}`, 'POST', payload);
+ 
+ const listenOnce = async () => {
+-  const r = await req(`?EIO=4&transport=polling&sid=${sid}`, 'GET');
+-  if (!r.body) return null;
+-  console.log('RX:', JSON.stringify(r.body));
+-  return r.body;
++  try {
++    const r = await req(`?EIO=4&transport=polling&sid=${sid}`, 'GET');
++    if (!r.body) return null;
++    console.log('RX:', JSON.stringify(r.body));
++    return r.body;
++  } catch (e) {
++    return null;
++  }
+ };
+ 
+ await send('40'); console.log('sent CONNECT(root)');
+ const t0 = Date.now();
+
+[0m
+[0m$ [0mnode /tmp/opencode/eio_listen.mjs
+HANDSHAKE 200 0{"sid":"V5LquWzitqR4i9UgAAAc","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+sent CONNECT(root)
+RX: "40{\"sid\":\"A4Yx_bCrmiLeS5xSAAAd\"}"
+RX: "2"
+RX: "1"
+CLOSE
+DONE sawPing=false elapsed=44935ms
+[0m
+[0m← [0mEdit /tmp/opencode/eio_listen.mjs
+Index: /tmp/opencode/eio_listen.mjs
+===================================================================
+--- /tmp/opencode/eio_listen.mjs
++++ /tmp/opencode/eio_listen.mjs
+@@ -47,9 +47,9 @@
+ const t0 = Date.now();
+ while (Date.now() - t0 < DURATION) {
+   const b = await listenOnce();
+   if (b && b.includes('unknown')) { console.log('SESSION EVICTED'); break; }
+-  if (b && /(^|,)2(:|\])/.test(b)) { sawPing = true; await send('3'); console.log('pong sent'); }
+-  if (b && b.startsWith('1')) { console.log('CLOSE'); break; }
++  if (b && b.trim() === '2') { sawPing = true; await send('3'); console.log('pong sent'); }
++  if (b && b.trim().startsWith('1')) { console.log('CLOSE'); break; }
+   if (b && b.includes('42')) { console.log('*** BUSINESS FRAME ***'); break; }
+ }
+ console.log('DONE sawPing=' + sawPing + ' elapsed=' + (Date.now() - t0) + 'ms');
+\ No newline at end of file
+
+[0m
+Missed the pong — engine.io bare `2` ping didn't match my regex, so the server closed after pingInterval+pingTimeout (44.9s, matches elapsed). Fixing the pong trigger.
+[0m$ [0mnode /tmp/opencode/eio_listen.mjs
+HANDSHAKE 200 0{"sid":"2LMvFzyllD_xFwu_AAAe","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+sent CONNECT(root)
+RX: "40{\"sid\":\"la_cByNBadW1fFYeAAAf\"}"
+RX: "2"
+pong sent
+RX: "2"
+pong sent
+RX: "2"
+pong sent
+RX: "2"
+pong sent
+DONE sawPing=true elapsed=100303ms
+[0m
+[0m← [0mWrite /tmp/opencode/eio_ns.mjs
+Wrote file successfully.
+[0m
+Decisive result: anonymous session held **100s with correct ponging — zero business frames delivered** on root. Now completing the full fair-egress test: join `/raffles` and `/alerts` namespaces first (enum-before-listen), then listen.
+[0m$ [0mnode /tmp/opencode/eio_ns.mjs
+HANDSHAKE 200 0{"sid":"iKCBNlHskyaQWRpMAAAg","upgrades":["websocket"],"pingInterval":25000,"pingTimeout":20000,"maxPayload":10240}
+sent CONNECT(root)
+[root-ack] RX: "40{\"sid\":\"gy-wfXiSt6nTntmeAAAh\"}"
+sent CONNECT(/raffles)
+[raffles-ack] RX: "44/raffles,{\"message\":\"Invalid namespace\"}"
+sent CONNECT(/alerts)
+[alerts-ack] RX: "44/alerts,{\"message\":\"Invalid namespace\"}"
+[listen] RX: "2"
+pong sent
+[listen] RX: "2"
+pong sent
+[listen] RX: "2"
+pong sent
+[listen] RX: "2"
+pong sent
+DONE pongs=4 elapsed=99749ms
+[0m
+---
+{"phase": "POC", "target": "api"}
+3eed131 triage 2026-09-19-16-48
+[0m
+Fair-egress question is now conclusively answered after 20+ rounds. Structured output follows.
+
+---
+
+STEP 1 — DELTA
+- [NEW] staging-chat fair-egress test executed conclusively this round via a conformant EIO4 long-poll client — NEGATIVE (0 business frames; namespaces Invalid; see STEP 3/6)
+- [CHANGED] api.rainbet.com static-class block 4547→4546B (page-length jitter, non-signal)
+- [CHANGED] staging-monorepo.rainbet.com /docs → 403@5484B plain-block this probe (known 110KB↔5485B flavor flip, no new surface)
+- NO_DELTA otherwise: services/raffles/alerts/api-OPTIONS all frozen vs prior round
+
+STEP 2 — PRIORITIZE
+- [PRIO] staging-services.rainbet.com, 7.4, CORS-with-credentials reflector on mounted NestJS (a7/b9/t6/g8/c5/f8)
+- [PRIO] staging-chat.rainbet.com/socket.io, 7.0, anonymous EIO4+root CONNECT issuance, egress now evidence-negative (a7/b5/t7/g10/c5/f9)
+- [PRIO] api.rainbet.com, 6.7, prod money/auth API, WAF churn + OPTIONS oracle (a8/b9/t7/g1/c6/f6)
+- [PRIO] staging-raffles.rainbet.com, 5.3, real-origin /health JSON unprotected (a3/b6/t3/g10/c5/f6)
+
+STEP 3 — HYPOTHESES
+[HYP] services CORS-with-credentials reflector becomes exploitable on first 2xx mount
+class: MISCONFIG
+asset: staging-services.rainbet.com
+confidence: 45
+reasoning: This round /api/v1/wallet evil-Origin 404/33B with ACAO-reflect + allow-credentials:true + expose Cf-Mitigated + x-powered-by: Express on app 1ce4ff55; /docs 302→Access proves mounted protected service; zero 2xx across 20+ rounds.
+evidence_needed: one GET returning 2xx with ACAO-reflect + allow-credentials:true in same response
+verify_steps: 1-2 probes/round GET /api/v1/wallet, /api/v1/profile, /graphql with Origin:https://evil.example + Accept:application/json, ≤1 rps; flag 2xx+ACAO
+impact: credentialed cross-origin read of mounted wallet/profile/bet data; HIGH, deploy-gated only
+testability: PASSIVE
+
+[HYP] staging-chat business frames are subscription-gated (emitted after client-side subscribe only)
+class: AUTH
+asset: staging-chat.rainbet.com/socket.io
+confidence: 40
+reasoning: Fair egress now POSITIVE-NEGATIVE on root — fresh anonymous EIO4 sid every probe; `40` CONNECT ACKs anonymous socket sid (rounds 21-25); session held 100.3s with 4 pong cycles; ZERO `42[...]` frames delivered; `40/raffles,{}` and `40/alerts,{}` → `44 Invalid namespace`. Server never pushes to an idle anonymous socket — egress may require a client emit (subscribe/room join) not yet performed.
+evidence_needed: any `42[...]` frame delivered after a client-emitted subscribe on anonymous session
+verify_steps: HUMAN — polling or WS session on fresh EIO4 sid; CONNECT root; emit benign subscribe/join event names; listen ≥60s with pong; record any `42[...]`
+impact: anonymous read of live bet/wallet/raffle event stream if subscribe works; HIGH only if frames flow
+testability: HUMAN_ONLY
+
+[HYP] api WAF plain-block↔110KB churn opens a content passthrough window
+class: MISCONFIG
+asset: api.rainbet.com
+confidence: 40
+reasoning: This round GET ping 403@5484B, GET /robots.txt 403@4546B (no cf-mitigated); OPTIONS /openapi.json 200 Allow:GET,POST,OPTIONS,HEAD + x-do-orig-status:200 + app 53f39197; OPTIONS `/openapi.json%2f..%2fv2` → 404 x-do-orig-status:404 (decode-dependent origin classifier). Churn proven 25+ rounds, no non-403 content ever observed.
+evidence_needed: any GET/HEAD non-403 with x-do-orig-status on either block class during a churn window
+verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET /robots.txt, OPTIONS /openapi.json; flag non-403+x-do-orig-status
+impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] staging-chat "unauthenticated socket plane delivers business frames on fair egress": empirically REFUTED at 100.3s hold with correct pong, 0×42 frames, namespaces Invalid — confidence 95→15
+- [PARKED] new-surface hypotheses: none (no new hosts/endpoints since 2026-09-17 22:46)
+- [FINAL] survivors: services-CORS(45) = chat-subscription(40) = api-window(40); all others <40 dropped
+
+STEP 5 — NEXT ACTION
+- [NEXT] PROBE: 1x/round GET https://staging-services.rainbet.com/api/v1/wallet with `Origin: https://evil.example`, `Accept: application/json`, ≤1 rps — flag any 2xx returned together with `access-control-allow-origin` + `access-control-allow-credentials:true`
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED (hypothesis, empirically) AUTH @ staging-chat.rainbet.com/socket.io: fair egress now negative — anonymous EIO4 sid + root `40` CONNECT ACK established (rounds 21-25), session held 100.3s with 4 ping/pong cycles, ZERO `42[...]` business frames; `40/raffles,{}` and `40/alerts,{}` → `44 Invalid namespace` (enum-before-listen, valid). Prior 95%-confidence "delivers business frames" claim contradicted; residual is transport-plane anonymous session issuance + per-hostname auth asymmetry vs staging-alerts (rejects `44 er_auth_token_invalid`) — MISCONFIG confirmed, no data exposure demonstrated.
+- [LEARN] ACCEPTED MISCONFIG @ api.rainbet.com: plain-block stable (API 5484B / static 4546B, no cf-mitigated) + OPTIONS /openapi.json 200 (Allow:GET,POST,OPTIONS,HEAD, x-do-orig-status:200, app 53f39197); decode-dependent OPTIONS oracle `/openapi.json%2f..%2fv2` → 404 x-do-orig-status:404 intact; no churn/rate-limit burst observed this round.
+- [LEARN] ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/wallet evil-Origin 404/33B with ACAO-reflect + allow-credentials:true + expose Cf-Mitigated + x-powered-by Express on app 1ce4ff55 — reflector persists, zero 2xx lift across 20+ rounds.
+- [LEARN] REJECTED MISCONFIG @ staging-chat.rainbet.com: "Session ID unknown" during fair-egress polling = session purge from non-conformant long-poll usage (missed pong / polling gap), NOT server-side auth eviction — confirmed when correct pong kept the session alive 100s.
+
+STEP 7 — RISK
+- [RISK] rainbet: 58 — flagship chat lead resolved negative; strongest remaining lead (services CORS reflector) deploy-gated with zero 2xx in 20+ rounds; all other surfaces frozen with no demonstrated data exposure; report-conversion risk elevated.
