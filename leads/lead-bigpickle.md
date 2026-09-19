@@ -4105,3 +4105,4 @@ verify_steps: 1x/round class-pair watch ≤0.3 rps: GET /api/v1/public/ping, GET
 impact: origin API reachable → wallet/auth/bet route enumeration; HIGH, churn-gated
 testability: PASSIVE
 [NEXT] HUMAN: execute staged fair-egress listen on `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh EIO4 sid <5 min>`: `2probe`→`3probe`→`5`, `40`, `40/raffles,{}`, `40/alerts,{}`, pong `3` on every engine.io `2`, hold ≥60s listen-only for any `42[...]`. Single connection, zero emitted events.
+## 2026-09-19 14:48:10 UTC [target] (model bigpickle)

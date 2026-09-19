@@ -26139,3 +26139,47 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] rainbet: 62 — no new exposure; confirming leads are staging-only and deploy/monitoring-gated (staging-chat AUTH plane HIGH but whole stage behind DO staging fleet, no prod cross-contamination shown). Live prod (api/www) remains WAF-uniform locked.
+===== ANALYST bigpickle 2026-09-19 14:53:50 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/chat.txt -D - -m 20 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" | head -30; echo "BODY_LEN=$(wc -c < /tmp/chat.txt)"; sleep 1; curl -s -o /tmp/chat2.txt -D - -m 20 "https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling" | grep -i -E "HTTP/|content-length|x-do-orig-status|x-do-app" ; sleep 1
+HTTP/2 200 
+date: Sat, 19 Sep 2026 14:47:59 GMT
+content-type: text/plain; charset=UTF-8
+content-length: 116
+vary: Origin
+access-control-allow-credentials: true
+cache-control: no-store
+accept-ranges: bytes
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 200
+server: cloudflare
+cf-cache-status: DYNAMIC
+set-cookie: __cf_bm=oRMLASc6DqnCrvVSoMlySyCxrN_Zm1HaAfQ6bj4HXmA-1789829279.4709175-1.0.1.1-KnCrW0EZZR.TatvvFdEWvQ2JoX.PA7l5qZYk_TtCnWsXXK0o6PuYDzar7CEOMtWtc4Kg58tsDeva32mil3uM6Kp4lOruRQc_hssLKJsRaTh7m9SQOSHcwUZhJcvHEiVk; HttpOnly; SameSite=None; Secure; Path=/; Domain=rainbet.com; Expires=Sat, 19 Sep 2026 15:17:59 GMT
+cf-ray: a3d96384a9d80605-IAD
+alt-svc: h3=":443"; ma=86400
+
+BODY_LEN=116
+HTTP/2 200 
+content-length: 116
+x-do-app-origin: 1ce4ff55-e85f-4c30-8033-5129a1812504
+x-do-orig-status: 200
+[0m
+[0m$ [0mcurl -s -o /tmp/api1.txt -D - -m 20 "https://api.rainbet.com/api/v1/public/ping" | grep -i -E "HTTP/|content-length|cf-mitigated|x-do-orig-status|x-do-app"; echo "LEN=$(wc -c < /tmp/api1.txt)"; sleep 1; curl -s -o /dev/null -D - -m 20 -X OPTIONS "https://api.rainbet.com/openapi.json" | grep -i -E "HTTP/|allow|x-do-orig-status|x-do-app"; sleep 1; curl -s -o /tmp/api2.txt -D - -m 20 "https://api.rainbet.com/robots.txt" | grep -i -E "HTTP/|content-length|cf-mitigated"; echo "LEN=$(wc -c < /tmp/api2.txt)"
+HTTP/2 403 
+LEN=5483
+HTTP/2 200 
+allow: HEAD,GET,POST,OPTIONS
+x-do-orig-status: 200
+x-do-app-origin: 53f39197-6fd5-4e93-8a3b-b8177a4bd079
+HTTP/2 403 
+content-length: 4545
+LEN=4545
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -o /tmp/svc.txt -D - -m 20 -H "Origin: https://evil.example" "https://staging-services.rainbet.com/api/v1/bets" | grep -i -E "HTTP/|content-length|access-control|x-do-orig-status|cache-control|x-powered"; echo "BODY=$(cat /tmp/svc.txt)"; sleep 1 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -o /tmp/raf.txt -D - -m 20 "https://staging-raffles.rainbet.com/health" | grep -i -E "HTTP/|content-length|access-control|x-do-orig-status|x-do-app|x-frame|strict-transport"; echo "BODY=$(cat /tmp/raf.txt)" failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

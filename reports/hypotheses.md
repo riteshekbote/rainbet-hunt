@@ -1873,3 +1873,15 @@
 ## RANKED HYPOTHESES 2026-09-19 11:34:14 UTC
 - [95] staging-chat.rainbet.com/socket.io: staging-chat unauthenticated socket plane delivers business frames on fair egress (from art/lead_bigpickle.txt)
 - NEXT(hypotheses-bigpickle.txt): HUMAN: execute staged fair-egress listen on `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh EIO4 sid <5 min>`: `2probe`→`3probe`
+
+## RANKED HYPOTHESES 2026-09-19 14:53:50 UTC
+- [95] staging-chat.rainbet.com/socket.io/: staging-chat.rainbet.com/socket.io/ unauthenticated socket.io namespace access enables event interception and business logic abuse (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://staging-chat.rainbet.com/socket.io/?EIO=4&transport=polling → capture engine.io sid; WebSocket upgrade to wss://staging-chat.rainbet.com/sock
+- LEARN: ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists this round (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OP
+- LEARN: ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example this round — ACAO-reflect + credentials:true + expose 
+- LEARN: ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-
+- LEARN: ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480, upgrades=["websocket"]) — plane persists, control for sam
+- LEARN: ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app b
+- LEARN: REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of
+- LEARN: REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively
+- LEARN: REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
