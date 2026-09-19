@@ -1869,3 +1869,7 @@
 - LEARN: REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of
 - LEARN: REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively
 - LEARN: REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
+
+## RANKED HYPOTHESES 2026-09-19 11:34:14 UTC
+- [95] staging-chat.rainbet.com/socket.io: staging-chat unauthenticated socket plane delivers business frames on fair egress (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: execute staged fair-egress listen on `wss://staging-chat.rainbet.com/socket.io/?EIO=4&transport=websocket&sid=<fresh EIO4 sid <5 min>`: `2probe`→`3probe`
