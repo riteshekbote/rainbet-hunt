@@ -476,3 +476,11 @@
 - 2026-09-18 ACCEPTED AUTH @ staging-chat.rainbet.com: fresh anonymous engine.io sid `NIvqcv4jZ2ZcIT-KAAAI` issued 11:28Z (200/116B, pingTimeout=20000, maxPayload=10240) — plane UP, fair-egress window open.
 - 2026-09-18 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively
 - 2026-09-18 REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
+- 2026-09-19 ACCEPTED MISCONFIG @ api.rainbet.com: plain-block persists this round (API 5485B / static 4547B, no cf-mitigated); OPTIONS /openapi.json 200 + Allow:GET,POST,OPTIONS,HEAD — exemption stable, no new churn window
+- 2026-09-19 ACCEPTED MISCONFIG @ staging-services.rainbet.com: /api/v1/bets 404/33B under Origin:https://evil.example this round — ACAO-reflect + credentials:true + expose Cf-Mitigated, still 404-gated, zero 2xx lift
+- 2026-09-19 ACCEPTED MISCONFIG @ staging-raffles.rainbet.com: REAL origin JSON exposed unprotected — `{"code":200,"db":"Running","remote_address":"-","version":"v0.00.0002-rc1"}`, x-do-orig-status 200, no cf-mitigated, no CF Access; app 1ce4ff55 serves 6 staging hostnames
+- 2026-09-19 ACCEPTED AUTH @ staging-alerts.rainbet.com: engine.io v4 stable 200/116B (fresh sid, maxPayload=20480, upgrades=["websocket"]) — plane persists, control for same-DO-app auth asymmetry
+- 2026-09-19 ACCEPTED MISCONFIG @ staging-monorepo.rainbet.com: /docs fluctuates between CF managed challenge (110KB) and plain-block (5485B) — WAF front churn live on app bc240b8a
+- 2026-09-19 REJECTED MISCONFIG @ staging.rainbet.com: Cloudflare Access Zero Trust is properly configured (default-deny, JWT metadata visible but no bypass); no evidence of path-based policy gaps
+- 2026-09-19 REJECTED MISCONFIG @ rainbet.com: Cloudflare managed challenge covers all paths including static assets; no unchallenged surface discovered passively
+- 2026-09-19 REJECTED dead subdomains (17/20): No DNS resolution or HTTP service — removed from active attack surface until re-checked
