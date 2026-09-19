@@ -1,4 +1,4 @@
-## 2026-09-19 01:37:02 UTC [target] (model nemotron3)
+## 2026-09-19 06:38:46 UTC [target] (model nemotron3)
 [CHANGED] api.rainbet.com plain-block mode (5485B/4547B) + OPTIONS blanket exemption holding across 17+ rounds; no WAF churn window in last 3 probes
 [CHANGED] staging-chat.rainbet.com/socket.io engine.io polling 200/116B with fresh anonymous sids persistently issued — plane UP, fair-egress window open
 [CHANGED] staging-services.rainbet.com CORS reflector path-agnostic on 12+ endpoints, all 404-gated — zero 2xx lift across 13+ rounds
